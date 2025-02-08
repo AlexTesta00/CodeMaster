@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["gradle"],
+      "groupName": "Gradle dependencies"
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "Node.js dependencies"
+    }
+  ],
+  "automerge": false,
+  "gradle": {
+    "enabled": true
+  },
+  "npm": {
+    "enabled": true
+  }
+}
