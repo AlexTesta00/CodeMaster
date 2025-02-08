@@ -1,0 +1,37 @@
+{
+  "name": "codemaster",
+  "version": "1.0.0",
+  "description": "CodeMaster consente di esporre problemi informatici direttamente sulla piattaforma, con la possibilità di comporre la soluzione mediante linguaggi diversi (es. C, C++, Java, Kotlin, Scala, Python). L'idea è creare un ambiente interattivo, educativo e collaborativo per migliorare le competenze di programmazione e problem-solving.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexTesta00/CodeMaster.git"
+  },
+  "author": "Alex Testa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexTesta00/CodeMaster/issues"
+  },
+  "homepage": "https://github.com/AlexTesta00/CodeMaster#readme",
+  "devDependencies": {
+    "semantic-release-preconfigured-conventional-commits": "latest"
+  },
+  "private": true,
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
+  }
+}
