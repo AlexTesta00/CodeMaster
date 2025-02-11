@@ -1,0 +1,25 @@
+{
+  "name": "authentication-service",
+  "version": "1.0.0",
+  "description": "Micro-Service for authenticate user in CodeMaster up",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexTesta00/CodeMaster.git"
+  },
+  "author": "Alex Testa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexTesta00/CodeMaster/issues"
+  },
+  "homepage": "https://github.com/AlexTesta00/CodeMaster#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.0",
+    "globals": "^15.14.0",
+    "typescript-eslint": "^8.24.0"
+  }
+}
