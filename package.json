@@ -33,5 +33,9 @@
       "@semantic-release/github",
       "@semantic-release/git"
     ]
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "mongoose": "^8.10.0"
   }
 }

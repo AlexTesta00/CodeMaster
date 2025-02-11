@@ -17,3 +17,5 @@ gitHooks {
     commitMsg { conventionalCommits() }
     createHooks(true)
 }
+
+include("authentication-service")
