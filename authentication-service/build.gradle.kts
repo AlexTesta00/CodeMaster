@@ -1,14 +1,7 @@
-plugins{
+import com.github.gradle.node.npm.task.NpmTask
+
+plugins {
     id("com.github.node-gradle.node") version "7.1.0"
-    id("io.github.zucchero-sintattico.typescript-gradle-plugin") version "4.5.0"
-}
-
-
-
-typescript{
-    buildCommandExecutable = BuildCommandExecutable.NPM
-    buildCommand = "run build"
-    tsconfigFile = file("tsconfig.json")
 }
 
 node{
@@ -17,23 +10,14 @@ node{
     download.set(true)
 }
 
-
-tasks.register<NpmTask>("npmTest") {
-    args.set(listOf("test"))
+tasks.register<NpmTask>("npmTest"){
+    args.set(listOf("run", "test"))
     dependsOn("npmInstall")
 }
 
-
-tasks.register<NpmTask>("npmStart") {
-    args.set(listOf("start"))
-}
-
-
-tasks.register<NpmTask>("npmBuild") {
+tasks.register<NpmTask>("build"){
     args.set(listOf("run", "build"))
-    dependsOn("compileTypeScript")
     dependsOn("npmTest")
 }
 
-
-defaultTasks("npmBuild")
+defaultTasks("build")
