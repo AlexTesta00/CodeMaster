@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/AlexTesta00/CodeMaster#readme",
   "devDependencies": {
-    "semantic-release-preconfigured-conventional-commits": "latest"
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "semantic-release-preconfigured-conventional-commits": "latest",
+    "ts-jest": "^29.2.5"
   },
   "private": true,
   "release": {

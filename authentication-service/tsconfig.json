@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "./build/js",
-    "module": "commonjs",
     "target": "es6",
-    "sourceMap": true
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src/main/nodejs/codemaster/servicies/authentication/**/*"
-  ]
+  "include": ["src/**/*", "jest.config.js"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
