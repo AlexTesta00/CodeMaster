@@ -5,3 +5,21 @@
  * Learn more about Gradle by exploring our Samples at https://docs.gradle.org/8.12/samples
  * This project uses @Incubating APIs which are subject to change.
  */
+
+allprojects {
+    group = "codemaster"
+}
+
+allprojects{
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+
+}
+
+tasks.register("build"){
+    dependsOn(":authentication-service:npmbuild")
+}
