@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import { UserFactory } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory';
 import { UserId } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-id';
 
@@ -8,14 +7,11 @@ describe('TestUserFactory', () => {
         const email = 'test@example.com';
         const password = 'Test1234!';
 
-        const user = await UserFactory.createUser(userId.value, email, password);
-        const salt = user[1];
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const user = UserFactory.createUser(userId.value, email, password);
 
-        expect(user[0].id.value).toBe(userId.value);
-        expect(user[0].email).toBe(email);
-        expect(salt).toBeDefined();
-        expect(user[0].password).toBe(hashedPassword);
+        expect(user.id.value).toBe(userId.value);
+        expect(user.email).toBe(email);
+        expect(user.password).toBe(password);
     }, 10000);
 
     it('should throw error when create user with invalid email', async () => {
