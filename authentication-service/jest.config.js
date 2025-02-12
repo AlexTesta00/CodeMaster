@@ -5,3 +5,4 @@ export const transform = {
     tsconfig: 'tsconfig.json'
   }],
 };
+export const testPathIgnorePatterns = ['<rootDir>/dist/'];
