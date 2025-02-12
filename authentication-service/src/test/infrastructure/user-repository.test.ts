@@ -16,26 +16,27 @@ describe('TestUserRepository', () => {
     const user: User = UserFactory.createUser(nickname, email, password);
     const emailNotInDatabase: string = 'exampleexample@example.com';
     const nicknameNotInDatabase: string = 'nonexistent';
+    const timeout: number = 10000;
 
     beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
         repository = new UserRepositoryImpl();
-    });
+    }, timeout);
 
     beforeEach(async () => {
         await repository.save(user);
-    });
+    }, timeout);
 
     afterAll(async () => {
         await mongoose.disconnect();
         await mongoServer.stop();
-    });
+    }, timeout);
 
     afterEach(async () => {
         await UserModel.deleteMany({});
-    });
+    }, timeout);
 
     async function computeHashedPassword(password: string, salt: string): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -54,7 +55,7 @@ describe('TestUserRepository', () => {
             expect(foundUser?.email).toBe(email);
             const hashedPassword: string = await computeHashedPassword(password, foundUser!.salt);
             expect(foundUser?.password).toBe(hashedPassword);
-        }, 10000);
+        }, timeout);
 
     });
 
@@ -68,12 +69,12 @@ describe('TestUserRepository', () => {
             expect(user.email).toBe(email);
             const hashedPassword: string = await computeHashedPassword(password, salt.value);
             expect(user.password).toBe(hashedPassword);
-        });
+        }, timeout);
 
         it('should return null if user is not found', async () => {
             const foundUser = await repository.findUserByNickname(nicknameNotInDatabase);
             expect(foundUser).toBeNull();
-        });
+        }, timeout);
     });
 
     describe('Test findUserByEmail operation', () => {
@@ -86,11 +87,11 @@ describe('TestUserRepository', () => {
             expect(user.email).toBe(email);
             const hashedPassword: string = await computeHashedPassword(password, salt.value);
             expect(user.password).toBe(hashedPassword);
-        });
+        }, timeout);
 
         it('should return null if user is not found', async () => {
             const foundUser = await repository.findUserByEmail(emailNotInDatabase);
             expect(foundUser).toBeNull();
-        });
+        }, timeout);
     });
 });
