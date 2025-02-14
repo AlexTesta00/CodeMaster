@@ -4,6 +4,7 @@ import { UserRepository } from '../../main/nodejs/codemaster/servicies/authentic
 import { UserRepositoryImpl } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-repository-impl';
 import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-model';
 import { UserFactory } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory';
+import { UserFactoryImpl } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory-impl';
 import { User } from '../../main/nodejs/codemaster/servicies/authentication/domain/user';
 
 describe('TestUserRepository', () => {
@@ -12,7 +13,8 @@ describe('TestUserRepository', () => {
     const nickname: string = 'example';
     const email: string = 'example@example.com';
     const password: string = 'Test1234!';
-    const user: User = UserFactory.createUser(nickname, email, password);
+    const userFactory: UserFactory = new UserFactoryImpl();
+    const user: User = userFactory.createUser(nickname, email, password);
     const emailNotInDatabase: string = 'exampleexample@example.com';
     const nicknameNotInDatabase: string = 'nonexistent';
     const timeout: number = 10000;
