@@ -65,5 +65,17 @@ export class UserRepositoryImpl implements UserRepository {
         if(!userDocument) throw new Error('User not found');
     }
 
+    async verifyUserCredentialsByNickname(nickname: string, password: string): Promise<boolean> {
+        const userDocument = await UserModel.findOne({ nickname }).exec();
+        if(!userDocument) throw new Error('User not found');
+        return bcrypt.compare(password, userDocument.password);
+    }
+
+    async verifyUserCredentialsByEmail(email: string, password: string): Promise<boolean> {
+        const userDocument = await UserModel.findOne({ email }).exec();
+        if(!userDocument) throw new Error('User not found');
+        return bcrypt.compare(password, userDocument.password);
+    }
+
     
 }

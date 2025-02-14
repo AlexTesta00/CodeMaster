@@ -8,4 +8,6 @@ export interface UserRepository {
     updateUserEmail(nickname: string, newEmail: string): Promise<void>;
     updateUserPassword(nickname: string, newPassword: string): Promise<void>;
     deleteUser(nickname: string): Promise<void>;
+    verifyUserCredentialsByNickname(nickname: string, password: string): Promise<boolean>;
+    verifyUserCredentialsByEmail(email: string, password: string): Promise<boolean>;
 }
