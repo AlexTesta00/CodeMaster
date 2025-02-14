@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { UserRepository } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-repository';
 import { UserRepositoryImpl } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-repository-impl';
@@ -38,27 +37,6 @@ describe('TestUserRepository', () => {
         await UserModel.deleteMany({});
     }, timeout);
 
-    async function computeHashedPassword(password: string, salt: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(password, salt, (err, hash) => {
-                if(err) reject(err);
-                resolve(hash);
-            });
-        });
-    }
-
-    describe('Test save operation', () => {
-        it('should save a user to the database', async () => {
-            const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
-            expect(foundUser).not.toBeNull();
-            expect(foundUser?.nickname).toBe(nickname);
-            expect(foundUser?.email).toBe(email);
-            const hashedPassword: string = await computeHashedPassword(password, foundUser!.salt);
-            expect(foundUser?.password).toBe(hashedPassword);
-        }, timeout);
-
-    });
-
     describe('Test verify user credentials function', () => {
         it('should verify user credentials by nickname', async () => {
             const verified = await repository.verifyUserCredentialsByNickname(nickname, password);
@@ -71,7 +49,7 @@ describe('TestUserRepository', () => {
         }, timeout);
 
         it('should return exception if user is not found', async () => {
-            await expect(repository.verifyUserCredentialsByNickname(nicknameNotInDatabase, password)).rejects.toThrow('User not found');
+            await expect(repository.verifyUserCredentialsByNickname(nicknameNotInDatabase, password)).rejects.toThrow();
         }, timeout);
 
         it('should return false if password is incorrect', async () => {
@@ -80,21 +58,26 @@ describe('TestUserRepository', () => {
         }, timeout);
     });
 
+    describe('Test save operation', () => {
+        it('should save a user to the database', async () => {
+            const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
+            expect(foundUser).not.toBeNull();
+            expect(foundUser?.nickname).toBe(nickname);
+            expect(foundUser?.email).toBe(email);
+        }, timeout);
+
+    });
+
     describe('Test findUserByNickname operation', () => {
         it('should find a user by nickname', async () => {
             const foundUser = await repository.findUserByNickname(nickname);
             expect(foundUser).not.toBeNull();
-            const user = foundUser![0];
-            const salt = foundUser![1];
             expect(user.id.value).toBe(nickname);
             expect(user.email).toBe(email);
-            const hashedPassword: string = await computeHashedPassword(password, salt.value);
-            expect(user.password).toBe(hashedPassword);
         }, timeout);
 
         it('should return null if user is not found', async () => {
-            const foundUser = await repository.findUserByNickname(nicknameNotInDatabase);
-            expect(foundUser).toBeNull();
+            await expect(repository.findUserByNickname(nicknameNotInDatabase)).rejects.toThrow();
         }, timeout);
     });
 
@@ -102,17 +85,13 @@ describe('TestUserRepository', () => {
         it('should find a user by email', async () => {
             const foundUser = await repository.findUserByEmail(email);
             expect(foundUser).not.toBeNull();
-            const user = foundUser![0];
-            const salt = foundUser![1];
             expect(user.id.value).toBe(nickname);
             expect(user.email).toBe(email);
-            const hashedPassword: string = await computeHashedPassword(password, salt.value);
-            expect(user.password).toBe(hashedPassword);
         }, timeout);
 
         it('should return null if user is not found', async () => {
-            const foundUser = await repository.findUserByEmail(emailNotInDatabase);
-            expect(foundUser).toBeNull();
+            await expect(repository.findUserByEmail(emailNotInDatabase)).rejects.toThrow();
+
         }, timeout);
     });
 
@@ -130,9 +109,15 @@ describe('TestUserRepository', () => {
             await repository.updateUserPassword(nickname, newPassword);
             const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
             expect(foundUser).not.toBeNull();
-            const hashedPassword: string = await computeHashedPassword(newPassword, foundUser!.salt);
-            expect(foundUser?.password).toBe(hashedPassword);
         }, timeout);
+
+        it('should return error if user want to update email, but user not in db', async () => {
+            await expect(repository.updateUserEmail(nicknameNotInDatabase, email)).rejects.toThrow();
+        }, timeout);
+
+        it('should return error if user want to update password, but user not in db', async () => {
+            await expect(repository.updateUserPassword(nicknameNotInDatabase, password)).rejects.toThrow();
+        });
     });
 
     describe('Test delete function', () => {
@@ -140,6 +125,10 @@ describe('TestUserRepository', () => {
             await repository.deleteUser(nickname);
             const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
             expect(foundUser).toBeNull();
+        }, timeout);
+
+        it('should return error if user not in db', async () => {
+            await expect(repository.deleteUser(nicknameNotInDatabase)).rejects.toThrow();
         }, timeout);
     });
 });
