@@ -59,6 +59,27 @@ describe('TestUserRepository', () => {
 
     });
 
+    describe('Test verify user credentials function', () => {
+        it('should verify user credentials by nickname', async () => {
+            const verified = await repository.verifyUserCredentialsByNickname(nickname, password);
+            expect(verified).toBe(true);
+        }, timeout);
+
+        it('should verify user credentials by email', async () => {
+            const verified = await repository.verifyUserCredentialsByEmail(email, password);
+            expect(verified).toBe(true);
+        }, timeout);
+
+        it('should return exception if user is not found', async () => {
+            await expect(repository.verifyUserCredentialsByNickname(nicknameNotInDatabase, password)).rejects.toThrow('User not found');
+        }, timeout);
+
+        it('should return false if password is incorrect', async () => {
+            const verified = await repository.verifyUserCredentialsByNickname(nickname, 'incorrectPassword');
+            expect(verified).toBe(false);
+        }, timeout);
+    });
+
     describe('Test findUserByNickname operation', () => {
         it('should find a user by nickname', async () => {
             const foundUser = await repository.findUserByNickname(nickname);
@@ -121,5 +142,4 @@ describe('TestUserRepository', () => {
             expect(foundUser).toBeNull();
         }, timeout);
     });
-    
 });
