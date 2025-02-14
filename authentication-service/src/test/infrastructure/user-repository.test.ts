@@ -94,4 +94,32 @@ describe('TestUserRepository', () => {
             expect(foundUser).toBeNull();
         }, timeout);
     });
+
+    describe('Test update function', () => {
+        it('should update user email', async () => {
+            const newEmail: string = 'example.example@example.com';
+            await repository.updateUserEmail(nickname, newEmail);
+            const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
+            expect(foundUser).not.toBeNull();
+            expect(foundUser?.email).toBe(newEmail);
+        }, timeout);
+
+        it('should update user password', async () => {
+            const newPassword: string = 'Test12345!';
+            await repository.updateUserPassword(nickname, newPassword);
+            const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
+            expect(foundUser).not.toBeNull();
+            const hashedPassword: string = await computeHashedPassword(newPassword, foundUser!.salt);
+            expect(foundUser?.password).toBe(hashedPassword);
+        }, timeout);
+    });
+
+    describe('Test delete function', () => {
+        it('should delete a user', async () => {
+            await repository.deleteUser(nickname);
+            const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
+            expect(foundUser).toBeNull();
+        }, timeout);
+    });
+    
 });
