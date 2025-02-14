@@ -9,6 +9,10 @@ export class CodeQuestFactory{
         if(!problem || problem==""){
             throw new Error('Invalid problem: problem\'s body cannot be empty');
         }
+
+        if(!title || title==""){
+            throw new Error('Invalid title: title\'s body cannot be empty');
+        }
         
         return new CodeQuest(id, title, author, problem, new Date(Date.now()));
     }
