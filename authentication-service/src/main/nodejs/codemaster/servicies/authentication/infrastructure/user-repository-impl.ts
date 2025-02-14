@@ -3,77 +3,62 @@ import { User } from "../domain/user";
 import { UserRepository } from "./user-repository";
 import { UserModel } from "../domain/user-model";
 import { UserId } from "../domain/user-id";
-import { Salt } from "../domain/user-salt";
 
 export class UserRepositoryImpl implements UserRepository {
     async save(user: User): Promise<void> {
-        try{
-
-            const [hashedPassword, salt] = await this.#hashPassword(user.password);
-
-            const userDocument = new UserModel({
-                nickname: user.id.value,
-                email: user.email,
-                password: hashedPassword,
-                salt: salt.value
-            });
-
-            await userDocument.save();
-        } catch(err) {
-            throw new Error('Error saving user to database: ' + err);
-        }   
+        const [hashedPassword, salt] = await this.#hashPassword(user.password);
+        const userDocument = new UserModel({
+            nickname: user.id.value,
+            email: user.email,
+            password: hashedPassword,
+            salt: salt
+        });
+        await userDocument.save().catch((error) => { throw error; });
     }
 
-    async findUserByNickname(nickname: string): Promise<[User, Salt] | null> {
-        const userDocument = await UserModel.findOne({ nickname }).exec();
-        if(!userDocument) return null;
-        return [new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password), new Salt(userDocument.salt)];
+    async findUserByNickname(nickname: string): Promise<User> {
+        const userDocument = await UserModel.findOne({ nickname }).orFail();
+        return new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password);
     }
 
-    async findUserByEmail(email: string): Promise<[User, Salt] | null> {
-        const userDocument = await UserModel.findOne({ email }).exec();
-        if(!userDocument) return null;
-        return [new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password), new Salt(userDocument.salt)];
+    async findUserByEmail(email: string): Promise<User> {
+        const userDocument = await UserModel.findOne({ email }).orFail();
+        return new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password);
     }
 
     
     async updateUserEmail(nickname: string, newEmail: string): Promise<void> {
-        const userDocument = await UserModel.findOne({ nickname }).exec();
-        if(!userDocument) throw new Error('User not found');
+        const userDocument = await UserModel.findOne({ nickname }).orFail();
         userDocument.email = newEmail;
         await userDocument.save();
     }
 
-    async #hashPassword(password: string): Promise<[string, Salt]> {
+    async #hashPassword(password: string): Promise<[string, string]> {
         const saltRounds: number = 16;
         const salt: string = await bcrypt.genSalt(saltRounds);
         const hashedPassword: string = await bcrypt.hash(password, salt);
-        return [hashedPassword, new Salt(salt)];
+        return [hashedPassword, salt];
     }
 
     async updateUserPassword(nickname: string, newPassword: string): Promise<void> {
-        const userDocument = await UserModel.findOne({ nickname }).exec();
-        if(!userDocument) throw new Error('User not found');
+        const userDocument = await UserModel.findOne({ nickname }).orFail();
         const [hashedPassword, salt] = await this.#hashPassword(newPassword);
         userDocument.password = hashedPassword;
-        userDocument.salt = salt.value;
-        await userDocument.save();
+        userDocument.salt = salt;
+        await userDocument.save().catch((error) => { throw error; });
     }
 
     async deleteUser(nickname: string): Promise<void> {
-        const userDocument = await UserModel.findOneAndDelete({ nickname }).exec();
-        if(!userDocument) throw new Error('User not found');
+        await UserModel.findOneAndDelete({ nickname }).orFail();
     }
 
     async verifyUserCredentialsByNickname(nickname: string, password: string): Promise<boolean> {
-        const userDocument = await UserModel.findOne({ nickname }).exec();
-        if(!userDocument) throw new Error('User not found');
+        const userDocument = await UserModel.findOne({ nickname }).orFail();
         return bcrypt.compare(password, userDocument.password);
     }
 
     async verifyUserCredentialsByEmail(email: string, password: string): Promise<boolean> {
-        const userDocument = await UserModel.findOne({ email }).exec();
-        if(!userDocument) throw new Error('User not found');
+        const userDocument = await UserModel.findOne({ email }).orFail();
         return bcrypt.compare(password, userDocument.password);
     }
 
