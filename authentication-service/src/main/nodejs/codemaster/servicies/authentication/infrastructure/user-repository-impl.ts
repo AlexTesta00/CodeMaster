@@ -6,19 +6,16 @@ import { UserId } from "../domain/user-id";
 import { Salt } from "../domain/user-salt";
 
 export class UserRepositoryImpl implements UserRepository {
-
     async save(user: User): Promise<void> {
         try{
 
-            const saltRounds: number = 16;
-            const salt: string = await bcrypt.genSalt(saltRounds);
-            const hashedPassword: string = await bcrypt.hash(user.password, salt);
+            const [hashedPassword, salt] = await this.#hashPassword(user.password);
 
             const userDocument = new UserModel({
                 nickname: user.id.value,
                 email: user.email,
                 password: hashedPassword,
-                salt: salt
+                salt: salt.value
             });
 
             await userDocument.save();
@@ -38,5 +35,35 @@ export class UserRepositoryImpl implements UserRepository {
         if(!userDocument) return null;
         return [new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password), new Salt(userDocument.salt)];
     }
+
+    
+    async updateUserEmail(nickname: string, newEmail: string): Promise<void> {
+        const userDocument = await UserModel.findOne({ nickname }).exec();
+        if(!userDocument) throw new Error('User not found');
+        userDocument.email = newEmail;
+        await userDocument.save();
+    }
+
+    async #hashPassword(password: string): Promise<[string, Salt]> {
+        const saltRounds: number = 16;
+        const salt: string = await bcrypt.genSalt(saltRounds);
+        const hashedPassword: string = await bcrypt.hash(password, salt);
+        return [hashedPassword, new Salt(salt)];
+    }
+
+    async updateUserPassword(nickname: string, newPassword: string): Promise<void> {
+        const userDocument = await UserModel.findOne({ nickname }).exec();
+        if(!userDocument) throw new Error('User not found');
+        const [hashedPassword, salt] = await this.#hashPassword(newPassword);
+        userDocument.password = hashedPassword;
+        userDocument.salt = salt.value;
+        await userDocument.save();
+    }
+
+    async deleteUser(nickname: string): Promise<void> {
+        const userDocument = await UserModel.findOneAndDelete({ nickname }).exec();
+        if(!userDocument) throw new Error('User not found');
+    }
+
     
 }
