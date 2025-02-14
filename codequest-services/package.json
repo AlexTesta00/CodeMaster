@@ -1,0 +1,20 @@
+{
+  "name": "codequest-services",
+  "version": "1.0.0",
+  "description": "Microservice supporting and managing codequests",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Riccardo Rambaldi",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/jest": "^29.5.14",
+    "eslint": "^9.20.1",
+    "eslint-plugin-vue": "^9.32.0",
+    "globals": "^15.15.0",
+    "jest": "^29.7.0",
+    "typescript-eslint": "^8.24.0"
+  }
+}
