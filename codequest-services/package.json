@@ -19,6 +19,7 @@
     "typescript-eslint": "^8.24.0"
   },
   "dependencies": {
+    "mongodb-memory-server": "^10.1.3",
     "mongoose": "^8.10.1"
   }
 }
