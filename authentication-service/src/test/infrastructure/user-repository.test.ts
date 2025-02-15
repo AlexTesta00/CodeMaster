@@ -68,6 +68,10 @@ describe('TestUserRepository', () => {
             expect(foundUser?.email).toBe(email);
         }, timeout);
 
+        it('should return error if user already exists', async () => {
+            await expect(repository.save(user)).rejects.toThrow();
+        });
+
     });
 
     describe('Test findUserByNickname operation', () => {
