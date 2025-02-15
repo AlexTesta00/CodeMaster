@@ -1,7 +1,4 @@
-import { error } from "console";
-import { CodeQuest } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest";
 import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest-factory";
-
 
 describe('TestCodeQuestFactory', () => {
 
@@ -18,11 +15,11 @@ describe('TestCodeQuestFactory', () => {
     }, 10000);
 
     it('should throw error when create codequest if problem is empty', async () => {
-        expect(() => {CodeQuestFactory.createCodeQuest(id, title, author, "")}).toThrow(new Error('Invalid nickname: this user doesn\'t exist'));
+        expect(() => {CodeQuestFactory.createCodeQuest(id, title, author, "")}).toThrow(new Error('Invalid problem: problem\'s body cannot be empty'));
     }, 10000);
 
     it('should throw error when create codequest if author\'s nickname is empty', async () => {
-        expect(() => {CodeQuestFactory.createCodeQuest(id, title, "", problem)}).toThrow(new Error('Invalid problem: problem\'s body cannot be empty'));
+        expect(() => {CodeQuestFactory.createCodeQuest(id, title, "", problem)}).toThrow(new Error('Invalid nickname: this user doesn\'t exist'));
     }, 10000);
 
     it('should throw error when create codequest if title is empty', async () => {
