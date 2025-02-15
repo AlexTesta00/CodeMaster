@@ -8,4 +8,4 @@ const codequestSchema = new Schema({
     "title": {type: 'string', required: true}
 });
 
-export const CodequestModel = mongoose.model('Codequest', codequestSchema);
+export const CodeQuestModel = mongoose.model('Codequest', codequestSchema);
