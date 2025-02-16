@@ -1,7 +1,7 @@
 import { CodeQuest } from "./codequest"; 
 
 export class CodeQuestFactory{
-    static createCodeQuest(id: String, title: String, author: String, problem: String): CodeQuest {
+    static createCodeQuest(id: String, title: String, author: String, problem: String, timestamp: Date): CodeQuest {
         if(!author){
             throw new Error('Invalid nickname: this user doesn\'t exist');
         }
