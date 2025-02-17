@@ -6,7 +6,7 @@ import { CodeQuestRepository } from "./codequest-repository";
 export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     async save(codequest: CodeQuest): Promise<void> {
         const codequestDoc = new CodeQuestModel({
-            id: codequest.id,
+            questId: codequest.id,
             author: codequest.author,
             problem: codequest.problem,
             title: codequest.title,
@@ -15,25 +15,22 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     
         await codequestDoc.save();
     }
-    async findCodeQuestById(id: String): Promise<CodeQuest> {
-        const codequestDoc = await CodeQuestModel.findById({ id: id }).orFail();
-        return CodeQuestFactory.createCodeQuest(codequestDoc.id, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp);
+    async findCodeQuestById(questId: String): Promise<CodeQuest> {
+        const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail();
+        return CodeQuestFactory.createCodeQuest(codequestDoc.questId, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp);
     }
     async findCodeQuestsByAuthor(author: String): Promise<CodeQuest[]> {
-        const codequestDocs = await CodeQuestModel.find({ author: author }).orFail();
-        return codequestDocs.map(codequest => CodeQuestFactory.createCodeQuest(codequest?.id, codequest!.title, codequest!.author, codequest!.problem, codequest!.timestamp));
+        const codequestDocs = await CodeQuestModel.find({ author }).orFail();
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp));
     }
-    async update(codequest: CodeQuest): Promise<void> {
-        const codequestDoc = await CodeQuestModel.findByIdAndUpdate({ id: codequest.id }, new CodeQuestModel({
-            author: codequest.author,
-            problem: codequest.problem,
-            title: codequest.title,
-            timestamp: codequest.timestamp
-        })).orFail();
-        await codequestDoc.save();
+    async updateProblem(questId: String, newProblem: String): Promise<void> {
+        await CodeQuestModel.findOneAndUpdate({ questId }, { problem: newProblem }).orFail();
     }
-    async delete(id: String): Promise<void> {
-        await CodeQuestModel.deleteOne({ id: id }).orFail();
+    async updateTitle(questId: String, newTitle: String): Promise<void> {
+        await CodeQuestModel.findOneAndUpdate({ questId }, { title: newTitle }).orFail();
+    }
+    async delete(questId: String): Promise<void> {
+        await CodeQuestModel.deleteOne({ questId }).orFail();
     }
 
 }

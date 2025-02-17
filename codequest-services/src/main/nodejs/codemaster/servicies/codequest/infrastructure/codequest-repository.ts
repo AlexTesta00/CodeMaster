@@ -2,8 +2,9 @@ import { CodeQuest } from "../domain/codequest";
 
 export interface CodeQuestRepository {
     save(codequest: CodeQuest): Promise<void>;
-    findCodeQuestById(id: String): Promise<CodeQuest>;
+    findCodeQuestById(questId: String): Promise<CodeQuest>;
     findCodeQuestsByAuthor(author: String): Promise<CodeQuest[]>;
-    update(codequest: CodeQuest): Promise<void>;
-    delete(id: String): Promise<void>;
+    updateProblem(questId: String, newProblem: String): Promise<void>;
+    updateTitle(questId: String, newTitle: String): Promise<void>;
+    delete(questId: String): Promise<void>;
 }
