@@ -15,6 +15,10 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     
         await codequestDoc.save();
     }
+    async getAllCodeQuests(): Promise<CodeQuest[]> {
+        const codequestDocs = await CodeQuestModel.find({}).orFail();
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp));
+    }
     async findCodeQuestById(questId: String): Promise<CodeQuest> {
         const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail();
         return CodeQuestFactory.createCodeQuest(codequestDoc.questId, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp);

@@ -53,6 +53,11 @@ describe('TestCodeQuestRepository', () => {
             expect(codequests[0]).toStrictEqual(firstCodequest);
             expect(codequests[1]).toStrictEqual(secondCodequest);
         }, 10000);
+
+        it('should return all codequests created', async () => {
+            const codequests = await repository.getAllCodeQuests();
+            expect(codequests.length).toBe(2);
+        }, 10000)
     });
 
     describe('Test codequest update', () => {
