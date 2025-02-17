@@ -39,27 +39,6 @@ describe('TestUserRepository', () => {
         await UserModel.deleteMany({});
     }, timeout);
 
-    describe('Test verify user credentials function', () => {
-        it('should verify user credentials by nickname', async () => {
-            const verified = await repository.verifyUserCredentialsByNickname(nickname, password);
-            expect(verified).toBe(true);
-        }, timeout);
-
-        it('should verify user credentials by email', async () => {
-            const verified = await repository.verifyUserCredentialsByEmail(email, password);
-            expect(verified).toBe(true);
-        }, timeout);
-
-        it('should return exception if user is not found', async () => {
-            await expect(repository.verifyUserCredentialsByNickname(nicknameNotInDatabase, password)).rejects.toThrow();
-        }, timeout);
-
-        it('should return false if password is incorrect', async () => {
-            const verified = await repository.verifyUserCredentialsByNickname(nickname, 'incorrectPassword');
-            expect(verified).toBe(false);
-        }, timeout);
-    });
-
     describe('Test save operation', () => {
         it('should save a user to the database', async () => {
             const foundUser = await UserModel.findOne({ nickname: nickname }).exec();

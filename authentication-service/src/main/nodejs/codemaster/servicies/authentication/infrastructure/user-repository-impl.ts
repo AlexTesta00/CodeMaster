@@ -28,6 +28,7 @@ export class UserRepositoryImpl implements UserRepository {
 
     
     async updateUserEmail(nickname: string, newEmail: string): Promise<void> {
+        //TODO: refactor this as updateRefreshToken
         const userDocument = await UserModel.findOne({ nickname }).orFail();
         userDocument.email = newEmail;
         await userDocument.save();
@@ -41,6 +42,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
 
     async updateUserPassword(nickname: string, newPassword: string): Promise<void> {
+        //TODO: refactor this as updateRefreshToken
         const userDocument = await UserModel.findOne({ nickname }).orFail();
         const [hashedPassword, salt] = await this.#hashPassword(newPassword);
         userDocument.password = hashedPassword;
@@ -48,19 +50,18 @@ export class UserRepositoryImpl implements UserRepository {
         await userDocument.save().catch((error) => { throw error; });
     }
 
+    async updateUserRefreshToken(nickname: string, refreshToken: string): Promise<void> {
+        //TODO: implement test for this method
+        await UserModel.findOneAndUpdate({ nickname }, { refreshToken }).orFail();
+    }
+
     async deleteUser(nickname: string): Promise<void> {
         await UserModel.findOneAndDelete({ nickname }).orFail();
     }
 
-    async verifyUserCredentialsByNickname(nickname: string, password: string): Promise<boolean> {
-        const userDocument = await UserModel.findOne({ nickname }).orFail();
-        return bcrypt.compare(password, userDocument.password);
+    //TODO: Add test for this method
+    async getUserRefreshToken(nickname: string): Promise<string> {
+        return (await (UserModel.findOne({ nickname }).orFail())).refreshToken;
     }
-
-    async verifyUserCredentialsByEmail(email: string, password: string): Promise<boolean> {
-        const userDocument = await UserModel.findOne({ email }).orFail();
-        return bcrypt.compare(password, userDocument.password);
-    }
-
     
 }
