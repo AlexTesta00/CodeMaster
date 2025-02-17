@@ -19,6 +19,7 @@
     "@babel/preset-typescript": "^7.26.0",
     "@eslint/js": "^9.20.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/dotenv": "^6.1.1",
     "@types/jest": "^29.5.14",
     "@types/mongodb-memory-server": "^1.8.0",
     "eslint": "^9.20.0",
@@ -30,7 +31,10 @@
     "typescript-eslint": "^8.24.0"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.8",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0"
   }
 }
