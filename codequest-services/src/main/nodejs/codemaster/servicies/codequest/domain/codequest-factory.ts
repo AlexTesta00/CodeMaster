@@ -14,6 +14,6 @@ export class CodeQuestFactory{
             throw new Error('Invalid title: title\'s body cannot be empty');
         }
         
-        return new CodeQuest(id, title, author, problem, new Date(Date.now()));
+        return new CodeQuest(id, title, author, problem, timestamp);
     }
 }
