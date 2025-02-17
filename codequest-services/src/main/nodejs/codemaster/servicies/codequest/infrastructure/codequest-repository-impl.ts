@@ -30,7 +30,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
         await CodeQuestModel.findOneAndUpdate({ questId }, { title: newTitle }).orFail();
     }
     async delete(questId: String): Promise<void> {
-        await CodeQuestModel.deleteOne({ questId }).orFail();
+        await CodeQuestModel.findOneAndDelete({ questId }).orFail();
     }
 
 }
