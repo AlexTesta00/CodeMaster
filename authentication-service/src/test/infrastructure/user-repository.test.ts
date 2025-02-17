@@ -17,6 +17,8 @@ describe('TestUserRepository', () => {
     const user: User = userFactory.createUser(nickname, email, password);
     const emailNotInDatabase: string = 'exampleexample@example.com';
     const nicknameNotInDatabase: string = 'nonexistent';
+    const defaultRefreshToken: string = '';
+    const randomRefreshTokenValue: string = "foo";
     const timeout: number = 10000;
 
     beforeAll(async () => {
@@ -45,6 +47,7 @@ describe('TestUserRepository', () => {
             expect(foundUser).not.toBeNull();
             expect(foundUser?.nickname).toBe(nickname);
             expect(foundUser?.email).toBe(email);
+            expect(foundUser?.refreshToken).toBe(defaultRefreshToken);
         }, timeout);
 
         it('should return error if user already exists', async () => {
@@ -115,5 +118,26 @@ describe('TestUserRepository', () => {
         it('should return error if user not in db', async () => {
             await expect(repository.deleteUser(nicknameNotInDatabase)).rejects.toThrow();
         }, timeout);
+    });
+
+    describe('Test token management', () => {
+        it('should return an empty token if the user has been saved', async () => {
+            const foundedToken: string = await repository.getUserRefreshToken(nickname);
+            expect(foundedToken).toBe(defaultRefreshToken);
+        }, timeout);
+
+        it('should return an updated refresh token value', async () => {
+            await repository.updateUserRefreshToken(nickname, randomRefreshTokenValue);
+            const foundedToken: string = await repository.getUserRefreshToken(nickname);
+            expect(foundedToken).toBe(randomRefreshTokenValue);
+        }, timeout);
+
+        it('should fail get token if user not exist', async () => {
+            await expect(repository.getUserRefreshToken(nicknameNotInDatabase)).rejects.toThrow();
+        });
+
+        it('should fail update token if user not exist', async () => {
+            await expect(repository.updateUserRefreshToken(nicknameNotInDatabase, randomRefreshTokenValue)).rejects.toThrow();
+        });
     });
 });
