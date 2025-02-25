@@ -1,0 +1,13 @@
+import mongoose from "mongoose";
+
+export const connectToDatabase = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI!); //TODO: Tech Debit
+        console.log(`Successfully connected to ${process.env.MONGO_URI!}`);
+    }catch (error) {
+        console.log(`Connection to DB failed ${error}`);
+        throw new ConnectionError();
+    }
+}
+
+export const ConnectionError = class extends Error{};
