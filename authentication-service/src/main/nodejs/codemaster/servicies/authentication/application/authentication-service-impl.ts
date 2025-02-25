@@ -19,7 +19,7 @@ export class AuthenticationServiceImpl implements AuthenticationService {
         }
         const hashedPassword: string = await BcryptService.generateHashForPassword(password);
         const newUser = UserFactory.createUser(nickname, email, hashedPassword);
-        await this.userRepository.save(newUser);
+        await this.userRepository.save(newUser).catch(() => {throw new AuthenticationServiceError.UserAlreadyExist("User already exist")});
         return newUser;
     }
 
@@ -27,7 +27,7 @@ export class AuthenticationServiceImpl implements AuthenticationService {
         const user: User = await this.#verifyUser(id);
 
         if(!await BcryptService.isSamePassword(user.password, password)){
-            throw new AuthenticationServiceError.InvalidCredential();
+            throw new AuthenticationServiceError.InvalidCredential("Invalid Credentials");
         }
 
         const accesToken = this.jwtService.generateAccessToken(user.id.value, user.email);
@@ -48,14 +48,14 @@ export class AuthenticationServiceImpl implements AuthenticationService {
         const refreshToken = await this.userRepository.getUserRefreshToken(user.id.value);
 
         if(!refreshToken){
-            throw new AuthenticationServiceError.InvalidRefreshToken();
+            throw new AuthenticationServiceError.InvalidRefreshToken("Invalid RefreshToken");
         }
 
         try{
             this.jwtService.verifyRefreshToken(refreshToken);
         }catch(error){
             void error
-            throw new AuthenticationServiceError.InvalidRefreshToken();
+            throw new AuthenticationServiceError.InvalidRefreshToken("Invalid RefreshToken");
         }
 
         return this.jwtService.generateAccessToken(user.id.value, user.email);
@@ -67,7 +67,7 @@ export class AuthenticationServiceImpl implements AuthenticationService {
             try {
                 return await this.userRepository.findUserByNickname(id);
             }catch (error) {
-                throw new AuthenticationServiceError.InvalidCredential();
+                throw new AuthenticationServiceError.InvalidCredential("User not found");
             }
         }
 
@@ -75,10 +75,10 @@ export class AuthenticationServiceImpl implements AuthenticationService {
             try{
                 return await this.userRepository.findUserByEmail(id);
             }catch (error) {
-                throw new AuthenticationServiceError.InvalidCredential();
+                throw new AuthenticationServiceError.InvalidCredential("User not found");
             }
         }
 
-        throw new AuthenticationServiceError.InvalidCredential();
+        throw new AuthenticationServiceError.InvalidCredential("User not found");
     }
 }
