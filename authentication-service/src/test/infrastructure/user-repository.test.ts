@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { UserRepository } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-repository';
 import { UserRepositoryImpl } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-repository-impl';
-import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-model';
+import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model';
 import { UserFactory } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory';
 import { User } from '../../main/nodejs/codemaster/servicies/authentication/domain/user';
 
