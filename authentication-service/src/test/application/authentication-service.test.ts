@@ -78,7 +78,7 @@ describe("Test authentication service", () => {
 
         it('should fail if user insert incorrect password format', async () => {
             const incorrectPassword: string = "example";
-            await expect(authenticationService.registerUser(nickname, email, incorrectPassword)).rejects.toThrow(UserFactoryError.InvalidPassword);
+            await expect(authenticationService.registerUser(nickname, email, incorrectPassword)).rejects.toThrow(AuthenticationServiceError.InvalidPasswordFormat);
         }, timeout);
     });
 

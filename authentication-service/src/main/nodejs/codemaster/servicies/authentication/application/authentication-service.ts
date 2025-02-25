@@ -9,6 +9,7 @@ export interface AuthenticationService {
 
 export class AuthenticationServiceError{
     static UserAlreadyExist = class extends Error{};
+    static InvalidPasswordFormat = class extends Error{}
     static InvalidCredential = class extends Error{};
     static InvalidRefreshToken = class extends Error{};
     static InvalidAccessToken = class extends Error{};

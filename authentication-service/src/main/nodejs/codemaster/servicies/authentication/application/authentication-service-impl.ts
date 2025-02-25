@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import { User } from "../domain/user";
 import { UserFactory } from "../domain/user-factory";
 import { UserRepository } from "../infrastructure/user-repository";
@@ -7,6 +6,7 @@ import { AuthenticationService, AuthenticationServiceError } from "./authenticat
 import { JWTService } from "./jwt-service";
 import { JWTServiceImpl } from "./jwt-service-impl";
 import {Validator} from "../domain/validator";
+import {BcryptService} from "./bcrypt-service";
 
 export class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -14,7 +14,11 @@ export class AuthenticationServiceImpl implements AuthenticationService {
     private jwtService: JWTService = new JWTServiceImpl();
     
     async registerUser(nickname: string, email: string, password: string): Promise<User> {
-        const newUser = UserFactory.createUser(nickname, email, password);
+        if(!Validator.isValidPassword(password)){
+            throw new AuthenticationServiceError.InvalidPasswordFormat("Invalid password format, at least 8 characters, one uppercase letter, one number and one special character");
+        }
+        const hashedPassword: string = await BcryptService.generateHashForPassword(password);
+        const newUser = UserFactory.createUser(nickname, email, hashedPassword);
         await this.userRepository.save(newUser);
         return newUser;
     }
@@ -22,7 +26,7 @@ export class AuthenticationServiceImpl implements AuthenticationService {
     async loginUser(id: string, password: string): Promise<string> {
         const user: User = await this.#verifyUser(id);
 
-        if(!await bcrypt.compare(password, user.password)){
+        if(!await BcryptService.isSamePassword(user.password, password)){
             throw new AuthenticationServiceError.InvalidCredential();
         }
 

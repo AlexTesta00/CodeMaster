@@ -12,10 +12,6 @@ export class UserFactory {
             throw new UserFactoryError.InvalidEmail('Invalid email format');
         }
 
-        if(!Validator.isValidPassword(password)){
-            throw new UserFactoryError.InvalidPassword('Invalid password format, at least 8 characters, one uppercase letter, one number and one special character');
-        }
-
         return new User(new UserId(nickname), email, password);
     }
 }
@@ -23,5 +19,4 @@ export class UserFactory {
 export class UserFactoryError {
     static InvalidNickname = class extends Error{};
     static InvalidEmail = class extends Error{};
-    static InvalidPassword = class extends Error{};
 }
