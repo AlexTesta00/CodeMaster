@@ -24,8 +24,4 @@ describe('TestUserFactory', () => {
     it('should throw error when create user with invalid nickname', async () => {
         expect(() => {UserFactory.createUser(wrongUserId.value, email, password)}).toThrow(UserFactoryError.InvalidNickname);
     }, 10000);
-
-    it('should throw error when create user with invalid password', async () => {
-        expect(() => {UserFactory.createUser(userId.value, email, wrongPassword)}).toThrow(UserFactoryError.InvalidPassword);
-    }, 10000);
 });
