@@ -1,6 +1,6 @@
 import { User } from "../domain/user";
 import { UserRepository } from "./user-repository";
-import { UserModel } from "../domain/user-model";
+import { UserModel } from "./user-model";
 import { UserId } from "../domain/user-id";
 
 export class UserRepositoryImpl implements UserRepository {

@@ -9,7 +9,7 @@ import {JWTServiceImpl} from "../../main/nodejs/codemaster/servicies/authenticat
 import {User} from "../../main/nodejs/codemaster/servicies/authentication/domain/user";
 import {MongoMemoryServer} from "mongodb-memory-server";
 import mongoose from "mongoose";
-import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-model";
+import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model";
 import {UserFactoryError} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-factory";
 import {JwtPayload} from "jsonwebtoken";
 
