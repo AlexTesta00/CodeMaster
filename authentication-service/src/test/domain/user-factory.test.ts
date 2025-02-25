@@ -1,10 +1,8 @@
 import { UserFactory, UserFactoryError } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory';
-import { UserFactoryImpl } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory-impl';
 import { UserId } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-id';
 
 describe('TestUserFactory', () => {
 
-    const userFactory: UserFactory = new UserFactoryImpl();
     const userId = new UserId('example');
     const email = 'example@example.com';
     const password = 'Test1234!';
@@ -13,21 +11,21 @@ describe('TestUserFactory', () => {
     const wrongPassword = 'test1234';
 
     it('should create user with correct value', async () => {
-        const user = userFactory.createUser(userId.value, email, password);
+        const user = UserFactory.createUser(userId.value, email, password);
         expect(user.id.value).toBe(userId.value);
         expect(user.email).toBe(email);
         expect(user.password).toBe(password);
     }, 10000);
 
     it('should throw error when create user with invalid email', async () => {
-        expect(() => {userFactory.createUser(userId.value, wrongEmail, password)}).toThrow(UserFactoryError.InvalidEmail);
+        expect(() => {UserFactory.createUser(userId.value, wrongEmail, password)}).toThrow(UserFactoryError.InvalidEmail);
     }, 10000);
 
     it('should throw error when create user with invalid nickname', async () => {
-        expect(() => {userFactory.createUser(wrongUserId.value, email, password)}).toThrow(UserFactoryError.InvalidNickname);
+        expect(() => {UserFactory.createUser(wrongUserId.value, email, password)}).toThrow(UserFactoryError.InvalidNickname);
     }, 10000);
 
     it('should throw error when create user with invalid password', async () => {
-        expect(() => {userFactory.createUser(userId.value, email, wrongPassword)}).toThrow(UserFactoryError.InvalidPassword);
+        expect(() => {UserFactory.createUser(userId.value, email, wrongPassword)}).toThrow(UserFactoryError.InvalidPassword);
     }, 10000);
 });
