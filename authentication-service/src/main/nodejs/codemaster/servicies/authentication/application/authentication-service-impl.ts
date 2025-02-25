@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { User } from "../domain/user";
 import { UserFactory } from "../domain/user-factory";
-import { UserFactoryImpl } from "../domain/user-factory-impl";
 import { UserRepository } from "../infrastructure/user-repository";
 import { UserRepositoryImpl } from "../infrastructure/user-repository-impl";
 import { AuthenticationService, AuthenticationServiceError } from "./authentication-service";
@@ -11,12 +10,11 @@ import {Validator} from "../domain/validator";
 
 export class AuthenticationServiceImpl implements AuthenticationService {
 
-    private userFactory: UserFactory = new UserFactoryImpl();
     private userRepository: UserRepository = new UserRepositoryImpl();
     private jwtService: JWTService = new JWTServiceImpl();
     
     async registerUser(nickname: string, email: string, password: string): Promise<User> {
-        const newUser = this.userFactory.createUser(nickname, email, password);
+        const newUser = UserFactory.createUser(nickname, email, password);
         await this.userRepository.save(newUser);
         return newUser;
     }
