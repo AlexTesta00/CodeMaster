@@ -6,6 +6,7 @@ import { CodeQuestModel } from "../main/nodejs/codemaster/servicies/codequest/do
 import { CodeQuestRepositoryImpl } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest-repository-impl";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { CodeQuestRepository } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest-repository';
+import { codequestSchema } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest-model';
 
 describe('TestCodeQuestRepository', () => {
 
@@ -21,6 +22,7 @@ describe('TestCodeQuestRepository', () => {
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
+        mongoose.model('CodeQuest', codequestSchema);
         repository =  new CodeQuestRepositoryImpl();
     }, 10000);
 

@@ -1,6 +1,6 @@
 import mongoose, {Schema} from 'mongoose';
 
-const codequestSchema = new Schema({
+export const codequestSchema = new Schema({
     questId: {type:'string', required: true, unique: true, key: true},
     author: {type: 'string', required: true},
     problem: {type: 'string', required: true},
