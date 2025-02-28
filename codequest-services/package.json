@@ -1,21 +1,27 @@
 {
-  "name": "codequest-services",
+  "name": "codequest-service",
   "version": "1.0.0",
   "description": "Microservice supporting and managing codequests",
-  "main": "index.js",
+  "main": "./src/main/nodejs/codemaster/servicies/codequest/app.ts",
   "scripts": {
     "test": "jest",
-    "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts",
+    "start": "ts-node ./src/main/nodejs/codemaster/servicies/codequest/app.ts",
+    "dev": "nodemon ./src/main/nodejs/codemaster/servicies/codequest/app.ts",
     "build": "tsc",
-    "serve": "node dist/index.ts"
+    "serve": "node ./src/main/nodejs/codemaster/servicies/codequest/app.ts",
+    "codequest-service": "docker-compose -f ./src/main/nodejs/codemaster/servicies/codequest/docker-compose.yml up",
+    "mongo-service": "docker run --rm -d -p 27017:27017 mongo"
   },
   "author": "Riccardo Rambaldi",
   "license": "MIT",
   "devDependencies": {
+    "@babel/preset-typescript": "^7.26.0",
     "@eslint/js": "^9.20.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/dotenv": "^6.1.1",
+    "@types/mongodb-memory-server": "^1.8.0",
+    "mongodb-memory-server": "^10.1.3",
     "eslint": "^9.20.1",
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^15.15.0",
@@ -23,11 +29,12 @@
     "nodemon": "^3.1.9",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0"
   },
   "dependencies": {
     "express": "^4.21.2",
-    "mongodb-memory-server": "^10.1.3",
-    "mongoose": "^8.10.1"
+    "mongoose": "^8.10.1",
+    "dotenv": "^16.4.7"
   }
 }
