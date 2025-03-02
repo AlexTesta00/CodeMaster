@@ -28,6 +28,14 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         }else{
             token = await authenticationService.loginUser(email, password);
         }
+
+        res.cookie("auth_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24, //Expire in one day
+            sameSite: "strict"
+        });
+
         res.status(OK).json({ message: "User LoggedIn", success: true, token: token}).end();
     }catch (error){
         next(error);
@@ -43,6 +51,9 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
         }else{
             await authenticationService.logoutUser(email);
         }
+
+        res.clearCookie("auth_token");
+
         res.status(OK).json({ message: "User LoggedOut", success: true}).end();
     }catch (error){
         next(error);

@@ -3,8 +3,7 @@ import supertest from "supertest";
 import {
     BAD_REQUEST, CONFLICT,
     CREATED, INTERNAL_ERROR,
-    OK,
-    UNAUTHORIZED
+    OK
 } from "../../main/nodejs/codemaster/servicies/authentication/interfaces/status";
 
 
@@ -117,6 +116,7 @@ describe('Test API', () => {
             expect(response.body.message).toBe("User LoggedIn")
             expect(response.body.success).toBe(true)
             expect(response.body.token).toBeDefined()
+            expect(response.headers["set-cookie"]).toBeDefined();
         }, timeout);
 
         it('should return 200 and user correct logged in by email', async () => {
@@ -134,6 +134,7 @@ describe('Test API', () => {
             expect(response.body.message).toBe("User LoggedIn")
             expect(response.body.success).toBe(true)
             expect(response.body.token).toBeDefined()
+            expect(response.headers["set-cookie"]).toBeDefined();
         }, timeout);
 
         it('should return 400 beacause user have insert an incorrect password but correct nickname', async () => {
@@ -200,6 +201,8 @@ describe('Test API', () => {
             expect(response.status).toBe(OK);
             expect(response.body.success).toBe(true);
             expect(response.body.message).toBe("User LoggedOut");
+            expect(response.headers["set-cookie"]).toBeDefined();
+            expect(response.headers["set-cookie"][0]).toMatch(/auth_token=;/)
         }, timeout);
 
         it('should return 400 because user not exist', async () => {
