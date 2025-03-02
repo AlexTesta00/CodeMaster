@@ -21,9 +21,14 @@ jobs:
           node-version: '23.5.0'
           check-latest: false
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4.3.0
+        uses: gradle/actions/setup-gradle@v4.3.0 #v3 for act test
       - name: Add Permission To Gradle
-        run: chmod +x ./gradlew
+        run:  chmod +x ./gradlew
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.12.0
+        with:
+          mongodb-version: 'latest'
+          mongodb-port: '27017'
       - name: Build with Gradle
         run: ./gradlew build
 
