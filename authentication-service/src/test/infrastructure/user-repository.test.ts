@@ -5,16 +5,17 @@ import { UserRepositoryImpl } from '../../main/nodejs/codemaster/servicies/authe
 import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model';
 import { UserFactory } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-factory';
 import { User } from '../../main/nodejs/codemaster/servicies/authentication/domain/user';
+import {UserId} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-id";
 
 describe('TestUserRepository', () => {
     let mongoServer: MongoMemoryServer;
     let repository: UserRepository;
-    const nickname: string = 'example';
+    const nickname: UserId = new UserId('example');
     const email: string = 'example@example.com';
     const password: string = 'Test1234!';
     const user: User = UserFactory.createUser(nickname, email, password);
     const emailNotInDatabase: string = 'exampleexample@example.com';
-    const nicknameNotInDatabase: string = 'nonexistent';
+    const nicknameNotInDatabase: UserId = new UserId('nonexistent');
     const defaultRefreshToken: string = '';
     const randomRefreshTokenValue: string = "foo";
     const timeout: number = 10000;
@@ -43,7 +44,7 @@ describe('TestUserRepository', () => {
         it('should save a user to the database', async () => {
             const foundUser = await UserModel.findOne({ nickname: nickname }).exec();
             expect(foundUser).not.toBeNull();
-            expect(foundUser?.nickname).toBe(nickname);
+            expect(foundUser?.nickname).toBe(nickname.value);
             expect(foundUser?.email).toBe(email);
             expect(foundUser?.refreshToken).toBe(defaultRefreshToken);
         }, timeout);
@@ -58,7 +59,7 @@ describe('TestUserRepository', () => {
         it('should find a user by nickname', async () => {
             const foundUser = await repository.findUserByNickname(nickname);
             expect(foundUser).not.toBeNull();
-            expect(user.id.value).toBe(nickname);
+            expect(user.id).toBe(nickname);
             expect(user.email).toBe(email);
         }, timeout);
 
@@ -71,7 +72,7 @@ describe('TestUserRepository', () => {
         it('should find a user by email', async () => {
             const foundUser = await repository.findUserByEmail(email);
             expect(foundUser).not.toBeNull();
-            expect(user.id.value).toBe(nickname);
+            expect(user.id.value).toBe(nickname.value);
             expect(user.email).toBe(email);
         }, timeout);
 

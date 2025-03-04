@@ -13,7 +13,7 @@ export class UserRepositoryImpl implements UserRepository {
         await userDocument.save().catch((error) => { throw error; });
     }
 
-    async findUserByNickname(nickname: string): Promise<User> {
+    async findUserByNickname(nickname: UserId): Promise<User> {
         const userDocument = await UserModel.findOne({ nickname }).orFail();
         return new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password);
     }
@@ -23,23 +23,23 @@ export class UserRepositoryImpl implements UserRepository {
         return new User(new UserId(userDocument.nickname), userDocument.email, userDocument.password);
     }
 
-    async updateUserEmail(nickname: string, newEmail: string): Promise<void> {
+    async updateUserEmail(nickname: UserId, newEmail: string): Promise<void> {
         await UserModel.findOneAndUpdate({nickname: nickname }, {email: newEmail}).orFail();
     }
 
-    async updateUserPassword(nickname: string, newPassword: string): Promise<void> {
+    async updateUserPassword(nickname: UserId, newPassword: string): Promise<void> {
         await UserModel.findOneAndUpdate({ nickname: nickname }, { password: newPassword }).orFail();
     }
 
-    async updateUserRefreshToken(nickname: string, refreshToken: string): Promise<void> {
+    async updateUserRefreshToken(nickname: UserId, refreshToken: string): Promise<void> {
         await UserModel.findOneAndUpdate({nickname: nickname }, { refreshToken: refreshToken }).orFail();
     }
 
-    async deleteUser(nickname: string): Promise<void> {
+    async deleteUser(nickname: UserId): Promise<void> {
         await UserModel.findOneAndDelete({ nickname }).orFail();
     }
 
-    async getUserRefreshToken(nickname: string): Promise<string> {
+    async getUserRefreshToken(nickname: UserId): Promise<string> {
         return (await (UserModel.findOne({ nickname }).orFail())).refreshToken;
     }
     
