@@ -34,7 +34,7 @@ describe('Test API', () => {
            const badPasswordNewUser = {
                "nickname": "example",
                "email": "example@example.com",
-               "password": "weakpassword"
+               "password": "weak"
            };
 
            const response = await request
@@ -137,7 +137,7 @@ describe('Test API', () => {
             expect(response.headers["set-cookie"]).toBeDefined();
         }, timeout);
 
-        it('should return 400 beacause user have insert an incorrect password but correct nickname', async () => {
+        it('should return 400 because user have insert an incorrect password but correct nickname', async () => {
             const incorrectPassword = {
                 'nickname': newUser.nickname,
                 'password': 'incorrect'
@@ -153,7 +153,7 @@ describe('Test API', () => {
             expect(response.body.message).toBe("Invalid Credentials");
         }, timeout);
 
-        it('should return 400 beacause user have insert an incorrect password but correct email', async () => {
+        it('should return 400 because user have insert an incorrect password but correct email', async () => {
             const incorrectPassword = {
                 'email': newUser.email,
                 'password': 'incorrect'
@@ -169,7 +169,7 @@ describe('Test API', () => {
             expect(response.body.message).toBe("Invalid Credentials");
         }, timeout);
 
-        it('should return 400 beacause user not exist', async () => {
+        it('should return 400 because user not exist', async () => {
             const incorrectNickname = {
                 'nickname': 'notExistUser',
                 'password': 'incorrect'
@@ -207,7 +207,7 @@ describe('Test API', () => {
 
         it('should return 400 because user not exist', async () => {
             const incorrectUser = {
-                'nickname': 'imnotexist'
+                'nickname': 'imNotExist'
             };
 
             const response = await request
@@ -253,9 +253,9 @@ describe('Test API', () => {
             expect(response.body.token).toBeDefined();
         }, timeout);
 
-        it('should return 400 beacuse user not exist', async () => {
+        it('should return 400 because user not exist', async () => {
             const incorrectUser = {
-                'nickname': 'imnotexist'
+                'nickname': 'imNotExist'
             };
 
             const response = await request
@@ -268,7 +268,7 @@ describe('Test API', () => {
             expect(response.body.message).toBe("User not found");
         }, timeout);
 
-        it('should return 500 beacuse user not logged in', async () => {
+        it('should return 500 because user not logged in', async () => {
             const correctUser = {
                 'nickname': newUser.nickname
             };
@@ -286,6 +286,154 @@ describe('Test API', () => {
             expect(response.status).toBe(INTERNAL_ERROR);
             expect(response.body.success).toBe(false);
             expect(response.body.message).toBe("Invalid RefreshToken");
+        }, timeout);
+    });
+
+    describe('Test update email', () => {
+        it('should finish successfully and update the email', async () => {
+            const correctEmailParams = {
+                'nickname': newUser.nickname,
+                'newEmail': 'example1234@example.com'
+            };
+
+            const response = await request
+                .put("/authentication/update-email")
+                .send(correctEmailParams)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(OK);
+            expect(response.body.success).toBe(true);
+            expect(response.body.message).toBe("Email updated");
+        }, timeout);
+
+        it('should throw error since the email is in an incorrect format', async () => {
+            const incorrectEmailParamsNotValidFormat = {
+                'nickname': newUser.nickname,
+                'newEmail': 'example.com'
+            };
+
+            const response = await request
+                .put("/authentication/update-email")
+                .send(incorrectEmailParamsNotValidFormat)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("Invalid email format");
+        }, timeout);
+
+        it('should throw error since the user does not exist', async () => {
+            const incorrectEmailUserNotExist = {
+                'nickname': 'imNotExist',
+                'newEmail': 'example@example.com'
+            };
+
+            const response = await request
+                .put("/authentication/update-email")
+                .send(incorrectEmailUserNotExist)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("User not found");
+        }, timeout);
+    });
+
+    describe('Test update password', () => {
+        it('should finish successfully and update the password', async () => {
+            const correctPasswordParams = {
+                'nickname': newUser.nickname,
+                'oldPassword': newUser.password,
+                'newPassword': "Test123456789!"
+            };
+
+            const response = await request
+                .put("/authentication/update-password")
+                .send(correctPasswordParams)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(OK);
+            expect(response.body.success).toBe(true);
+            expect(response.body.message).toBe("Password updated");
+        }, timeout);
+
+        it('should throw error since the password is in an incorrect format', async () => {
+            const incorrectPasswordParamsNotValidFormat = {
+                'nickname': newUser.nickname,
+                'oldPassword': newUser.password,
+                'newPassword': "example"
+            };
+
+            const response = await request
+                .put("/authentication/update-password")
+                .send(incorrectPasswordParamsNotValidFormat)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("Invalid password format");
+        }, timeout);
+
+        it('should throw error for incorrect old password', async () => {
+            const incorrectPasswordParamsOldPassword = {
+                'nickname': newUser.nickname,
+                'oldPassword': "Test123456!",
+                'newPassword': "Test123456!"
+            };
+
+            const response = await request
+                .put("/authentication/update-password")
+                .send(incorrectPasswordParamsOldPassword)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("Old password does not match");
+        }, timeout);
+
+        it('should throw error since the user does not exist', async () => {
+            const userNotExist = {
+                'nickname': 'imNotExist',
+                'oldPassword': newUser.password,
+                'newPassword': "Test123456!"
+            };
+
+            const response = await request
+                .put("/authentication/update-password")
+                .send(userNotExist)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("User not found");
+        }, timeout);
+    });
+
+    describe('Test delete user', () => {
+        it('should end successfully and delete the user', async () => {
+            const nickname: string = newUser.nickname;
+
+            const response = await request
+                .delete("/authentication/" + nickname)
+                .send(nickname)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(OK);
+            expect(response.body.success).toBe(true);
+            expect(response.body.message).toBe("User deleted");
+        }, timeout);
+
+        it('should throw an error since the user does not exist', async () => {
+            const notExistNickname: string = 'imNotExist';
+
+            const response = await request
+                .delete("/authentication/" + notExistNickname)
+                .send(notExistNickname)
+                .set("Accept", "application/json")
+
+            expect(response.status).toBe(BAD_REQUEST);
+            expect(response.body.success).toBe(false);
+            expect(response.body.message).toBe("User not found");
         }, timeout);
     });
 });

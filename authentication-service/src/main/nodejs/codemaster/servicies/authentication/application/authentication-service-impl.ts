@@ -43,6 +43,34 @@ export class AuthenticationServiceImpl implements AuthenticationService {
         await this.userRepository.updateUserRefreshToken(user.id.value, "");
     }
 
+    //TODO: Update nickname into id
+    async deleteUser(nickname: string): Promise<void> {
+        await this.userRepository.deleteUser(nickname).catch(() => { throw new AuthenticationServiceError.InvalidCredential("User not found")});
+    }
+
+    //TODO: Update nickname into id
+    async updateUserEmail(nickname: string, newEmail: string): Promise<void> {
+        if(!Validator.isValidEmail(newEmail)){
+            throw new AuthenticationServiceError.InvalidCredential("Invalid email format");
+        }
+        await this.userRepository.updateUserEmail(nickname, newEmail).catch(() => { throw new AuthenticationServiceError.InvalidCredential("User not found")});
+    }
+
+    //TODO: Update nickname into id
+    async updateUserPassword(nickname: string, oldPassword: string, newPassword: string): Promise<void> {
+        const user: User = await this.#verifyUser(nickname);
+
+        if(!Validator.isValidPassword(newPassword)){
+            throw new AuthenticationServiceError.InvalidCredential("Invalid password format");
+        }
+
+        if(!await BcryptService.isSamePassword(user.password, oldPassword)){
+            throw new AuthenticationServiceError.InvalidCredential("Old password does not match");
+        }
+        const hashedPassword: string = await BcryptService.generateHashForPassword(newPassword);
+        await this.userRepository.updateUserPassword(nickname, hashedPassword);
+    }
+
     async refreshAccessUserToken(id: string): Promise<string> {
         const user = await this.#verifyUser(id);
         const refreshToken = await this.userRepository.getUserRefreshToken(user.id.value);
@@ -62,7 +90,6 @@ export class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     #verifyUser = async (id: string): Promise<User> => {
-
         if(Validator.isValidNickname(id)){
             try {
                 return await this.userRepository.findUserByNickname(id);
@@ -81,4 +108,5 @@ export class AuthenticationServiceImpl implements AuthenticationService {
 
         throw new AuthenticationServiceError.InvalidCredential("User not found");
     }
+
 }
