@@ -13,11 +13,12 @@ import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/i
 import {UserFactoryError} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-factory";
 import {JwtPayload} from "jsonwebtoken";
 import {BcryptService} from "../../main/nodejs/codemaster/servicies/authentication/application/bcrypt-service";
+import {UserId} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-id";
 
 describe("Test authentication service", () => {
     let mongoServer: MongoMemoryServer;
     let newUser: User;
-    const nickname: string = "example";
+    const nickname: UserId = new UserId("example");
     const email: string = "test@example.com";
     const password: string = "Test1234!";
     const wrongEmail: string = "thisemailnotExist@gmail.com";
@@ -50,14 +51,14 @@ describe("Test authentication service", () => {
         }, timeout);
 
         it("should new user have a correct value", async () => {
-            expect(newUser.id.value).toBe(nickname);
+            expect(newUser.id).toBe(nickname);
             expect(newUser.email).toBe(email);
         }, timeout);
 
         it("should new user is present in db with correct value", async () => {
             const foundUser = await UserModel.findOne({nickname: nickname}).exec();
             expect(foundUser?.email).toBe(email);
-            expect(foundUser?.nickname).toBe(nickname);
+            expect(foundUser?.nickname).toBe(nickname.value);
             expect(foundUser?.refreshToken).toBe('');
         }, timeout);
 
@@ -68,7 +69,7 @@ describe("Test authentication service", () => {
         }, timeout);
 
         it('should fail if user insert incorrect nickname format', async () => {
-            const incorrectNickname: string = "test!@$#@$!";
+            const incorrectNickname: UserId = new UserId("test!@$#@$!");
             await expect(authenticationService.registerUser(incorrectNickname, email, password)).rejects.toThrow(UserFactoryError.InvalidNickname);
         }, timeout);
 
@@ -94,7 +95,7 @@ describe("Test authentication service", () => {
             expect(token).not.toBeNull();
             expect(token).not.toBe('');
             const decoded: string | JwtPayload = jwtService.verifyAccessToken(token);
-            expect((decoded as JwtPayload).nickname).toBe(nickname);
+            expect((decoded as JwtPayload).nickname).toBe(nickname.value);
             expect((decoded as JwtPayload).email).toBe(email);
         }, timeout);
 
@@ -102,7 +103,7 @@ describe("Test authentication service", () => {
             const token: string = await authenticationService.loginUser(email, password);
             expect(token).not.toBe('');
             const decoded: string | JwtPayload = jwtService.verifyAccessToken(token);
-            expect((decoded as JwtPayload).nickname).toBe(nickname);
+            expect((decoded as JwtPayload).nickname).toBe(nickname.value);
             expect((decoded as JwtPayload).email).toBe(email);
         }, timeout);
 
@@ -112,7 +113,7 @@ describe("Test authentication service", () => {
             const refreshToken: string | undefined = foundUser?.refreshToken;
             expect(refreshToken).toBeDefined();
             const decoded: string | JwtPayload = jwtService.verifyRefreshToken(refreshToken!);
-            expect((decoded as JwtPayload).nickname).toBe(nickname);
+            expect((decoded as JwtPayload).nickname).toBe(nickname.value);
             expect((decoded as JwtPayload).email).toBe(email);
         }, timeout);
 
@@ -165,7 +166,7 @@ describe("Test authentication service", () => {
             await authenticationService.loginUser(nickname, password);
             const newAccessToken: string = await authenticationService.refreshAccessUserToken(nickname);
             const decoded: string | JwtPayload = jwtService.verifyAccessToken(newAccessToken);
-            expect((decoded as JwtPayload).nickname).toBe(nickname);
+            expect((decoded as JwtPayload).nickname).toBe(nickname.value);
             expect((decoded as JwtPayload).email).toBe(email);
         }, timeout);
 

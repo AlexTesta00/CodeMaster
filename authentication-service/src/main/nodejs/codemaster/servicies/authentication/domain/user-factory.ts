@@ -1,10 +1,10 @@
 import { User } from './user';
 import { UserId } from './user-id';
-import {Validator} from "./validator";
+import { Validator } from "./validator";
 
 export class UserFactory {
-    static createUser(nickname: string, email: string, password: string): User {
-        if(!Validator.isValidNickname(nickname)){
+    static createUser(nickname: UserId, email: string, password: string): User {
+        if(!Validator.isValidNickname(nickname.value)){
             throw new UserFactoryError.InvalidNickname('Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters');
         }
 
@@ -12,7 +12,7 @@ export class UserFactory {
             throw new UserFactoryError.InvalidEmail('Invalid email format');
         }
 
-        return new User(new UserId(nickname), email, password);
+        return new User(nickname, email, password);
     }
 }
 

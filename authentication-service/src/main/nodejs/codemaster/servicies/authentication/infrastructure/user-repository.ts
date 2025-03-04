@@ -1,12 +1,13 @@
-import {User} from "../domain/user";
+import { User } from "../domain/user";
+import { UserId } from "../domain/user-id";
 
 export interface UserRepository {
     save(user: User): Promise<void>;
-    findUserByNickname(nickname: string): Promise<User>;
+    findUserByNickname(nickname: UserId): Promise<User>;
     findUserByEmail(email: string): Promise<User>;
-    updateUserEmail(nickname: string, newEmail: string): Promise<void>;
-    updateUserPassword(nickname: string, newPassword: string): Promise<void>;
-    updateUserRefreshToken(nickname: string, refreshToken: string): Promise<void>;
-    deleteUser(nickname: string): Promise<void>;
-    getUserRefreshToken(nickname: string): Promise<string>;
+    updateUserEmail(nickname: UserId, newEmail: string): Promise<void>;
+    updateUserPassword(nickname: UserId, newPassword: string): Promise<void>;
+    updateUserRefreshToken(nickname: UserId, refreshToken: string): Promise<void>;
+    deleteUser(nickname: UserId): Promise<void>;
+    getUserRefreshToken(nickname: UserId): Promise<string>;
 }
