@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model";
 import {UserFactoryError} from "../../main/nodejs/codemaster/servicies/authentication/domain/user-factory";
 import {JwtPayload} from "jsonwebtoken";
+import {BcryptService} from "../../main/nodejs/codemaster/servicies/authentication/application/bcrypt-service";
 
 describe("Test authentication service", () => {
     let mongoServer: MongoMemoryServer;
@@ -168,15 +169,79 @@ describe("Test authentication service", () => {
             expect((decoded as JwtPayload).email).toBe(email);
         }, timeout);
 
-        /*
-        it('should fail if the user has never logged in', async () => {
-            await expect(authenticationService.refreshAccessUserToken(nickname)).rejects.toThrow(AuthenticationServiceError.InvalidRefreshToken);
-        }, timeout);
-        */
-
         it('should fail if the user not exist', async () => {
             await expect(authenticationService.refreshAccessUserToken(wrongNickname)).rejects.toThrow(AuthenticationServiceError.InvalidCredential);
         }, timeout);
+    });
+
+    describe("Test delete user", () => {
+        beforeAll(async () => {
+            await authenticationService.registerUser(nickname, email, password);
+        }, timeout);
+
+        it("should not throw errors and correctly delete the user", async ()=> {
+            await expect(authenticationService.deleteUser(nickname)).resolves.not.toThrow();
+        }, timeout);
+
+        it("should throw a user not found error", async ()=> {
+            const nicknameNotInDatabase = "imNotExist";
+            await expect(authenticationService.deleteUser(nicknameNotInDatabase)).rejects.toThrow(AuthenticationServiceError.InvalidCredential);
+        }, timeout);
+    });
+
+    describe("Test update email", () => {
+        beforeAll(async () => {
+            await authenticationService.registerUser(nickname, email, password);
+        }, timeout);
+
+        it('should not return errors and update the email', async () => {
+            const newEmail: string = "stopExample@gmail.com";
+            await expect(authenticationService.updateUserEmail(nickname, newEmail)).resolves.not.toThrow();
+            const foundUser = await UserModel.findOne({nickname: nickname}).exec();
+            expect(foundUser!.email).toBe(newEmail);
+        }, timeout);
+
+        it('should throw a user not found error', async () => {
+            const nicknameNotInDatabase = "imNotExist";
+            const newEmail: string = "stopExample@gmail.com";
+            await expect(authenticationService.updateUserEmail(nicknameNotInDatabase, newEmail)).rejects.toThrow(new AuthenticationServiceError.InvalidCredential("User not found"));
+        }, timeout);
+
+        it('should throw a email not valid format', async () => {
+            const newNotValidEmail: string = "Examplegmail.com";
+            await expect(authenticationService.updateUserEmail(nickname, newNotValidEmail)).rejects.toThrow(new AuthenticationServiceError.InvalidCredential("Invalid email format"));
+        }, timeout);
+    });
+
+    describe("Test update password", () => {
+        beforeEach(async () => {
+            await authenticationService.registerUser(nickname, email, password);
+        }, timeout);
+
+        it('should not return errors and update the password', async () => {
+            const newPassword: string = "Test123456789!";
+            await expect(authenticationService.updateUserPassword(nickname, password, newPassword)).resolves.not.toThrow();
+            const foundUser = await UserModel.findOne({nickname: nickname}).exec();
+            expect(BcryptService.isSamePassword(foundUser!.password, newPassword)).toBeTruthy();
+        }, timeout);
+
+        it('should throw a password mismatch error', async () => {
+            const incorrectOldPassword: string = "PasswordMistmatch1234!";
+            const newPassword: string = "Test123456789!";
+            await expect(authenticationService.updateUserPassword(nickname, incorrectOldPassword, newPassword)).rejects.toThrow(new AuthenticationServiceError.InvalidCredential("Old password does not match"));
+        }, timeout);
+
+        it('should throw a invalid password format', async () => {
+            const newPassword: string = "Test";
+            await expect(authenticationService.updateUserPassword(nickname, password, newPassword)).rejects.toThrow(new AuthenticationServiceError.InvalidCredential("Invalid password format"));
+        }, timeout);
+
+        it('should throw a user not found error', async () => {
+            const newPassword: string = "Test123456789!";
+            const userNotInDB: string = "imnotexist";
+            await expect(authenticationService.updateUserPassword(userNotInDB, password, newPassword)).rejects.toThrow(new AuthenticationServiceError.InvalidCredential("User not found"));
+        }, timeout);
+
     });
 
 });

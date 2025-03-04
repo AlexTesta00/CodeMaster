@@ -2,8 +2,7 @@ import {AuthenticationService, AuthenticationServiceError} from "../application/
 import { AuthenticationServiceImpl } from "../application/authentication-service-impl";
 import {NextFunction, Request, Response} from "express";
 import {User} from "../domain/user";
-import {CREATED, OK, UNAUTHORIZED} from "./status";
-import {UserFactoryError} from "../domain/user-factory";
+import {CREATED, OK} from "./status";
 
 const authenticationService: AuthenticationService = new AuthenticationServiceImpl();
 
@@ -72,6 +71,39 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
         }
         res.status(OK).json({ message: "User Access Token refreshed", success: true, token: accessToken}).end();
     }catch (error){
+        next(error);
+    }
+}
+
+export const updateEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const {nickname, newEmail} = req.body;
+
+    try {
+        await authenticationService.updateUserEmail(nickname, newEmail);
+        res.status(OK).json({ message: "Email updated", success: true}).end();
+    }catch (error) {
+        next(error);
+    }
+}
+
+export const updatePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const {nickname, oldPassword, newPassword} = req.body;
+
+    try {
+        await authenticationService.updateUserPassword(nickname, oldPassword, newPassword);
+        res.status(OK).json({ message: "Password updated", success: true}).end();
+    }catch (error){
+        next(error);
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const nickname: string = req.params.id;
+
+    try {
+        await authenticationService.deleteUser(nickname);
+        res.status(OK).json({ message: "User deleted", success: true}).end();
+    }catch (error) {
         next(error);
     }
 }
