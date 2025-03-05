@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { MongooseError } from 'mongoose';
 import { CodeQuest } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest";
 import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest-factory";
 import { CodeQuestModel } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest-model";
@@ -22,7 +21,6 @@ describe('TestCodeQuestRepository', () => {
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
-        mongoose.model('CodeQuest', codequestSchema);
         repository =  new CodeQuestRepositoryImpl();
     }, 10000);
 
