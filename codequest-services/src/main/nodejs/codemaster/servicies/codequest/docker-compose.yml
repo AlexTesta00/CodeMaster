@@ -11,6 +11,10 @@ services:
     restart: always
     ports:
       - 8081:8081
+    links:
+      - mongo
+    depends_on:
+      - mongo
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
       ME_CONFIG_BASICAUTH: false
@@ -29,6 +33,6 @@ services:
     ports:
       - 8080:3000
     links:
-      - mongo
+      - mongo-express
     depends_on:
-      - mongo
+      - mongo-express
