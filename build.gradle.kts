@@ -16,5 +16,5 @@ subprojects {}
 
 tasks.register("build"){
     dependsOn("npmInstall")
-    dependsOn(":codequest-services:build")
+    dependsOn(":codequest-service:build")
 }

@@ -19,4 +19,4 @@ gitHooks {
     createHooks(true)
 }
 
-include("codequest-services")
+include("codequest-service")
