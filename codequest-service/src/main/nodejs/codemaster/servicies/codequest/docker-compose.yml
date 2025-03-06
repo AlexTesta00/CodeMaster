@@ -27,7 +27,7 @@ services:
   #     # HTTP management UI
   #     - "15672:15672"
 
-  codequest-services:
+  codequest-service:
     image: codequest-service
     restart: always
     ports:

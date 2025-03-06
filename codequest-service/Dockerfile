@@ -1,5 +1,6 @@
 FROM node:alpine
-WORKDIR /Users/riccardorambaldi/Desktop/Magistrale/secondo_anno/primo_semestre/SPE/CodeMaster/codequest-service
+RUN mkdir /codequest-service
+WORKDIR /codequest-service
 COPY package.json .
 RUN npm install
 COPY . .
