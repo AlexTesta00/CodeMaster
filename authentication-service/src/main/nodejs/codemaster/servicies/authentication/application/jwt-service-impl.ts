@@ -5,8 +5,6 @@ import { AuthenticationServiceError } from "./authentication-service";
 
 
 export class JWTServiceImpl implements JWTService{
-
-    //TODO: Implement test for this class
     private readonly accessSecret: string;
     private readonly refreshSecret: string;
 

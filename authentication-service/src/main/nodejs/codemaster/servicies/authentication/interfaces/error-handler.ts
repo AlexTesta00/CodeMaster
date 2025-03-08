@@ -1,6 +1,6 @@
 import {ErrorRequestHandler} from "express";
 import {AuthenticationServiceError} from "../application/authentication-service";
-import {BAD_REQUEST, CONFLICT, INTERNAL_ERROR, UNAUTHORIZED} from "./status";
+import {BAD_REQUEST, CONFLICT, INTERNAL_ERROR} from "./status";
 import {UserFactoryError} from "../domain/user-factory";
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
