@@ -114,9 +114,31 @@ describe('Test API', () => {
 
             expect(response.status).toBe(OK);
             expect(response.body.message).toBe("User LoggedIn")
-            expect(response.body.success).toBe(true)
-            expect(response.body.token).toBeDefined()
+            expect(response.body.success).toBe(true);
+            expect(response.body.token).toBeDefined();
             expect(response.headers["set-cookie"]).toBeDefined();
+        }, timeout);
+
+        it('should return 200 and user is already logged in', async () => {
+            const normalUser = {
+                'nickname': newUser.nickname,
+                'password': newUser.password
+            };
+
+            const response = await request
+                .post("/authentication/login")
+                .send(normalUser)
+                .set("Accept", "application/json")
+
+            const authToken = response.headers['set-cookie'][0].split(';')[0].split('=')[1];
+            const alreadyAuthenticatedResponse = await request
+                .post("/authentication/login")
+                .set("Accept", "application/json")
+                .set("Cookie", `auth_token=${authToken}`);
+
+            expect(alreadyAuthenticatedResponse.status).toBe(OK);
+            expect(alreadyAuthenticatedResponse.body.message).toBe("User is already authenticated");
+            expect(alreadyAuthenticatedResponse.body.success).toBe(true);
         }, timeout);
 
         it('should return 200 and user correct logged in by email', async () => {
