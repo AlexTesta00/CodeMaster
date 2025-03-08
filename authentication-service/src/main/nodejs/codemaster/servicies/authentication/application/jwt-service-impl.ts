@@ -23,18 +23,16 @@ export class JWTServiceImpl implements JWTService{
 
     verifyAccessToken(token: string): string | JwtPayload{
         try {
-            return jwt.verify(token, this.accessSecret);   
+            return jwt.verify(token, this.accessSecret);
         } catch (error) {
-            void error;
-            throw new AuthenticationServiceError.InvalidAccessToken();
+            throw new AuthenticationServiceError.InvalidAccessToken('Invalid access token');
         }
     }
     verifyRefreshToken(token: string): string | JwtPayload {
         try {
             return jwt.verify(token, this.refreshSecret);   
         } catch (error) {
-            void error;
-            throw new AuthenticationServiceError.InvalidRefreshToken();
+            throw new AuthenticationServiceError.InvalidRefreshToken('Invalid refresh token');
         }
     }
     
