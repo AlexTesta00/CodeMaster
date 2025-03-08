@@ -1,8 +1,11 @@
-export const preset = 'ts-jest';
-export const testEnvironment = 'node';
+export const preset = 'ts-jest'
+export const testEnvironment = 'node'
 export const transform = {
-  '^.+\\.(ts|tsx)$': ['ts-jest', {
-    tsconfig: 'tsconfig.json'
-  }],
-};
-export const testPathIgnorePatterns = ['<rootDir>/dist/'];
+  '^.+\\.(ts|tsx)$': [
+    'ts-jest',
+    {
+      tsconfig: 'tsconfig.json',
+    },
+  ],
+}
+export const testPathIgnorePatterns = ['<rootDir>/dist/']
