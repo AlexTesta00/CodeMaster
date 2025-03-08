@@ -1,4 +1,4 @@
-import {AuthenticationService, AuthenticationServiceError} from "../application/authentication-service";
+import {AuthenticationService} from "../application/authentication-service";
 import { AuthenticationServiceImpl } from "../application/authentication-service-impl";
 import {NextFunction, Request, Response} from "express";
 import {User} from "../domain/user";
