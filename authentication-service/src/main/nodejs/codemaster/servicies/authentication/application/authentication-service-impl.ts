@@ -93,12 +93,14 @@ export class AuthenticationServiceImpl implements AuthenticationService {
             try {
                 return await this.userRepository.findUserByNickname(id);
             }catch (error) {
+                void error;
                 throw new AuthenticationServiceError.InvalidCredential("User not found");
             }
         }else{
             try {
                 return await this.userRepository.findUserByEmail(id);
             }catch (error) {
+                void error;
                 throw new AuthenticationServiceError.InvalidCredential("User not found");
             }
         }

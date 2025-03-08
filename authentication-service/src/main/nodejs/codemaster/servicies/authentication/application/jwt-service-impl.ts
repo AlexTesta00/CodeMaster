@@ -25,6 +25,7 @@ export class JWTServiceImpl implements JWTService{
         try {
             return jwt.verify(token, this.accessSecret);
         } catch (error) {
+            void error;
             throw new AuthenticationServiceError.InvalidAccessToken('Invalid access token');
         }
     }
@@ -32,6 +33,7 @@ export class JWTServiceImpl implements JWTService{
         try {
             return jwt.verify(token, this.refreshSecret);   
         } catch (error) {
+            void error;
             throw new AuthenticationServiceError.InvalidRefreshToken('Invalid refresh token');
         }
     }
