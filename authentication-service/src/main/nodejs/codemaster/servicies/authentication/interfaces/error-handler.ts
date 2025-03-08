@@ -22,4 +22,5 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
     if(error instanceof UserFactoryError.InvalidEmail){
         res.status(BAD_REQUEST).json({message: error.message, success: false});
     }
+    next();
 }
