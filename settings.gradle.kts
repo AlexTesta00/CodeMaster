@@ -15,5 +15,8 @@ plugins {
 
 gitHooks {
     commitMsg { conventionalCommits() }
+    preCommit { tasks("prettier", "lint", "npmTest") }
     createHooks(true)
 }
+
+include("authentication-service")

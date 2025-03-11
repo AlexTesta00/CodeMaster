@@ -2,14 +2,42 @@ name: CI/CD
 
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
 
 jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23.5.0'
+          check-latest: false
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3 #v3 for act test
+      - name: Add Permission To Gradle
+        run:  chmod +x ./gradlew
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.12.0
+        with:
+          mongodb-version: 'latest'
+          mongodb-port: '27017'
+      - name: Set MONGO_URI environement variable
+        run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
+      - name: Build with Gradle
+        env:
+          MONGO_URI: ${{ env.MONGO_URI }}
+        run: ./gradlew build
+
   release:
+    needs: build-and-test
     if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')  # Execute only on push on branch main
     runs-on: ubuntu-latest
     permissions:
