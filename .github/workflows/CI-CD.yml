@@ -37,6 +37,7 @@ jobs:
         run: ./gradlew build
 
   release:
+    needs: build-and-test
     if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')  # Execute only on push on branch main
     runs-on: ubuntu-latest
     permissions:
