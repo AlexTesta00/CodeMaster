@@ -1,9 +1,9 @@
 services:
   mongo:
     image: mongo
-    command: ["mongod", "--quiet", "--logpath", "/dev/null"]
+    command: ['mongod', '--quiet', '--logpath', '/dev/null']
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo_data:/codemaster/authentication/db
 
@@ -11,7 +11,7 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - "8081:8081"
+      - '8081:8081'
     depends_on:
       - mongo
     environment:
@@ -21,7 +21,7 @@ services:
     image: codemaster-authentication-service
     restart: always
     ports:
-      - "8080:3000"
+      - '8080:4004'
     depends_on:
       - mongo
     env_file:
