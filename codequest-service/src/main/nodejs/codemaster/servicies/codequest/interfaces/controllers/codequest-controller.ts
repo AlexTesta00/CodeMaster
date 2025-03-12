@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Request, Response } from "express";
-import { CodeQuestFactory } from "../../domain/codequest-factory";
-import { CodeQuestRepositoryImpl } from "../../infrastructure/codequest-repository-impl";
+import { CodeQuestFactory } from "../../domain/codequest/codequest-factory";
+import { CodeQuestRepositoryImpl } from "../../infrastructure/codequest/codequest-repository-impl";
 
 class Controller {
 
@@ -12,7 +12,7 @@ class Controller {
     } 
 
     addCodeQuest = async (req: Request, res: Response) => {
-        const newCodequest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), req.body.title, req.body.author, req.body.problem, new Date());
+        const newCodequest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), req.body.title, req.body.author, req.body.problem, new Date(), req.body.languages);
         res.json(await this.repository.save(newCodequest));
     }
 
