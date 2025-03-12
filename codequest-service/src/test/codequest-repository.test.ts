@@ -1,32 +1,33 @@
 import mongoose from 'mongoose';
-import { CodeQuest } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest";
-import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest-factory";
-import { CodeQuestModel } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest-model";
-import { CodeQuestRepositoryImpl } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest-repository-impl";
+import { CodeQuest } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest";
+import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
+import { CodeQuestModel } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-model";
+import { CodeQuestRepositoryImpl } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository-impl";
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { CodeQuestRepository } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest-repository';
-import { codequestSchema } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest-model';
+import { CodeQuestRepository } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository';
+import { LanguageFactory } from '../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory';
 
 describe('TestCodeQuestRepository', () => {
 
     let mongoServer: MongoMemoryServer;
-    let repository: CodeQuestRepository;
+    let codequestRepo: CodeQuestRepository;
     const author = 'example';
     const problem = 'Problem';
     const title = 'Title';
-    const firstCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, new Date());
-    const secondCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, new Date());
+    const languages = [LanguageFactory.createLanguage("Java", ["17", "21"]), LanguageFactory.createLanguage("Scala", ["3.3", "3.4"])]
+    const firstCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, new Date(), languages);
+    const secondCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, new Date(), languages);
 
     beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
-        repository =  new CodeQuestRepositoryImpl();
+        codequestRepo =  new CodeQuestRepositoryImpl();
     }, 10000);
 
     beforeEach(async () => {
-        await repository.save(firstCodequest);
-        await repository.save(secondCodequest);
+        await codequestRepo.save(firstCodequest);
+        await codequestRepo.save(secondCodequest);
     }, 10000);
 
     afterAll(async () => {
@@ -46,16 +47,17 @@ describe('TestCodeQuestRepository', () => {
             expect(foundCodeQuest?.problem).toBe(problem);
             expect(foundCodeQuest?.title).toBe(title);
             expect(foundCodeQuest?.author).toBe(author);
+            expect(foundCodeQuest?.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
         }, 10000);
 
         it('should return all codequests published from the same author', async () => {
-            const codequests = await repository.findCodeQuestsByAuthor(author);
+            const codequests = await codequestRepo.findCodeQuestsByAuthor(author);
             expect(codequests[0]).toStrictEqual(firstCodequest);
             expect(codequests[1]).toStrictEqual(secondCodequest);
         }, 10000);
 
         it('should return all codequests created', async () => {
-            const codequests = await repository.getAllCodeQuests();
+            const codequests = await codequestRepo.getAllCodeQuests();
             expect(codequests.length).toBe(2);
         }, 10000)
     });
@@ -65,16 +67,16 @@ describe('TestCodeQuestRepository', () => {
         it('should update the problem of the codequest as expected', async () => {
             const newCodequest = firstCodequest;
             newCodequest.problem = "New Problem";
-            await repository.updateProblem(firstCodequest.id, "New Problem");
-            const updatedCodequest = await repository.findCodeQuestById(firstCodequest.id);
+            await codequestRepo.updateProblem(firstCodequest.id, "New Problem");
+            const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
         }, 10000);
     
         it('should update the title of the codequest as expected', async () => {
             const newCodequest = firstCodequest;
             newCodequest.title = "New Title";
-            await repository.updateTitle(firstCodequest.id, "New Title");
-            const updatedCodequest = await repository.findCodeQuestById(firstCodequest.id);
+            await codequestRepo.updateTitle(firstCodequest.id, "New Title");
+            const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
         }, 10000);
     })
@@ -82,7 +84,7 @@ describe('TestCodeQuestRepository', () => {
     describe('Test codequest removal', () => {
 
         it('should delete the codequest succesfully', async () => {
-            await repository.delete(firstCodequest.id);
+            await codequestRepo.delete(firstCodequest.id);
             expect(await CodeQuestModel.findOne({ questId: firstCodequest.id }).exec()).toBeNull();
         }, 10000);
     });
