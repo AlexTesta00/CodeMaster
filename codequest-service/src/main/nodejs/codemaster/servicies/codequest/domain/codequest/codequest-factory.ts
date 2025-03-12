@@ -3,7 +3,7 @@ import { CodeQuestError } from "../error/codequest-error";
 import { Language } from "../language/language";
 
 export class CodeQuestFactory{
-    static createCodeQuest(id: String, title: String, author: String, problem: String, timestamp: Date, languages: Language[]): CodeQuest {
+    static createCodeQuest(id: String, title: String, author: String, problem: String, timestamp: Date | null, languages: Language[]): CodeQuest {
         if(!author){
             throw new CodeQuestError.InvalidAuthor('Invalid nickname: this user doesn\'t exist');
         }
