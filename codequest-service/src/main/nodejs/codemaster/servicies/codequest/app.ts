@@ -1,15 +1,24 @@
 import express from "express";
-import mongoose from "mongoose";
 import router from "./interfaces/routers/codequest-routes";
+import { connectToDatabase } from "./infrastructure/db-connection";
+import * as dotenv from 'dotenv'
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+dotenv.config();
 
-app.use(express.json());
+const app = express()
+const port = process.env.PORT!
 
-app.use("/codequests", router);
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+//app.use(helmet())
+//app.use(cookieParser())
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  mongoose.connect('mongodb://mongo:27017/codequests');
-});
+app.use('/codequests', router)
+//app.use(errorHandler)
+
+app.listen(port, async () => {
+  console.log(`Server is running on port ${port}`)
+  await connectToDatabase()
+})
+
+export { app }
