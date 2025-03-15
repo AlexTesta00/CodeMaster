@@ -12,7 +12,7 @@ class Controller {
     } 
 
     addCodeQuest = async (req: Request, res: Response) => {
-        const newCodequest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), req.body.title, req.body.author, req.body.problem, new Date(), req.body.languages);
+        const newCodequest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), req.body.title, req.body.author, req.body.problem, null, req.body.languages);
         res.json(await this.repository.save(newCodequest));
     }
 
