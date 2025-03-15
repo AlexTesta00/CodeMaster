@@ -1,7 +1,7 @@
 import { CodeQuest } from "../../domain/codequest/codequest";
 
 export interface CodeQuestRepository {
-    save(codequest: CodeQuest): Promise<void>;
+    save(codequest: CodeQuest): Promise<CodeQuest>;
     getAllCodeQuests(): Promise<CodeQuest[]>;
     findCodeQuestById(questId: String): Promise<CodeQuest>;
     findCodeQuestsByAuthor(author: String): Promise<CodeQuest[]>;

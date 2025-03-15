@@ -5,17 +5,17 @@ import { LanguageFactory } from "../../domain/language/language-factory";
 import { CodeQuestRepository } from "./codequest-repository";
 
 export class CodeQuestRepositoryImpl implements CodeQuestRepository{
-    async save(codequest: CodeQuest): Promise<void> {
-        const codequestDoc = new CodeQuestModel({
+    async save(codequest: CodeQuest): Promise<CodeQuest> {
+        const codequestDoc = await new CodeQuestModel({
             questId: codequest.id,
             author: codequest.author,
             problem: codequest.problem,
             title: codequest.title,
             timestamp: codequest.timestamp,
             languages: codequest.languages
-        })
+        }).save()
     
-        await codequestDoc.save();
+        return CodeQuestFactory.createCodeQuest(codequestDoc.questId, codequestDoc.title, codequestDoc.author, codequestDoc.problem, codequestDoc.timestamp, codequestDoc.languages)
     }
     async getAllCodeQuests(): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({}).orFail();
