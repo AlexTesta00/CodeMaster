@@ -22,7 +22,7 @@ describe('TestCodeQuestRepository', () => {
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
-        codequestRepo =  new CodeQuestRepositoryImpl();
+        codequestRepo = new CodeQuestRepositoryImpl();
     }, 10000);
 
     beforeEach(async () => {
@@ -60,6 +60,13 @@ describe('TestCodeQuestRepository', () => {
             const codequests = await codequestRepo.getAllCodeQuests();
             expect(codequests.length).toBe(2);
         }, 10000)
+
+        it('should return all codequests resolvable with given language', async () => {
+            const codequests = await codequestRepo.findCodeQuestsByLanguage(languages[0].name, languages[0].versions);
+            expect(codequests.length).toBe(2);
+            expect(codequests[0]).toStrictEqual(firstCodequest);
+            expect(codequests[1]).toStrictEqual(secondCodequest);
+        })
     });
 
     describe('Test codequest update', () => {

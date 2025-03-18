@@ -11,7 +11,7 @@ export const codequestSchema = new Schema({
         {
             type: [languageSchema],
             ref: 'Language'
-         }
+        }
 });
 
 export const CodeQuestModel = mongoose.model('Codequest', codequestSchema);

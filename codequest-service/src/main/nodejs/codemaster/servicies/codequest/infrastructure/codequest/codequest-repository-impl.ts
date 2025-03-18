@@ -1,10 +1,12 @@
 import { CodeQuest } from "../../domain/codequest/codequest";
 import { CodeQuestFactory } from "../../domain/codequest/codequest-factory";
 import { CodeQuestModel } from "../../domain/codequest/codequest-model";
+import { Language } from "../../domain/language/language";
 import { LanguageFactory } from "../../domain/language/language-factory";
 import { CodeQuestRepository } from "./codequest-repository";
 
 export class CodeQuestRepositoryImpl implements CodeQuestRepository{
+
     async save(codequest: CodeQuest): Promise<CodeQuest> {
         const codequestDoc = await new CodeQuestModel({
             questId: codequest.id,
@@ -37,6 +39,15 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     }
     async findCodeQuestsByAuthor(authorName: String): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({ author: authorName }).orFail();
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+            codequestDoc.title,
+            codequestDoc.author, 
+            codequestDoc.problem, 
+            codequestDoc.timestamp, 
+            codequestDoc.languages.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions))));
+    }
+    async findCodeQuestsByLanguage(languageName: String, versions: String[]): Promise<CodeQuest[]> {
+        const codequestDocs = await CodeQuestModel.find({ 'languages.name': languageName, 'languages.versions': versions }).orFail();
         return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author, 
