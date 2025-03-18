@@ -1,4 +1,4 @@
-import { LanguageError } from "../main/nodejs/codemaster/servicies/codequest/domain/error/language-error";
+import { LanguageError } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
 import { LanguageFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
 
 describe('TestCodeQuestFactory', () => {
@@ -13,11 +13,11 @@ describe('TestCodeQuestFactory', () => {
         expect(language.versions).toBe(versions)
     }, 10000);
 
-    it('should throw error when create codequest if name is invalid', async () => {
+    it('should throw error when create codequest if language name is invalid', async () => {
         expect(() => {LanguageFactory.createLanguage("", versions)}).toThrow(LanguageError.InvalidName);
     }, 10000);
 
-    it('should throw error when create codequest if versions is empty', async () => {
+    it('should throw error when create codequest if language versions is empty', async () => {
         expect(() => {LanguageFactory.createLanguage(name, [])}).toThrow(LanguageError.InvalidVersion);
     }, 10000);
 

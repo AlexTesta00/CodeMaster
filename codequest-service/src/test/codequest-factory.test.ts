@@ -1,6 +1,5 @@
-import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
+import { CodeQuestError, CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
 import mongoose from "mongoose";
-import { CodeQuestError } from "../main/nodejs/codemaster/servicies/codequest/domain/error/codequest-error";
 import { LanguageFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
 
 describe('TestCodeQuestFactory', () => {

@@ -1,5 +1,4 @@
 import { Language } from "./language";
-import { LanguageError } from "../error/language-error";
 
 export class LanguageFactory{
     static createLanguage(name: String, versions: String[]): Language {
@@ -13,4 +12,9 @@ export class LanguageFactory{
 
         return new Language(name, versions);
     }
+}
+
+export class LanguageError {
+    static InvalidName = class extends Error{};
+    static InvalidVersion = class extends Error{};
 }

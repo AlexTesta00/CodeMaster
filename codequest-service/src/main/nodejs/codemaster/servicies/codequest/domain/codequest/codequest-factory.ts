@@ -1,5 +1,4 @@
 import { CodeQuest } from "./codequest"; 
-import { CodeQuestError } from "../error/codequest-error";
 import { Language } from "../language/language";
 
 export class CodeQuestFactory{
@@ -18,4 +17,10 @@ export class CodeQuestFactory{
         
         return new CodeQuest(id, title, author, problem, timestamp, languages);
     }
+}
+
+export class CodeQuestError{
+    static InvalidAuthor = class extends Error{};
+    static InvalidProblem = class extends Error{};
+    static InvalidTitle= class extends Error{};
 }
