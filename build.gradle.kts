@@ -18,4 +18,5 @@ subprojects {}
 tasks.register("build"){
     dependsOn("npmInstall")
     dependsOn(":authentication-service:build")
+    dependsOn(":user-service:build")
 }

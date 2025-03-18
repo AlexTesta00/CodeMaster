@@ -20,3 +20,4 @@ gitHooks {
 }
 
 include("authentication-service")
+include("user-service")
