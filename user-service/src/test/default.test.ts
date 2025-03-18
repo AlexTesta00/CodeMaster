@@ -1,6 +1,5 @@
-describe("Hello World Test",() => {
-
+describe('Hello World Test', () => {
   it('This test pass always', () => {
-    expect(true).toBeTruthy();
-  });
+    expect(true).toBeTruthy()
+  })
 })
