@@ -17,8 +17,8 @@ describe('TestCodeQuestRepository', () => {
     const problem = new Problem("Given two lists, sum all elements in a new list", [new Example('l1 = [2,4,3], l2 = [5,6,4]', '[7,0,8]', '342 + 465 = 807')], null);
     const title = 'Sum of numbers in a list';
     const languages = [LanguageFactory.createLanguage("Java", ["17", "21"]), LanguageFactory.createLanguage("Scala", ["3.3", "3.4"])]
-    const firstCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
-    const secondCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
+    const firstCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
+    const secondCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
 
     beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
@@ -90,6 +90,14 @@ describe('TestCodeQuestRepository', () => {
             const newCodequest = firstCodequest;
             newCodequest.title = "New Title";
             await codequestRepo.updateTitle(firstCodequest.id, "New Title");
+            const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
+            expect(updatedCodequest).toStrictEqual(newCodequest);
+        }, 10000);
+
+        it('should update the languages of the codequest as expected', async () => {
+            const newCodequest = firstCodequest;
+            newCodequest.languages = [languages[0]];
+            await codequestRepo.updateLanguages(firstCodequest.id, [languages[0]]);
             const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
         }, 10000);

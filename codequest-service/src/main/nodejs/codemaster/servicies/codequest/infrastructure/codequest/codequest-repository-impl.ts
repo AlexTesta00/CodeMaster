@@ -22,7 +22,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
         const examples = codequestDoc.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!));
         const problem = new Problem(codequestDoc.problem.body, examples, codequestDoc.problem.constraints)
     
-        return CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+        return CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title, 
             codequestDoc.author, 
             problem, 
@@ -32,7 +32,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     async getAllCodeQuests(): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({}).orFail();
 
-        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author, 
             new Problem(codequestDoc.problem.body, 
@@ -47,7 +47,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
         const examples = codequestDoc.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!));
         const problem = new Problem(codequestDoc.problem.body, examples, codequestDoc.problem.constraints)
 
-        return CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+        return CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author, 
             problem, 
@@ -57,7 +57,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     async findCodeQuestsByAuthor(authorName: String): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({ author: authorName }).orFail();
 
-        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author, 
             new Problem(codequestDoc.problem.body, 
@@ -68,7 +68,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     }
     async findCodeQuestsByLanguage(languageName: String, versions: String[]): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({ 'languages.name': languageName, 'languages.versions': versions }).orFail();
-        return codequestDocs.map(codequestDoc => CodeQuestFactory.createCodeQuest(codequestDoc.questId,
+        return codequestDocs.map(codequestDoc => CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author, 
             new Problem(codequestDoc.problem.body, 
@@ -82,6 +82,9 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     }
     async updateTitle(questId: String, newTitle: String): Promise<void> {
         await CodeQuestModel.findOneAndUpdate({ questId }, { title: newTitle }).orFail();
+    }
+    async updateLanguages(questId: String, newLanguages: Language[]): Promise<void> {
+        await CodeQuestModel.findOneAndUpdate({ questId }, { languages: newLanguages }).orFail();
     }
     async delete(questId: String): Promise<void> {
         await CodeQuestModel.findOneAndDelete({ questId }).orFail();
