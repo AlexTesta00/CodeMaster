@@ -6,14 +6,16 @@ import { CodeQuestRepositoryImpl } from "../main/nodejs/codemaster/servicies/cod
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { CodeQuestRepository } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository';
 import { LanguageFactory } from '../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory';
+import { Problem } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem';
+import { Example } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/example';
 
 describe('TestCodeQuestRepository', () => {
 
     let mongoServer: MongoMemoryServer;
     let codequestRepo: CodeQuestRepository;
-    const author = 'example';
-    const problem = 'Problem';
-    const title = 'Title';
+    const author = 'exampleName';
+    const problem = new Problem("Given two lists, sum all elements in a new list", [new Example('l1 = [2,4,3], l2 = [5,6,4]', '[7,0,8]', '342 + 465 = 807')], null);
+    const title = 'Sum of numbers in a list';
     const languages = [LanguageFactory.createLanguage("Java", ["17", "21"]), LanguageFactory.createLanguage("Scala", ["3.3", "3.4"])]
     const firstCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
     const secondCodequest: CodeQuest = CodeQuestFactory.createCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
@@ -42,9 +44,11 @@ describe('TestCodeQuestRepository', () => {
     describe('Test codequest creation', () => {
 
         it('should create codequest with correct values', async () => {
-            const foundCodeQuest = await CodeQuestModel.findOne({ questId: firstCodequest.id }).exec();
+            const foundCodeQuest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(foundCodeQuest).not.toBeNull();
-            expect(foundCodeQuest?.problem).toBe(problem);
+            expect(foundCodeQuest?.problem.body).toBe(problem.body);
+            expect(foundCodeQuest?.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!))).toEqual(problem.examples);
+            expect(foundCodeQuest?.problem.constraints).toEqual(problem.constraints);
             expect(foundCodeQuest?.title).toBe(title);
             expect(foundCodeQuest?.author).toBe(author);
             expect(foundCodeQuest?.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
@@ -73,8 +77,11 @@ describe('TestCodeQuestRepository', () => {
 
         it('should update the problem of the codequest as expected', async () => {
             const newCodequest = firstCodequest;
-            newCodequest.problem = "New Problem";
-            await codequestRepo.updateProblem(firstCodequest.id, "New Problem");
+            const newProblem = new Problem("Given three lists, sum all elements as a number",
+                [new Example('l1 = [2,4,3], l2 = [5,6,4], l3 = [1,2,3]', '[9,3,0]', '342 + 465 + 123 = 930')],
+                 null);
+            newCodequest.problem = newProblem
+            await codequestRepo.updateProblem(firstCodequest.id, newProblem);
             const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
         }, 10000);
