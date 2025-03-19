@@ -10,5 +10,6 @@ export interface CodeQuestRepository {
     findCodeQuestsByLanguage(languageName: String, versions: String[]): Promise<CodeQuest[]>;
     updateProblem(questId: String, newProblem: Problem): Promise<void>;
     updateTitle(questId: String, newTitle: String): Promise<void>;
+    updateLanguages(questId: String, newLanguages: Language[]): Promise<void>;
     delete(questId: String): Promise<void>;
 }
