@@ -20,4 +20,14 @@ tasks.register<NpmTask>("build") {
     dependsOn("npmTest")
 }
 
+tasks.register<NpmTask>("lint"){
+    args.set(listOf("run", "lint"))
+    dependsOn("npmInstall")
+}
+
+tasks.register<NpmTask>("prettier"){
+    args.set(listOf("run", "prettier"))
+    dependsOn("npmInstall")
+}
+
 defaultTasks("build")
