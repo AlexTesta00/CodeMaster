@@ -1,5 +1,5 @@
 import express from "express";
-import router from "./interfaces/routers/codequest-routes";
+import router from "./interfaces/codequest-routes";
 import { connectToDatabase } from "./infrastructure/db-connection";
 import * as dotenv from 'dotenv'
 import { errorHandler } from "./interfaces/error-handler";
