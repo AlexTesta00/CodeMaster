@@ -1,5 +1,3 @@
-import { UserId } from './user'
-
 const isValidNickname = (nickname: string): boolean => {
   const regex = /^[a-zA-Z0-9_]{3,10}$/
   return regex.test(nickname)
@@ -10,8 +8,8 @@ const isValidUrl = (url: string): boolean => {
   return regex.test(url)
 }
 
-export const checkNicknameOrThrowError = (nickname: UserId): void => {
-  if (!isValidNickname(nickname.value)) {
+export const checkNicknameOrThrowError = (nickname: string): void => {
+  if (!isValidNickname(nickname)) {
     throw new Error(
       'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
     )
