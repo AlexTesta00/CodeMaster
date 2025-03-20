@@ -7,11 +7,11 @@ import { Level } from './level'
 
 export class UserManager {
   constructor(
-    private userInfo: User,
-    private profilePicture: ProfilePicture,
-    private languages: Set<Language>,
-    private cv: CV,
-    private trophies: Set<Trophy>,
-    private level: Level
+    public readonly userInfo: User,
+    public readonly profilePicture: ProfilePicture,
+    public readonly languages: Iterable<Language>,
+    public readonly cv: CV,
+    public readonly trophies: Iterable<Trophy>,
+    public readonly level: Level
   ) {}
 }
