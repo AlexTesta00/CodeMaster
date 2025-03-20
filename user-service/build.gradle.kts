@@ -28,6 +28,12 @@ tasks.register<NpmTask>("lint"){
 tasks.register<NpmTask>("prettier"){
     args.set(listOf("run", "prettier"))
     dependsOn("npmInstall")
+    dependsOn("checkPrettier")
+}
+
+tasks.register<NpmTask>("checkPrettier"){
+    args.set(listOf("run", "check-format"))
+    dependsOn("npmInstall")
 }
 
 defaultTasks("build")
