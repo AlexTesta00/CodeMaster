@@ -1,7 +1,14 @@
+export class TrophyId {
+  constructor(public readonly value: string) {
+    if (!value) throw new Error('UserId cannot be empty')
+  }
+}
+
 export class Trophy {
   constructor(
-    public readonly title: string,
+    public readonly title: TrophyId,
     public readonly description: string,
+    public readonly url: string,
     public readonly xp: number
   ) {}
 }
