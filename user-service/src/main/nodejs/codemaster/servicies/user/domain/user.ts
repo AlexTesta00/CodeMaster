@@ -10,6 +10,6 @@ export class UserId {
 export class User {
   constructor(
     public readonly nickname: UserId,
-    public readonly bio: string
+    public readonly bio: string | null
   ) {}
 }
