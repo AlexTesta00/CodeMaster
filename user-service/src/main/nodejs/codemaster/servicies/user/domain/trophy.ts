@@ -1,6 +1,6 @@
 export class TrophyId {
   constructor(public readonly value: string) {
-    if (!value) throw new Error('UserId cannot be empty')
+    if (!value || value === '') throw new Error('TrophyId cannot be empty')
   }
 }
 

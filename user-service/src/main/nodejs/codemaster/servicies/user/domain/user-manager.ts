@@ -8,10 +8,10 @@ import { Level } from './level'
 export class UserManager {
   constructor(
     public readonly userInfo: User,
-    public readonly profilePicture: ProfilePicture,
-    public readonly languages: Iterable<Language>,
-    public readonly cv: CV,
-    public readonly trophies: Iterable<Trophy>,
+    public readonly profilePicture: ProfilePicture | null,
+    public readonly languages: Iterable<Language> | null,
+    public readonly cv: CV | null,
+    public readonly trophies: Iterable<Trophy> | null,
     public readonly level: Level
   ) {}
 }
