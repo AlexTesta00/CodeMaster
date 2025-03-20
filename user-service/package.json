@@ -7,7 +7,7 @@
     "build": "tsc",
     "lint": "npx eslint --config eslint.config.mjs .",
     "prettier": "npx prettier . --write",
-    "check:pretty": "npx prettier . --check"
+    "check-format": "npx prettier . --check"
   },
   "repository": {
     "type": "git",
