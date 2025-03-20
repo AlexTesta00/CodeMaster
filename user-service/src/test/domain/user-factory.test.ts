@@ -1,4 +1,3 @@
-import { UserId } from '../../main/nodejs/codemaster/servicies/user/domain/user'
 import {
   createAdvancedUser,
   createDefaultUser,
@@ -14,16 +13,17 @@ import {
 } from '../../main/nodejs/codemaster/servicies/user/domain/trophy'
 import { Level, LevelId } from '../../main/nodejs/codemaster/servicies/user/domain/level'
 import { checkNicknameOrThrowError } from '../../main/nodejs/codemaster/servicies/user/domain/validator'
+import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 
 describe('User Functions', () => {
   describe('checkNicknameOrThrowError', () => {
     it('should not throw an error for a valid nickname', () => {
-      const validNickname = new UserId('valid_123')
+      const validNickname = 'valid_123'
       expect(() => checkNicknameOrThrowError(validNickname)).not.toThrow()
     })
 
     it('should throw an error for an invalid nickname', () => {
-      const invalidNickname = new UserId('inv@lid')
+      const invalidNickname = 'inv@lid'
       expect(() => checkNicknameOrThrowError(invalidNickname)).toThrow(
         'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
       )
@@ -32,7 +32,7 @@ describe('User Functions', () => {
 
   describe('createDefaultUserInfo', () => {
     it('should create a default user with a valid nickname', () => {
-      const nickname = new UserId('user_123')
+      const nickname = 'user_123'
       const user = createDefaultUserInfo(nickname)
       expect(user.nickname.value).toBe('user_123')
       expect(user.bio).toBeNull()
@@ -41,7 +41,7 @@ describe('User Functions', () => {
 
   describe('createUserInfo', () => {
     it('should create a user with a valid nickname and bio', () => {
-      const nickname = new UserId('user_123')
+      const nickname = 'user_123'
       const bio = 'This is a bio'
       const user = createUserInfo(nickname, bio)
       expect(user.nickname.value).toBe('user_123')
@@ -51,7 +51,7 @@ describe('User Functions', () => {
 
   describe('createDefaultUser', () => {
     it('should create a default user manager with a valid nickname', () => {
-      const nickname = new UserId('user_123')
+      const nickname = 'user_123'
       const userManager = createDefaultUser(nickname)
       expect(userManager.userInfo.nickname.value).toBe('user_123')
       expect(userManager.level.grade.value).toBe(1)
@@ -66,7 +66,7 @@ describe('User Functions', () => {
 
   describe('createAdvancedUser', () => {
     it('should create an advanced user manager with all details', () => {
-      const nickname = new UserId('user_123')
+      const nickname = 'user_123'
       const bio = 'Advanced bio'
       const profilePicture = new ProfilePicture('https://example.com/example.png', null)
       const languages: Iterable<Language> = [new Language('Java'), new Language('Kotlin')]
@@ -93,6 +93,34 @@ describe('User Functions', () => {
       expect(userManager.cv?.url).toBe('https://example.com/example.pdf')
       expect(Array.from(userManager.trophies!).length).toBe(1)
       expect(userManager.level.grade.value).toBe(2)
+    })
+
+    it('should throw an error for an invalid profile picture url', () => {
+      expect(() =>
+        createAdvancedUser(
+          'user',
+          'bio',
+          new ProfilePicture('//example.com', null),
+          [],
+          new CV('https://example.com'),
+          [],
+          createDefaultLevel()
+        )
+      ).toThrow('Invalid URL format')
+    })
+
+    it('should throw an error for an invalid cv url', () => {
+      expect(() =>
+        createAdvancedUser(
+          'user',
+          'bio',
+          new ProfilePicture('https://example.com', null),
+          [],
+          new CV('//example.com'),
+          [],
+          createDefaultLevel()
+        )
+      ).toThrow('Invalid URL format')
     })
   })
 })
