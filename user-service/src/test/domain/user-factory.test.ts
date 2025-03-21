@@ -12,6 +12,9 @@ import {
   FIRST_LEVEL_GRADE,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
+import { fold, isSome, none } from 'fp-ts/Option'
+import { ProfilePicture } from '../../main/nodejs/codemaster/servicies/user/domain/profile-picture'
+import { CV } from '../../main/nodejs/codemaster/servicies/user/domain/cv'
 
 describe('User Functions', () => {
   describe('checkNicknameOrThrowError', () => {
@@ -33,7 +36,7 @@ describe('User Functions', () => {
       const nickname = 'user_123'
       const user = createDefaultUserInfo(nickname)
       expect(user.nickname.value).toBe('user_123')
-      expect(user.bio).toBeNull()
+      expect(isSome(user.bio)).not.toBeTruthy()
     })
   })
 
@@ -43,7 +46,13 @@ describe('User Functions', () => {
       const bio = 'This is a bio'
       const user = createUserInfo(nickname, bio)
       expect(user.nickname.value).toBe('user_123')
-      expect(user.bio).toBe('This is a bio')
+
+      const userBio = fold(
+        () => '',
+        (bio: string): string => bio
+      )(user.bio)
+
+      expect(userBio).toBe('This is a bio')
     })
   })
 
@@ -54,11 +63,11 @@ describe('User Functions', () => {
       expect(userManager.userInfo.nickname.value).toBe('user_123')
       expect(userManager.level.grade.value).toBe(1)
       expect(userManager.level.title).toBe('Novice')
-      expect(userManager.userInfo.bio).toBeNull()
-      expect(userManager.trophies).toBeNull()
-      expect(userManager.profilePicture).toBeNull()
-      expect(userManager.cv).toBeNull()
-      expect(userManager.languages).toBeNull()
+      expect(isSome(userManager.userInfo.bio)).not.toBeTruthy()
+      expect(isSome(userManager.trophies)).not.toBeTruthy()
+      expect(isSome(userManager.profilePicture)).not.toBeTruthy()
+      expect(isSome(userManager.cv)).not.toBeTruthy()
+      expect(isSome(userManager.languages)).not.toBeTruthy()
     })
   })
 
@@ -66,7 +75,7 @@ describe('User Functions', () => {
     it('should create an advanced user manager with all details', () => {
       const nickname = 'user_123'
       const bio = 'Advanced bio'
-      const profilePicture = { url: 'https://example.com/example.png', alt: null }
+      const profilePicture = { url: 'https://example.com/example.png', alt: none }
       const languages: Iterable<Language> = [{ name: 'Java' }, { name: 'Kotlin' }]
       const cv = { url: 'https://example.com/example.pdf' }
       const trophies: Iterable<Trophy> = [
@@ -89,12 +98,41 @@ describe('User Functions', () => {
         level
       )
 
+      const retriveUserBio = fold(
+        () => '',
+        (bio: string): string => bio
+      )(userManager.userInfo.bio)
+
+      const retriveProfilePicture = fold(
+        () => '',
+        (profilePicture: ProfilePicture): string => profilePicture.url
+      )(userManager.profilePicture)
+
+      const retriveTrophies = fold(
+        () => [],
+        (trophies: Iterable<Trophy>): Trophy[] => Array.from(trophies)
+      )(userManager.trophies)
+
+      const retriveCVInfo = fold(
+        () => '',
+        (cv: CV): string => cv.url
+      )(userManager.cv)
+
+      const retriveLanguages = fold(
+        () => [],
+        (languages: Iterable<Language>): Language[] => Array.from(languages)
+      )(userManager.languages)
+
       expect(userManager.userInfo.nickname.value).toBe('user_123')
-      expect(userManager.userInfo.bio).toBe('Advanced bio')
-      expect(userManager.profilePicture?.url).toBe('https://example.com/example.png')
-      expect(Array.from(userManager.languages!).length).toBe(2)
-      expect(userManager.cv?.url).toBe('https://example.com/example.pdf')
-      expect(Array.from(userManager.trophies!).length).toBe(1)
+      expect(retriveUserBio).toBe('Advanced bio')
+      expect(isSome(userManager.profilePicture)).toBeTruthy()
+      expect(retriveProfilePicture).toBe('https://example.com/example.png')
+      expect(isSome(userManager.languages)).toBeTruthy()
+      expect(retriveLanguages.length).toBe(2)
+      expect(isSome(userManager.cv)).toBeTruthy()
+      expect(retriveCVInfo).toBe('https://example.com/example.pdf')
+      expect(isSome(userManager.trophies)).toBeTruthy()
+      expect(retriveTrophies.length).toBe(1)
       expect(userManager.level.grade.value).toBe(FIRST_LEVEL_GRADE)
     })
 
@@ -103,7 +141,7 @@ describe('User Functions', () => {
         createAdvancedUser(
           'user',
           'bio',
-          { url: '//example.com', alt: null },
+          { url: '//example.com', alt: none },
           [],
           { url: 'https://example.com' },
           [],
@@ -117,7 +155,7 @@ describe('User Functions', () => {
         createAdvancedUser(
           'user',
           'bio',
-          { url: 'https://example.com', alt: null },
+          { url: 'https://example.com', alt: none },
           [],
           { url: '//example.com' },
           [],
