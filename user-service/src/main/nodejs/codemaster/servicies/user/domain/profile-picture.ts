@@ -1,6 +1,4 @@
-export class ProfilePicture {
-  constructor(
-    public readonly url: string,
-    public readonly alt: string | null
-  ) {}
-}
+export type ProfilePicture = Readonly<{
+  url: string
+  alt: string | null
+}>

@@ -1,4 +1,4 @@
-import { User, UserId } from './user'
+import { User } from './user'
 import { UserManager } from './user-manager'
 import { Level } from './level'
 import { ProfilePicture } from './profile-picture'
@@ -10,25 +10,31 @@ import { createDefaultLevel } from './level-factory'
 
 export const createDefaultUserInfo = (nickname: string): User => {
   checkNicknameOrThrowError(nickname)
-  return new User(new UserId(nickname), null)
+  return {
+    nickname: { value: nickname },
+    bio: null,
+  }
 }
 
 export const createUserInfo = (nickname: string, bio: string): User => {
   checkNicknameOrThrowError(nickname)
-  return new User(new UserId(nickname), bio)
+  return {
+    nickname: { value: nickname },
+    bio: bio,
+  }
 }
 
 export const createDefaultUser = (nickname: string): UserManager => {
   checkNicknameOrThrowError(nickname)
   const defaultLevel: Level = createDefaultLevel()
-  return new UserManager(
-    new User(new UserId(nickname), null),
-    null,
-    null,
-    null,
-    null,
-    defaultLevel
-  )
+  return {
+    userInfo: createDefaultUserInfo(nickname),
+    profilePicture: null,
+    languages: null,
+    cv: null,
+    trophies: null,
+    level: defaultLevel,
+  }
 }
 
 export const createAdvancedUser = (
@@ -43,6 +49,12 @@ export const createAdvancedUser = (
   checkNicknameOrThrowError(nickname)
   checkUrlOrThrowError(profilePicture.url)
   checkUrlOrThrowError(cv.url)
-  const userInfo: User = new User(new UserId(nickname), bio)
-  return new UserManager(userInfo, profilePicture, languages, cv, trophies, level)
+  return {
+    userInfo: createUserInfo(nickname, bio),
+    profilePicture: profilePicture,
+    languages: languages,
+    cv: cv,
+    trophies: trophies,
+    level: level,
+  }
 }

@@ -1,4 +1,4 @@
-import { Trophy, TrophyId } from './trophy'
+import { Trophy } from './trophy'
 import { checkUrlOrThrowError } from './validator'
 
 export const createTrophy = (
@@ -10,7 +10,12 @@ export const createTrophy = (
   if (!title) throw new Error('Title cannot be empty')
   if (xp < 0) throw new Error('XP cannot be negative')
   checkUrlOrThrowError(url)
-  return new Trophy(new TrophyId(title), description, url, xp)
+  return {
+    title: { value: title },
+    description: description,
+    url: url,
+    xp: xp,
+  }
 }
 
 export const createTrophyWithDefaultImage = (
