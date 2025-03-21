@@ -1,3 +1,3 @@
-export class Language {
-  constructor(public readonly name: string) {}
-}
+export type Language = Readonly<{
+  name: string
+}>

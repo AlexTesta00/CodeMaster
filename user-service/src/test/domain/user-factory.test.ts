@@ -4,16 +4,14 @@ import {
   createDefaultUserInfo,
   createUserInfo,
 } from '../../main/nodejs/codemaster/servicies/user/domain/user-factory'
-import { ProfilePicture } from '../../main/nodejs/codemaster/servicies/user/domain/profile-picture'
 import { Language } from '../../main/nodejs/codemaster/servicies/user/domain/language'
-import { CV } from '../../main/nodejs/codemaster/servicies/user/domain/cv'
-import {
-  Trophy,
-  TrophyId,
-} from '../../main/nodejs/codemaster/servicies/user/domain/trophy'
-import { Level, LevelId } from '../../main/nodejs/codemaster/servicies/user/domain/level'
+import { Trophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy'
 import { checkNicknameOrThrowError } from '../../main/nodejs/codemaster/servicies/user/domain/validator'
-import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {
+  createDefaultLevel,
+  FIRST_LEVEL_GRADE,
+} from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
 
 describe('User Functions', () => {
   describe('checkNicknameOrThrowError', () => {
@@ -68,13 +66,18 @@ describe('User Functions', () => {
     it('should create an advanced user manager with all details', () => {
       const nickname = 'user_123'
       const bio = 'Advanced bio'
-      const profilePicture = new ProfilePicture('https://example.com/example.png', null)
-      const languages: Iterable<Language> = [new Language('Java'), new Language('Kotlin')]
-      const cv = new CV('https://example.com/example.pdf')
+      const profilePicture = { url: 'https://example.com/example.png', alt: null }
+      const languages: Iterable<Language> = [{ name: 'Java' }, { name: 'Kotlin' }]
+      const cv = { url: 'https://example.com/example.pdf' }
       const trophies: Iterable<Trophy> = [
-        new Trophy(new TrophyId('First Win'), '', '', 560),
+        createTrophy(
+          'First Win',
+          'Won your first game',
+          'https://example.com/trophy.png',
+          100
+        ),
       ]
-      const level = new Level(new LevelId(2), 'intermediate', 100)
+      const level = createDefaultLevel()
 
       const userManager = createAdvancedUser(
         nickname,
@@ -92,7 +95,7 @@ describe('User Functions', () => {
       expect(Array.from(userManager.languages!).length).toBe(2)
       expect(userManager.cv?.url).toBe('https://example.com/example.pdf')
       expect(Array.from(userManager.trophies!).length).toBe(1)
-      expect(userManager.level.grade.value).toBe(2)
+      expect(userManager.level.grade.value).toBe(FIRST_LEVEL_GRADE)
     })
 
     it('should throw an error for an invalid profile picture url', () => {
@@ -100,9 +103,9 @@ describe('User Functions', () => {
         createAdvancedUser(
           'user',
           'bio',
-          new ProfilePicture('//example.com', null),
+          { url: '//example.com', alt: null },
           [],
-          new CV('https://example.com'),
+          { url: 'https://example.com' },
           [],
           createDefaultLevel()
         )
@@ -114,9 +117,9 @@ describe('User Functions', () => {
         createAdvancedUser(
           'user',
           'bio',
-          new ProfilePicture('https://example.com', null),
+          { url: 'https://example.com', alt: null },
           [],
-          new CV('//example.com'),
+          { url: '//example.com' },
           [],
           createDefaultLevel()
         )

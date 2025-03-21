@@ -1,15 +1,8 @@
-export class UserId {
-  constructor(public readonly value: string) {
-    if (!value) throw new Error('UserId cannot be empty')
-  }
-  toString() {
-    return this.value
-  }
-}
+export type UserId = Readonly<{
+  value: string
+}>
 
-export class User {
-  constructor(
-    public readonly nickname: UserId,
-    public readonly bio: string | null
-  ) {}
-}
+export type User = Readonly<{
+  nickname: UserId
+  bio: string | null
+}>

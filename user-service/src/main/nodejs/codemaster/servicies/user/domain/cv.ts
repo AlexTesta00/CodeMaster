@@ -1,3 +1,3 @@
-export class CV {
-  constructor(public readonly url: string) {}
-}
+export type CV = Readonly<{
+  url: string
+}>
