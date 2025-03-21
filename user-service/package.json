@@ -43,6 +43,7 @@
     "@types/jsonwebtoken": "^9.0.8",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fp-ts": "^2.16.6",
     "helmet": "^8.0.0",
     "mongoose": "^8.10.0",
     "ts-node-dev": "^2.0.0"

@@ -1,4 +1,6 @@
+import { Option } from 'fp-ts/Option'
+
 export type ProfilePicture = Readonly<{
   url: string
-  alt: string | null
+  alt: Option<string>
 }>
