@@ -66,16 +66,17 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
             codequestDoc.timestamp, 
             codequestDoc.languages.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions))));
     }
-    async findCodeQuestsByLanguage(languageName: String, versions: String[]): Promise<CodeQuest[]> {
-        const codequestDocs = await CodeQuestModel.find({ 'languages.name': languageName, 'languages.versions': versions }).orFail();
+    async findCodeQuestsByLanguage(languageName: String): Promise<CodeQuest[]> {
+        const codequestDocs = await CodeQuestModel.find({ languages: { $elemMatch : {name: languageName }} }).orFail();
         return codequestDocs.map(codequestDoc => CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
-            codequestDoc.author, 
-            new Problem(codequestDoc.problem.body, 
-                codequestDoc.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!)), 
-                codequestDoc.problem.constraints), 
+            codequestDoc.author,
+            new Problem(codequestDoc.problem.body,
+                        codequestDoc.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!)),
+                        codequestDoc.problem.constraints),
             codequestDoc.timestamp, 
-            codequestDoc.languages.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions))));
+            codequestDoc.languages.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions))
+        ));
     }
     async updateProblem(questId: String, newProblem: Problem): Promise<void> {
         await CodeQuestModel.findOneAndUpdate({ questId }, { problem: newProblem }).orFail();

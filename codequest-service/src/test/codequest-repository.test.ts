@@ -66,7 +66,7 @@ describe('TestCodeQuestRepository', () => {
         }, 10000)
 
         it('should return all codequests resolvable with given language', async () => {
-            const codequests = await codequestRepo.findCodeQuestsByLanguage(languages[0].name, languages[0].versions);
+            const codequests = await codequestRepo.findCodeQuestsByLanguage(languages[0].name);
             expect(codequests.length).toBe(2);
             expect(codequests[0]).toStrictEqual(firstCodequest);
             expect(codequests[1]).toStrictEqual(secondCodequest);
