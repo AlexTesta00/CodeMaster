@@ -4,7 +4,7 @@
   "description": "Microservice supporting and managing codequests",
   "main": "./src/main/nodejs/codemaster/servicies/codequest/app.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand --detectOpenHandles",
     "start": "ts-node ./src/main/nodejs/codemaster/servicies/codequest/app.ts",
     "dev": "nodemon ./src/main/nodejs/codemaster/servicies/codequest/app.ts",
     "build": "tsc",
