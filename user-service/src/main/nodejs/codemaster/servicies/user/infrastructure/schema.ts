@@ -49,3 +49,4 @@ const userManagerSchema = new Schema({
 })
 
 export const UserManagerModel = mongoose.model('UserManager', userManagerSchema)
+export const TrophyModel = mongoose.model('TrophyModel', trophySchema)
