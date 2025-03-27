@@ -8,6 +8,7 @@ import { LanguageFactory } from '../main/nodejs/codemaster/servicies/codequest/d
 import { Problem } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem';
 import { Example } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/example';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { LanguageModel } from '../main/nodejs/codemaster/servicies/codequest/domain/language/language-model';
 
 describe('TestCodeQuestRepository', () => {
 

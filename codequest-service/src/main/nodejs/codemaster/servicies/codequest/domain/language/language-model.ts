@@ -1,7 +1,7 @@
 import mongoose, {Schema} from 'mongoose';
 
 export const languageSchema = new Schema({
-    name: {type: 'string', key: true, required: true, unique: true},
+    name: {type: 'string', required: true},
     versions: {type: ['string'], required: true}
 });
 

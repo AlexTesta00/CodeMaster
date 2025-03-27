@@ -4,7 +4,7 @@ import { languageSchema } from '../language/language-model';
 const ExampleSchema = new Schema({
     input: {type: 'string', required: true},
     output: {type: 'string', required: true},
-    explanation: { type: 'string', required: false}
+    explanation: 'string'
 })
 
 const ProblemSchema = new Schema({
@@ -19,11 +19,7 @@ export const CodequestSchema = new Schema({
     problem: {type: ProblemSchema, required: true},
     timestamp: {type: Date, default: Date.now()},
     title: {type: 'string', required: true},
-    languages:
-        {
-            type: [languageSchema],
-            ref: 'Language'
-        }
+    languages: [languageSchema]
 });
 
 export const CodeQuestModel = mongoose.model('Codequest', CodequestSchema);

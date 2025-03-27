@@ -68,6 +68,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository{
     }
     async findCodeQuestsByLanguage(languageName: String): Promise<CodeQuest[]> {
         const codequestDocs = await CodeQuestModel.find({ languages: { $elemMatch : {name: languageName }} }).orFail();
+
         return codequestDocs.map(codequestDoc => CodeQuestFactory.newCodeQuest(codequestDoc.questId,
             codequestDoc.title,
             codequestDoc.author,
