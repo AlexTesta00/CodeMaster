@@ -14,11 +14,13 @@ import {
   findUser,
   saveAdvancedUser,
   saveDefaultUser,
-  toUserManager,
-  toUserManagerModel,
   updateUserInfo,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/user-repository'
 import { isLeft, isRight } from 'fp-ts/Either'
+import {
+  toUserManager,
+  toUserManagerModel,
+} from '../../main/nodejs/codemaster/servicies/user/infrastructure/conversion'
 
 let mongoMemoryServer: MongoMemoryServer
 const timeout: number = 10000
@@ -206,9 +208,8 @@ describe('Test user repository', () => {
           newTrophy,
           level
         )
-        const result = await updateUserInfo(newUserInfo.nickname, updatedInfo)
+        await updateUserInfo(newUserInfo.nickname, updatedInfo)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
-        console.log(result)
         expect(user).not.toBeNull()
         expect(user?.userInfo.nickname).toEqual(nickname)
         expect(user?.userInfo.bio).toEqual(newBio)
