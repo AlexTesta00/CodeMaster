@@ -84,7 +84,9 @@ describe('Test user repository', () => {
         expect(convertedUserManager.userInfo.nickname).toEqual(newUser.userInfo.nickname)
         expect(convertedUserManager.userInfo.bio).toEqual(newUser.userInfo.bio)
         expect(convertedUserManager.profilePicture).toEqual(newUser.profilePicture)
-        expect(convertedLanguages).toEqual(languages)
+        expect(Array.from(convertedLanguages).map((language) => language.name)).toEqual(
+          languages.map((language) => language.name)
+        )
         expect(convertedCV.url).toEqual(cv.url)
         expect(convertedTrophies).toEqual(trophies)
         expect(convertedUserManager.level).toEqual(level)
@@ -204,8 +206,9 @@ describe('Test user repository', () => {
           newTrophy,
           level
         )
-        await updateUserInfo(newUserInfo.nickname, updatedInfo)
+        const result = await updateUserInfo(newUserInfo.nickname, updatedInfo)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
+        console.log(result)
         expect(user).not.toBeNull()
         expect(user?.userInfo.nickname).toEqual(nickname)
         expect(user?.userInfo.bio).toEqual(newBio)
