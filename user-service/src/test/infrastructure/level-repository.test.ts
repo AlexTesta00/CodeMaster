@@ -6,13 +6,13 @@ import {
   deleteLevel,
   findLevel,
   saveLevel,
-  toLevelModel,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/level-repository'
 import { left, right } from 'fp-ts/Either'
 import {
   LevelNotFound,
   UnknownError,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/repository-error'
+import { toLevelModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/conversion'
 
 describe('Level Repository', () => {
   let mongoServer: MongoMemoryServer

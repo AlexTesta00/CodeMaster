@@ -1,5 +1,5 @@
 import { UserManager } from '../domain/user-manager'
-import { TrophyModel, UserManagerModel } from './schema'
+import { LevelModel, TrophyModel, UserManagerModel } from './schema'
 import { pipe } from 'fp-ts/function'
 import { flatMap, fromNullable, getOrElse, map, none, toNullable } from 'fp-ts/Option'
 import { createTrophy } from '../domain/trophy-factory'
@@ -7,6 +7,7 @@ import { createLevel } from '../domain/level-factory'
 import { createAdvancedUser } from '../domain/user-factory'
 import { Language } from '../domain/language'
 import { Trophy } from '../domain/trophy'
+import { Level } from '../domain/level'
 
 const DEFAULT_BIO_VALUE = ''
 const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
@@ -125,5 +126,13 @@ export const toTrophyModel = (trophy: Trophy) => {
     description: trophy.description,
     url: trophy.url,
     xp: trophy.xp,
+  })
+}
+
+export const toLevelModel = (level: Level) => {
+  return new LevelModel({
+    grade: level.grade.value,
+    title: level.title,
+    xp: level.xpLevel,
   })
 }
