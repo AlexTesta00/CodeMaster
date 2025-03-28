@@ -6,13 +6,13 @@ import {
   deleteTrophy,
   findTrophy,
   saveTrophy,
-  toTrophyModel,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/trophy-repository'
 import { left, right } from 'fp-ts/Either'
 import {
   TrophyNotFound,
   UnknownError,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/repository-error'
+import { toTrophyModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/conversion'
 
 describe('Test Trophy Repository', () => {
   let mongoServer: MongoMemoryServer

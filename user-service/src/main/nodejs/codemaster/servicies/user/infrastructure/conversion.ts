@@ -1,11 +1,12 @@
 import { UserManager } from '../domain/user-manager'
-import { UserManagerModel } from './schema'
+import { TrophyModel, UserManagerModel } from './schema'
 import { pipe } from 'fp-ts/function'
 import { flatMap, fromNullable, getOrElse, map, none, toNullable } from 'fp-ts/Option'
 import { createTrophy } from '../domain/trophy-factory'
 import { createLevel } from '../domain/level-factory'
 import { createAdvancedUser } from '../domain/user-factory'
 import { Language } from '../domain/language'
+import { Trophy } from '../domain/trophy'
 
 const DEFAULT_BIO_VALUE = ''
 const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
@@ -117,3 +118,12 @@ export const toUserManager = (userDocument: UserDocument): UserManager =>
     ({ nickname, bio, profilePicture, languages, cv, trophies, level }) =>
       createAdvancedUser(nickname, bio, profilePicture, languages, cv, trophies, level)
   )
+
+export const toTrophyModel = (trophy: Trophy) => {
+  return new TrophyModel({
+    title: trophy.title.value,
+    description: trophy.description,
+    url: trophy.url,
+    xp: trophy.xp,
+  })
+}
