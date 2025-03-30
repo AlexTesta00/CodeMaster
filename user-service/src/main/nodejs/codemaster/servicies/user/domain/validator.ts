@@ -1,23 +1,17 @@
-const isValidNickname = (nickname: string): boolean => {
-  const regex = /^[a-zA-Z0-9_]{3,10}$/
-  return regex.test(nickname)
-}
+import { Either, left, right } from 'fp-ts/Either'
+import { Error } from 'mongoose'
 
-const isValidUrl = (url: string): boolean => {
-  const regex = /^(http|https):\/\/[^ "]+$/
-  return regex.test(url)
-}
+const nicknameRegEx: RegExp = /^[a-zA-Z0-9_]{3,10}$/
+const urlRexEx: RegExp = /^(http|https):\/\/[^ "]+$/
 
-export const checkNicknameOrThrowError = (nickname: string): void => {
-  if (!isValidNickname(nickname)) {
-    throw new Error(
-      'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
-    )
-  }
-}
+export const checkNickname = (nickname: string): Either<Error, string> =>
+  nicknameRegEx.test(nickname)
+    ? right(nickname)
+    : left(
+        new Error(
+          'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
+        )
+      )
 
-export const checkUrlOrThrowError = (url: string): void => {
-  if (!isValidUrl(url)) {
-    throw new Error('Invalid URL format')
-  }
-}
+export const checkUrl = (url: string): Either<Error, string> =>
+  urlRexEx.test(url) ? right(url) : left(new Error('Invalid URL format'))

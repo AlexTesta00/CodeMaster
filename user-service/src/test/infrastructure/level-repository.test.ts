@@ -7,7 +7,7 @@ import {
   findLevel,
   saveLevel,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/level-repository'
-import { left, right } from 'fp-ts/Either'
+import { isRight, left, right } from 'fp-ts/Either'
 import {
   LevelNotFound,
   UnknownError,
@@ -35,8 +35,8 @@ describe('Level Repository', () => {
   describe('saveLevel', () => {
     it('should save a level successfully', async () => {
       const level = createLevel(5, 'Intermediate Level', 1000)
-
-      await saveLevel(level)
+      const rightLevel = isRight(level) ? level.right : null
+      await saveLevel(rightLevel!)
       const savedLevel = await LevelModel.findOne({ grade: 5 }).exec()
       expect(savedLevel).toBeDefined()
       expect(savedLevel?.grade).toBe(5)
@@ -46,10 +46,9 @@ describe('Level Repository', () => {
 
     it('should return UnknownError when saving fails', async () => {
       jest.spyOn(LevelModel.prototype, 'save').mockRejectedValueOnce(new UnknownError())
-
       const level = createLevel(3, 'Test Level', 500)
-
-      const result = await saveLevel(level)
+      const rightLevel = isRight(level) ? level.right : null
+      const result = await saveLevel(rightLevel!)
       expect(result).toEqual(left(new UnknownError()))
     })
   })
@@ -57,9 +56,16 @@ describe('Level Repository', () => {
   describe('findLevel', () => {
     it('should find an existing level by grade', async () => {
       const level = createLevel(7, 'Advanced Level', 2000)
-      await saveLevel(level)
+      expect(isRight(level)).toBeTruthy()
+
+      const rightLevel = isRight(level) ? level.right : null
+      await saveLevel(rightLevel!)
+
       const result = await findLevel({ value: 7 })
-      expect(result).toEqual(right(level))
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? result.right : null
+      expect(rightResult!).toEqual(rightLevel)
     })
 
     it('should return LevelNotFound for non-existent level', async () => {
@@ -81,8 +87,8 @@ describe('Level Repository', () => {
   describe('deleteLevel', () => {
     it('should delete an existing level', async () => {
       const level = createLevel(4, 'Level to delete', 750)
-      await saveLevel(level)
-
+      const rightLevel = isRight(level) ? level.right : null
+      await saveLevel(rightLevel!)
       const result = await deleteLevel({ value: 4 })
       expect(result).toEqual(right(undefined))
       const deletedLevel = await LevelModel.findOne({ grade: 4 }).exec()
@@ -106,8 +112,8 @@ describe('Level Repository', () => {
   describe('toLevelModel', () => {
     it('should correctly convert Level to LevelModel', () => {
       const level = createLevel(6, 'Conversion Test', 1500)
-
-      const model = toLevelModel(level)
+      const rightLevel = isRight(level) ? level.right : null
+      const model = toLevelModel(rightLevel!)
       expect(model.grade).toBe(6)
       expect(model.title).toBe('Conversion Test')
       expect(model.xp).toBe(1500)

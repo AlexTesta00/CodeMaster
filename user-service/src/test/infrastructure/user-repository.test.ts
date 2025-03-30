@@ -16,7 +16,7 @@ import {
   saveDefaultUser,
   updateUserInfo,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/user-repository'
-import { isLeft, isRight } from 'fp-ts/Either'
+import { Either, isLeft, isRight } from 'fp-ts/Either'
 import {
   toUserManager,
   toUserManagerModel,
@@ -29,18 +29,23 @@ const bio: string = 'Test bio'
 const profilePicture = { url: 'https://example.com', alt: none }
 const languages = [{ name: 'Kotlin' }, { name: 'Scala' }, { name: 'Python' }]
 const cv = { url: 'https://example.com' }
-const trophies = [createTrophy('First', 'First trophy', 'https://example.com', 1)]
+const trophy = createTrophy('First', 'First trophy', 'https://example.com', 1)
+const rightTrophy = isRight(trophy) ? trophy.right : null
+const trophies = [rightTrophy!]
 const level = createDefaultLevel()
+const rightLevel = isRight(level) ? level.right : null
 const newUserInfo = createUserInfo(nickname, bio)
-const newUser: UserManager = createAdvancedUser(
+const userInfo = isRight(newUserInfo) ? newUserInfo.right : null
+const newUser: Either<Error, UserManager> = createAdvancedUser(
   nickname,
   bio,
   profilePicture,
   languages,
   cv,
   trophies,
-  level
+  rightLevel!
 )
+const newUserManager = isRight(newUser) ? newUser.right : null
 
 describe('Test user repository', () => {
   beforeAll(async () => {
@@ -62,16 +67,19 @@ describe('Test user repository', () => {
     it(
       'should correctly convert UserManager to UserManagerModel and vice versa',
       () => {
-        const userManagerModel = toUserManagerModel(newUser)
+        const userManagerModel = toUserManagerModel(newUserManager!)
         const convertedUserManager = toUserManager(userManagerModel)
-        const convertedLanguages = isSome(convertedUserManager.languages)
-          ? convertedUserManager.languages.value
+        const resultUserManager = isRight(convertedUserManager)
+          ? convertedUserManager.right
+          : null
+        const convertedLanguages = isSome(resultUserManager!.languages)
+          ? resultUserManager!.languages.value
           : []
-        const convertedTrophies = isSome(convertedUserManager.trophies)
-          ? convertedUserManager.trophies.value
+        const convertedTrophies = isSome(resultUserManager!.trophies)
+          ? resultUserManager!.trophies.value
           : []
-        const convertedCV = isSome(convertedUserManager.cv)
-          ? convertedUserManager.cv.value
+        const convertedCV = isSome(resultUserManager!.cv)
+          ? resultUserManager!.cv.value
           : { url: '' }
         expect(userManagerModel.userInfo.nickname).toEqual(nickname)
         expect(userManagerModel.userInfo.bio).toEqual(bio)
@@ -80,18 +88,20 @@ describe('Test user repository', () => {
         expect(userManagerModel.languages.length).toEqual(3)
         expect(userManagerModel.cv.url).toEqual('https://example.com')
         expect(userManagerModel.trophies.length).toEqual(1)
-        expect(userManagerModel.level.grade).toEqual(level.grade.value)
-        expect(userManagerModel.level.title).toEqual(level.title)
-        expect(userManagerModel.level.xp).toEqual(level.xpLevel)
-        expect(convertedUserManager.userInfo.nickname).toEqual(newUser.userInfo.nickname)
-        expect(convertedUserManager.userInfo.bio).toEqual(newUser.userInfo.bio)
-        expect(convertedUserManager.profilePicture).toEqual(newUser.profilePicture)
+        expect(userManagerModel.level.grade).toEqual(rightLevel!.grade.value)
+        expect(userManagerModel.level.title).toEqual(rightLevel!.title)
+        expect(userManagerModel.level.xp).toEqual(rightLevel!.xpLevel)
+        expect(resultUserManager!.userInfo.nickname).toEqual(
+          newUserManager!.userInfo.nickname
+        )
+        expect(resultUserManager!.userInfo.bio).toEqual(newUserManager!.userInfo.bio)
+        expect(resultUserManager!.profilePicture).toEqual(newUserManager!.profilePicture)
         expect(Array.from(convertedLanguages).map((language) => language.name)).toEqual(
           languages.map((language) => language.name)
         )
         expect(convertedCV.url).toEqual(cv.url)
         expect(convertedTrophies).toEqual(trophies)
-        expect(convertedUserManager.level).toEqual(level)
+        expect(resultUserManager!.level).toEqual(rightLevel)
       },
       timeout
     )
@@ -101,7 +111,7 @@ describe('Test user repository', () => {
     it(
       'should save a default user',
       async () => {
-        await saveDefaultUser(newUserInfo)
+        await saveDefaultUser(userInfo!)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
         expect(user).not.toBeNull()
         expect(user?.userInfo.nickname).toEqual(nickname)
@@ -111,9 +121,9 @@ describe('Test user repository', () => {
         expect(user?.languages.length).toBe(0)
         expect(user?.cv.url).toBe('')
         expect(user?.trophies.length).toBe(0)
-        expect(user?.level.grade).toEqual(level.grade.value)
-        expect(user?.level.title).toEqual(level.title)
-        expect(user?.level.xp).toEqual(level.xpLevel)
+        expect(user?.level.grade).toEqual(rightLevel!.grade.value)
+        expect(user?.level.title).toEqual(rightLevel!.title)
+        expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
       },
       timeout
     )
@@ -121,7 +131,7 @@ describe('Test user repository', () => {
     it(
       'should save an advanced user',
       async () => {
-        await saveAdvancedUser(newUser)
+        await saveAdvancedUser(newUserManager!)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
         expect(user).not.toBeNull()
         expect(user?.userInfo.nickname).toEqual(nickname)
@@ -131,9 +141,9 @@ describe('Test user repository', () => {
         expect(user?.languages.length).toBe(3)
         expect(user?.cv.url).toBe('https://example.com')
         expect(user?.trophies.length).toBe(1)
-        expect(user?.level.grade).toEqual(level.grade.value)
-        expect(user?.level.title).toEqual(level.title)
-        expect(user?.level.xp).toEqual(level.xpLevel)
+        expect(user?.level.grade).toEqual(rightLevel!.grade.value)
+        expect(user?.level.title).toEqual(rightLevel!.title)
+        expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
       },
       timeout
     )
@@ -141,8 +151,8 @@ describe('Test user repository', () => {
     it(
       'should reject saving a user with the same nickname',
       async () => {
-        await saveDefaultUser(newUserInfo)
-        const result2 = await saveDefaultUser(newUserInfo)
+        await saveDefaultUser(userInfo!)
+        const result2 = await saveDefaultUser(userInfo!)
         expect(isLeft(result2)).toBeTruthy()
       },
       timeout
@@ -153,8 +163,8 @@ describe('Test user repository', () => {
     it(
       'should return correct user info',
       async () => {
-        await saveAdvancedUser(newUser)
-        const result = await findUser(newUserInfo.nickname)
+        await saveAdvancedUser(newUserManager!)
+        const result = await findUser(userInfo!.nickname)
         const resultUserNickname = isRight(result)
           ? result.right.userInfo.nickname.value
           : ''
@@ -170,7 +180,7 @@ describe('Test user repository', () => {
         expect(isSome(resultUserLanguages)).toBeTruthy()
         expect(isSome(resultUserCV)).toBeTruthy()
         expect(isSome(resultUserTrophies)).toBeTruthy()
-        expect(resultUserLevel).toEqual(level)
+        expect(resultUserLevel).toEqual(rightLevel)
       },
       timeout
     )
@@ -178,7 +188,7 @@ describe('Test user repository', () => {
     it(
       'should return error because user not exist',
       async () => {
-        const result = await findUser(newUserInfo.nickname)
+        const result = await findUser(userInfo!.nickname)
         const error = isLeft(result) ? result.left : new Error('Unknown error')
         expect(isLeft(result)).toBeTruthy()
         expect(error.message).toBe('User not found')
@@ -191,24 +201,29 @@ describe('Test user repository', () => {
     it(
       'should update user info',
       async () => {
-        await saveAdvancedUser(newUser)
+        await saveAdvancedUser(newUserManager!)
         const newBio = 'New bio'
         const newLanguages = [...languages, { name: 'Java' }]
         const newCV = { url: 'https://exampleexample.com' }
-        const newTrophy = [
-          ...trophies,
-          createTrophy('Second', 'Second trophy', 'https://example2.com', 2),
-        ]
+        const newTrophy = createTrophy(
+          'Second',
+          'Second trophy',
+          'https://example2.com',
+          2
+        )
+        const rightNewTrophy = isRight(newTrophy) ? newTrophy.right : null
+        const newTrophies = [...trophies, rightNewTrophy!]
         const updatedInfo = createAdvancedUser(
           nickname,
           newBio,
           profilePicture,
           newLanguages,
           newCV,
-          newTrophy,
-          level
+          newTrophies,
+          rightLevel!
         )
-        await updateUserInfo(newUserInfo.nickname, updatedInfo)
+        const info = isRight(updatedInfo) ? updatedInfo.right : null
+        await updateUserInfo(userInfo!.nickname, info!)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
         expect(user).not.toBeNull()
         expect(user?.userInfo.nickname).toEqual(nickname)
@@ -218,9 +233,9 @@ describe('Test user repository', () => {
         expect(user?.languages.length).toBe(4)
         expect(user?.cv.url).toBe('https://exampleexample.com')
         expect(user?.trophies.length).toBe(2)
-        expect(user?.level.grade).toEqual(level.grade.value)
-        expect(user?.level.title).toEqual(level.title)
-        expect(user?.level.xp).toEqual(level.xpLevel)
+        expect(user?.level.grade).toEqual(rightLevel!.grade.value)
+        expect(user?.level.title).toEqual(rightLevel!.title)
+        expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
       },
       timeout
     )
@@ -228,7 +243,7 @@ describe('Test user repository', () => {
     it(
       'should return error because user not exist',
       async () => {
-        const result = await findUser(newUserInfo.nickname)
+        const result = await findUser(userInfo!.nickname)
         const error = isLeft(result) ? result.left : new Error('Unknown error')
         expect(isLeft(result)).toBeTruthy()
         expect(error.message).toBe('User not found')
@@ -241,8 +256,8 @@ describe('Test user repository', () => {
     it(
       'should correct delete user',
       async () => {
-        await saveAdvancedUser(newUser)
-        await deleteUser(newUser.userInfo.nickname)
+        await saveAdvancedUser(newUserManager!)
+        await deleteUser(newUserManager!.userInfo.nickname)
         const user = await UserManagerModel.findOne({ 'userInfo.nickname': nickname })
         expect(user).toBeNull()
       },
@@ -250,7 +265,7 @@ describe('Test user repository', () => {
     )
 
     it('should return error because user not exist', async () => {
-      const result = await deleteUser(newUser.userInfo.nickname)
+      const result = await deleteUser(newUserManager!.userInfo.nickname)
       const error = isLeft(result) ? result.left : new Error('Unknown error')
       expect(isLeft(result)).toBeTruthy()
       expect(error.message).toBe('User not found')

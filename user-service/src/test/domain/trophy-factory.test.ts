@@ -2,6 +2,7 @@ import {
   createTrophy,
   createTrophyWithDefaultImage,
 } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
+import { isLeft, isRight } from 'fp-ts/Either'
 
 describe('Trophy Functions', () => {
   describe('createTrophy', () => {
@@ -12,11 +13,12 @@ describe('Trophy Functions', () => {
       const xp = 100
 
       const trophy = createTrophy(title, description, url, xp)
+      const result = isRight(trophy) ? trophy.right : null
 
-      expect(trophy.title.value).toBe(title)
-      expect(trophy.description).toBe(description)
-      expect(trophy.url).toBe(url)
-      expect(trophy.xp).toBe(xp)
+      expect(result!.title.value).toBe(title)
+      expect(result!.description).toBe(description)
+      expect(result!.url).toBe(url)
+      expect(result!.xp).toBe(xp)
     })
 
     it('should throw an error if the title is empty', () => {
@@ -25,9 +27,11 @@ describe('Trophy Functions', () => {
       const url = 'https://example.com/trophy.png'
       const xp = 100
 
-      expect(() => createTrophy(title, description, url, xp)).toThrow(
-        'Title cannot be empty'
-      )
+      const trophy = createTrophy(title, description, url, xp)
+      const result = isLeft(trophy) ? trophy.left : null
+
+      expect(isLeft(trophy!)).toBeTruthy()
+      expect(result?.message).toEqual('Title cannot be empty')
     })
 
     it('should throw an error if the XP is negative', () => {
@@ -36,9 +40,11 @@ describe('Trophy Functions', () => {
       const url = 'https://example.com/trophy.png'
       const xp = -10
 
-      expect(() => createTrophy(title, description, url, xp)).toThrow(
-        'XP cannot be negative'
-      )
+      const trophy = createTrophy(title, description, url, xp)
+      const result = isLeft(trophy) ? trophy.left : null
+
+      expect(isLeft(trophy!)).toBeTruthy()
+      expect(result?.message).toEqual('XP cannot be negative')
     })
 
     it('should throw an error if the URL is incorrect', () => {
@@ -47,9 +53,11 @@ describe('Trophy Functions', () => {
       const url = 'htt://example'
       const xp = 10
 
-      expect(() => createTrophy(title, description, url, xp)).toThrow(
-        'Invalid URL format'
-      )
+      const trophy = createTrophy(title, description, url, xp)
+      const result = isLeft(trophy) ? trophy.left : null
+
+      expect(isLeft(trophy!)).toBeTruthy()
+      expect(result?.message).toEqual('Invalid URL format')
     })
   })
 
@@ -60,11 +68,12 @@ describe('Trophy Functions', () => {
       const xp = 100
 
       const trophy = createTrophyWithDefaultImage(title, description, xp)
+      const result = isRight(trophy) ? trophy.right : null
 
-      expect(trophy.title.value).toBe(title)
-      expect(trophy.description).toBe(description)
-      expect(trophy.url).toBe('https://www.svgrepo.com/show/530497/trophy.svg')
-      expect(trophy.xp).toBe(xp)
+      expect(result!.title.value).toBe(title)
+      expect(result!.description).toBe(description)
+      expect(result!.url).toBe('https://www.svgrepo.com/show/530497/trophy.svg')
+      expect(result!.xp).toBe(xp)
     })
 
     it('should throw an error if the title is empty', () => {
@@ -72,9 +81,11 @@ describe('Trophy Functions', () => {
       const description = 'Won your first game'
       const xp = 100
 
-      expect(() => createTrophyWithDefaultImage(title, description, xp)).toThrow(
-        'Title cannot be empty'
-      )
+      const trophy = createTrophyWithDefaultImage(title, description, xp)
+      const result = isLeft(trophy) ? trophy.left : null
+
+      expect(isLeft(trophy!)).toBeTruthy()
+      expect(result?.message).toEqual('Title cannot be empty')
     })
 
     it('should throw an error if the XP is negative', () => {
@@ -82,9 +93,11 @@ describe('Trophy Functions', () => {
       const description = 'Won your first game'
       const xp = -10
 
-      expect(() => createTrophyWithDefaultImage(title, description, xp)).toThrow(
-        'XP cannot be negative'
-      )
+      const trophy = createTrophyWithDefaultImage(title, description, xp)
+      const result = isLeft(trophy) ? trophy.left : null
+
+      expect(isLeft(trophy!)).toBeTruthy()
+      expect(result?.message).toEqual('XP cannot be negative')
     })
   })
 })

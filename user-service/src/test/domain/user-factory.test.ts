@@ -6,26 +6,31 @@ import {
 } from '../../main/nodejs/codemaster/servicies/user/domain/user-factory'
 import { Language } from '../../main/nodejs/codemaster/servicies/user/domain/language'
 import { Trophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy'
-import { checkNicknameOrThrowError } from '../../main/nodejs/codemaster/servicies/user/domain/validator'
 import {
   createDefaultLevel,
   FIRST_LEVEL_GRADE,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
-import { fold, isSome, none } from 'fp-ts/Option'
-import { ProfilePicture } from '../../main/nodejs/codemaster/servicies/user/domain/profile-picture'
-import { CV } from '../../main/nodejs/codemaster/servicies/user/domain/cv'
+import { isSome, none } from 'fp-ts/Option'
+import { isLeft, isRight } from 'fp-ts/Either'
+import { checkNickname } from '../../main/nodejs/codemaster/servicies/user/domain/validator'
 
 describe('User Functions', () => {
-  describe('checkNicknameOrThrowError', () => {
-    it('should not throw an error for a valid nickname', () => {
+  describe('checkNickname', () => {
+    it('should pass validation and return the nickname', () => {
       const validNickname = 'valid_123'
-      expect(() => checkNicknameOrThrowError(validNickname)).not.toThrow()
+      const result = checkNickname(validNickname)
+      const rightResult = isRight(result) ? result.right : ''
+      expect(isRight(result)).toBeTruthy()
+      expect(rightResult).toBe(validNickname)
     })
 
-    it('should throw an error for an invalid nickname', () => {
+    it('should return left error for an invalid nickname', () => {
       const invalidNickname = 'inv@lid'
-      expect(() => checkNicknameOrThrowError(invalidNickname)).toThrow(
+      const result = checkNickname(invalidNickname)
+      const errorMessage = isLeft(result) ? result.left.message : ''
+      expect(isLeft(result)).toBeTruthy()
+      expect(errorMessage).toEqual(
         'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
       )
     })
@@ -35,8 +40,9 @@ describe('User Functions', () => {
     it('should create a default user with a valid nickname', () => {
       const nickname = 'user_123'
       const user = createDefaultUserInfo(nickname)
-      expect(user.nickname.value).toBe('user_123')
-      expect(isSome(user.bio)).not.toBeTruthy()
+      const userInfo = isRight(user) ? user.right : null
+      expect(userInfo?.nickname.value).toBe('user_123')
+      expect(userInfo?.bio).toBe(none)
     })
   })
 
@@ -45,14 +51,20 @@ describe('User Functions', () => {
       const nickname = 'user_123'
       const bio = 'This is a bio'
       const user = createUserInfo(nickname, bio)
-      expect(user.nickname.value).toBe('user_123')
+      const userInfo = isRight(user) ? user.right : null
+      expect(userInfo?.nickname.value).toBe('user_123')
+      expect(isSome(userInfo!.bio)).toBeTruthy()
+      expect(isSome(userInfo!.bio) ? userInfo?.bio.value : null).toBe(bio)
+    })
 
-      const userBio = fold(
-        () => '',
-        (bio: string): string => bio
-      )(user.bio)
-
-      expect(userBio).toBe('This is a bio')
+    it('should return left error for invalid nickname', () => {
+      const nickname = 'inv@lid'
+      const bio = 'Example for a bio'
+      const user = createUserInfo(nickname, bio)
+      const result = isLeft(user) ? user.left : null
+      expect(result?.message).toEqual(
+        'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
+      )
     })
   })
 
@@ -60,14 +72,24 @@ describe('User Functions', () => {
     it('should create a default user manager with a valid nickname', () => {
       const nickname = 'user_123'
       const userManager = createDefaultUser(nickname)
-      expect(userManager.userInfo.nickname.value).toBe('user_123')
-      expect(userManager.level.grade.value).toBe(1)
-      expect(userManager.level.title).toBe('Novice')
-      expect(isSome(userManager.userInfo.bio)).not.toBeTruthy()
-      expect(isSome(userManager.trophies)).not.toBeTruthy()
-      expect(isSome(userManager.profilePicture)).not.toBeTruthy()
-      expect(isSome(userManager.cv)).not.toBeTruthy()
-      expect(isSome(userManager.languages)).not.toBeTruthy()
+      const result = isRight(userManager) ? userManager.right : null
+      expect(result!.userInfo.nickname.value).toBe('user_123')
+      expect(result!.level.grade.value).toBe(1)
+      expect(result!.level.title).toBe('Novice')
+      expect(isSome(result!.userInfo.bio)).not.toBeTruthy()
+      expect(isSome(result!.trophies)).not.toBeTruthy()
+      expect(isSome(result!.profilePicture)).not.toBeTruthy()
+      expect(isSome(result!.cv)).not.toBeTruthy()
+      expect(isSome(result!.languages)).not.toBeTruthy()
+    })
+
+    it('should return left error for invalid nickname', () => {
+      const nickname = 'inv@lid'
+      const userManager = createDefaultUser(nickname)
+      const result = isLeft(userManager) ? userManager.left : null
+      expect(result?.message).toEqual(
+        'Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters'
+      )
     })
   })
 
@@ -78,16 +100,16 @@ describe('User Functions', () => {
       const profilePicture = { url: 'https://example.com/example.png', alt: none }
       const languages: Iterable<Language> = [{ name: 'Java' }, { name: 'Kotlin' }]
       const cv = { url: 'https://example.com/example.pdf' }
-      const trophies: Iterable<Trophy> = [
-        createTrophy(
-          'First Win',
-          'Won your first game',
-          'https://example.com/trophy.png',
-          100
-        ),
-      ]
+      const trophy = createTrophy(
+        'First Win',
+        'Won your first game',
+        'https://example.com/trophy.png',
+        100
+      )
+      const rightTrophy = isRight(trophy) ? trophy.right : null
+      const trophies: Iterable<Trophy> = [rightTrophy!]
       const level = createDefaultLevel()
-
+      const rightLevel = isRight(level) ? level.right : null
       const userManager = createAdvancedUser(
         nickname,
         bio,
@@ -95,73 +117,63 @@ describe('User Functions', () => {
         languages,
         cv,
         trophies,
-        level
+        rightLevel!
       )
+      const result = isRight(userManager) ? userManager.right : null
 
-      const retriveUserBio = fold(
-        () => '',
-        (bio: string): string => bio
-      )(userManager.userInfo.bio)
-
-      const retriveProfilePicture = fold(
-        () => '',
-        (profilePicture: ProfilePicture): string => profilePicture.url
-      )(userManager.profilePicture)
-
-      const retriveTrophies = fold(
-        () => [],
-        (trophies: Iterable<Trophy>): Trophy[] => Array.from(trophies)
-      )(userManager.trophies)
-
-      const retriveCVInfo = fold(
-        () => '',
-        (cv: CV): string => cv.url
-      )(userManager.cv)
-
-      const retriveLanguages = fold(
-        () => [],
-        (languages: Iterable<Language>): Language[] => Array.from(languages)
-      )(userManager.languages)
-
-      expect(userManager.userInfo.nickname.value).toBe('user_123')
-      expect(retriveUserBio).toBe('Advanced bio')
-      expect(isSome(userManager.profilePicture)).toBeTruthy()
-      expect(retriveProfilePicture).toBe('https://example.com/example.png')
-      expect(isSome(userManager.languages)).toBeTruthy()
-      expect(retriveLanguages.length).toBe(2)
-      expect(isSome(userManager.cv)).toBeTruthy()
-      expect(retriveCVInfo).toBe('https://example.com/example.pdf')
-      expect(isSome(userManager.trophies)).toBeTruthy()
-      expect(retriveTrophies.length).toBe(1)
-      expect(userManager.level.grade.value).toBe(FIRST_LEVEL_GRADE)
+      expect(result!.userInfo.nickname.value).toBe('user_123')
+      expect(isSome(result!.userInfo.bio) ? result!.userInfo.bio.value : null).toBe(
+        'Advanced bio'
+      )
+      expect(isSome(result!.profilePicture)).toBeTruthy()
+      expect(
+        isSome(result!.profilePicture) ? result?.profilePicture.value.url : null
+      ).toBe('https://example.com/example.png')
+      expect(isSome(result!.languages)).toBeTruthy()
+      expect(
+        isSome(result!.languages) ? Array.from(result!.languages.value).length : null
+      ).toBe(2)
+      expect(isSome(result!.cv)).toBeTruthy()
+      expect(isSome(result!.cv) ? result!.cv.value.url : null).toBe(
+        'https://example.com/example.pdf'
+      )
+      expect(isSome(result!.trophies)).toBeTruthy()
+      expect(
+        isSome(result!.trophies) ? Array.from(result!.trophies.value).length : null
+      ).toBe(1)
+      expect(result!.level.grade.value).toBe(FIRST_LEVEL_GRADE)
     })
 
-    it('should throw an error for an invalid profile picture url', () => {
-      expect(() =>
-        createAdvancedUser(
-          'user',
-          'bio',
-          { url: '//example.com', alt: none },
-          [],
-          { url: 'https://example.com' },
-          [],
-          createDefaultLevel()
-        )
-      ).toThrow('Invalid URL format')
+    it('should return left error for an invalid profile picture url', () => {
+      const level = createDefaultLevel()
+      const rightLevel = isRight(level) ? level.right : null
+      const userManager = createAdvancedUser(
+        'user',
+        'bio',
+        { url: '//example.com', alt: none },
+        [],
+        { url: 'https://example.com' },
+        [],
+        rightLevel!
+      )
+      const result = isLeft(userManager) ? userManager.left.message : null
+      expect(result).toEqual('Invalid URL format')
     })
 
-    it('should throw an error for an invalid cv url', () => {
-      expect(() =>
-        createAdvancedUser(
-          'user',
-          'bio',
-          { url: 'https://example.com', alt: none },
-          [],
-          { url: '//example.com' },
-          [],
-          createDefaultLevel()
-        )
-      ).toThrow('Invalid URL format')
+    it('should return left error for an invalid cv url', () => {
+      const level = createDefaultLevel()
+      const rightLevel = isRight(level) ? level.right : null
+      const userManager = createAdvancedUser(
+        'user',
+        'bio',
+        { url: 'https://example.com', alt: none },
+        [],
+        { url: '//example.com' },
+        [],
+        rightLevel!
+      )
+      const result = isLeft(userManager) ? userManager.left.message : null
+      expect(result).toEqual('Invalid URL format')
     })
   })
 })
