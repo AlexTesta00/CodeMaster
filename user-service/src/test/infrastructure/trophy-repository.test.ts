@@ -7,7 +7,7 @@ import {
   findTrophy,
   saveTrophy,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/trophy-repository'
-import { left, right } from 'fp-ts/Either'
+import { isRight, left, right } from 'fp-ts/Either'
 import {
   TrophyNotFound,
   UnknownError,
@@ -40,8 +40,9 @@ describe('Test Trophy Repository', () => {
         'http://test.com',
         100
       )
+      const result = isRight(trophy) ? trophy.right : null
 
-      await saveTrophy(trophy)
+      await saveTrophy(result!)
       const savedTrophy = await TrophyModel.findOne({ title: 'test-trophy' }).exec()
       expect(savedTrophy).toBeDefined()
       expect(savedTrophy?.title).toBe('test-trophy')
@@ -58,7 +59,8 @@ describe('Test Trophy Repository', () => {
         'http://test.com',
         100
       )
-      const result = await saveTrophy(trophy)
+      const rightTrophy = isRight(trophy) ? trophy.right : null
+      const result = await saveTrophy(rightTrophy!)
       expect(result).toEqual(left(new UnknownError()))
     })
   })
@@ -66,9 +68,16 @@ describe('Test Trophy Repository', () => {
   describe('findTrophy', () => {
     it('should find an existing trophy', async () => {
       const trophy = createTrophy('find-me', 'Find me please', 'http://find.me', 50)
-      await saveTrophy(trophy)
+      expect(isRight(trophy)).toBeTruthy()
+
+      const rightTrophy = isRight(trophy) ? trophy.right : null
+      await saveTrophy(rightTrophy!)
+
       const result = await findTrophy({ value: 'find-me' })
-      expect(result).toEqual(right(trophy))
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? result.right : null
+      expect(rightResult!).toEqual(rightTrophy)
     })
 
     it('should return TrophyNotFound for non-existent trophy', async () => {
@@ -90,7 +99,8 @@ describe('Test Trophy Repository', () => {
   describe('deleteTrophy', () => {
     it('should delete an existing trophy', async () => {
       const trophy = createTrophy('delete-me', 'Delete me please', 'http://delete.me', 75)
-      await saveTrophy(trophy)
+      const rightTrophy = isRight(trophy) ? trophy.right : null
+      await saveTrophy(rightTrophy!)
 
       const result = await deleteTrophy({ value: 'delete-me' })
 
@@ -119,8 +129,8 @@ describe('Test Trophy Repository', () => {
   describe('toTrophyModel', () => {
     it('should correctly convert Trophy to TrophyModel', () => {
       const trophy = createTrophy('model-test', 'Model Test', 'http://model.test', 200)
-
-      const model = toTrophyModel(trophy)
+      const rightTrophy = isRight(trophy) ? trophy.right : null
+      const model = toTrophyModel(rightTrophy!)
 
       expect(model.title).toBe('model-test')
       expect(model.description).toBe('Model Test')

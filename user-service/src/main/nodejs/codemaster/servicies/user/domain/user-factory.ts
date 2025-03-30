@@ -5,38 +5,57 @@ import { ProfilePicture } from './profile-picture'
 import { Language } from './language'
 import { CV } from './cv'
 import { Trophy } from './trophy'
-import { checkNicknameOrThrowError, checkUrlOrThrowError } from './validator'
+import { checkNickname, checkUrl } from './validator'
 import { createDefaultLevel } from './level-factory'
 import { none, some } from 'fp-ts/Option'
+import { chain, Either, left, match, right, map } from 'fp-ts/Either'
+import { pipe } from 'fp-ts/function'
 
-export const createDefaultUserInfo = (nickname: string): User => {
-  checkNicknameOrThrowError(nickname)
-  return {
-    nickname: { value: nickname },
-    bio: none,
-  }
-}
+export const createDefaultUserInfo = (nickname: string): Either<Error, User> =>
+  pipe(
+    nickname,
+    checkNickname,
+    match(
+      (error) => left(error),
+      () =>
+        right({
+          nickname: { value: nickname },
+          bio: none,
+        })
+    )
+  )
 
-export const createUserInfo = (nickname: string, bio: string): User => {
-  checkNicknameOrThrowError(nickname)
-  return {
-    nickname: { value: nickname },
-    bio: some(bio),
-  }
-}
+export const createUserInfo = (nickname: string, bio: string): Either<Error, User> =>
+  pipe(
+    nickname,
+    checkNickname,
+    match(
+      (error) => left(error),
+      () =>
+        right({
+          nickname: { value: nickname },
+          bio: some(bio),
+        })
+    )
+  )
 
-export const createDefaultUser = (nickname: string): UserManager => {
-  checkNicknameOrThrowError(nickname)
-  const defaultLevel: Level = createDefaultLevel()
-  return {
-    userInfo: createDefaultUserInfo(nickname),
-    profilePicture: none,
-    languages: none,
-    cv: none,
-    trophies: none,
-    level: defaultLevel,
-  }
-}
+export const createDefaultUser = (nickname: string): Either<Error, UserManager> =>
+  pipe(
+    createDefaultUserInfo(nickname),
+    chain((defaultUserInfo) =>
+      pipe(
+        createDefaultLevel(),
+        map((defaultLevel) => ({
+          userInfo: defaultUserInfo,
+          profilePicture: none,
+          languages: none,
+          cv: none,
+          trophies: none,
+          level: defaultLevel,
+        }))
+      )
+    )
+  )
 
 export const createAdvancedUser = (
   nickname: string,
@@ -46,16 +65,31 @@ export const createAdvancedUser = (
   cv: CV,
   trophies: Iterable<Trophy>,
   level: Level
-): UserManager => {
-  checkNicknameOrThrowError(nickname)
-  checkUrlOrThrowError(profilePicture.url)
-  checkUrlOrThrowError(cv.url)
-  return {
-    userInfo: createUserInfo(nickname, bio),
-    profilePicture: some(profilePicture),
-    languages: some(languages),
-    cv: some(cv),
-    trophies: some(trophies),
-    level: level,
-  }
-}
+): Either<Error, UserManager> =>
+  pipe(
+    createUserInfo(nickname, bio),
+    chain((userInfo) =>
+      pipe(
+        checkUrl(profilePicture.url),
+        match(
+          (error) => left(error),
+          () =>
+            pipe(
+              checkUrl(cv.url),
+              match(
+                (error) => left(error),
+                () =>
+                  right({
+                    userInfo,
+                    profilePicture: some(profilePicture),
+                    languages: some(languages),
+                    cv: some(cv),
+                    trophies: some(trophies),
+                    level,
+                  })
+              )
+            )
+        )
+      )
+    )
+  )

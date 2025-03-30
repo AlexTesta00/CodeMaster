@@ -8,6 +8,9 @@ import { createAdvancedUser } from '../domain/user-factory'
 import { Language } from '../domain/language'
 import { Trophy } from '../domain/trophy'
 import { Level } from '../domain/level'
+import { Applicative, chain, Either, right } from 'fp-ts/Either'
+import { sequenceS } from 'fp-ts/lib/Apply'
+import { array } from 'fp-ts'
 
 const DEFAULT_BIO_VALUE = ''
 const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
@@ -93,31 +96,36 @@ export const toUserManagerModel = (userManager: UserManager) => {
   })
 }
 
-export const toUserManager = (userDocument: UserDocument): UserManager =>
+export const toUserManager = (userDocument: UserDocument): Either<Error, UserManager> =>
   pipe(
-    {
-      nickname: userDocument.userInfo.nickname,
-      bio: pipe(
-        fromNullable(userDocument.userInfo.bio),
-        getOrElse(() => '')
+    sequenceS(Applicative)({
+      nickname: right(userDocument.userInfo.nickname),
+      bio: right(
+        pipe(
+          fromNullable(userDocument.userInfo.bio),
+          getOrElse(() => '')
+        )
       ),
-      profilePicture: {
+      profilePicture: right({
         url: userDocument.profilePicture.url,
         alt: fromNullable(userDocument.profilePicture.alt),
-      },
-      languages: userDocument.languages,
-      cv: userDocument.cv,
-      trophies: userDocument.trophies.map((trophy) =>
-        createTrophy(trophy.title, trophy.description, trophy.url, trophy.xp)
+      }),
+      languages: right(userDocument.languages),
+      cv: right(userDocument.cv),
+      trophies: array.sequence(Applicative)(
+        userDocument.trophies.map((trophy) =>
+          createTrophy(trophy.title, trophy.description, trophy.url, trophy.xp)
+        )
       ),
       level: createLevel(
         userDocument.level.grade,
         userDocument.level.title,
         userDocument.level.xp
       ),
-    },
-    ({ nickname, bio, profilePicture, languages, cv, trophies, level }) =>
+    }),
+    chain(({ nickname, bio, profilePicture, languages, cv, trophies, level }) =>
       createAdvancedUser(nickname, bio, profilePicture, languages, cv, trophies, level)
+    )
   )
 
 export const toTrophyModel = (trophy: Trophy) => {

@@ -2,6 +2,7 @@ import {
   createDefaultLevel,
   createLevel,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import { isLeft, isRight } from 'fp-ts/Either'
 
 describe('Level Functions', () => {
   describe('createLevel', () => {
@@ -11,10 +12,11 @@ describe('Level Functions', () => {
       const xp = 100
 
       const level = createLevel(grade, title, xp)
+      const result = isRight(level) ? level.right : null
 
-      expect(level.grade.value).toBe(grade)
-      expect(level.title).toBe(title)
-      expect(level.xpLevel).toBe(xp)
+      expect(result!.grade.value).toBe(grade)
+      expect(result!.title).toBe(title)
+      expect(result!.xpLevel).toBe(xp)
     })
 
     it('should throw an error if grade is less than 1', () => {
@@ -22,7 +24,10 @@ describe('Level Functions', () => {
       const title = 'Invalid Grade'
       const xp = 100
 
-      expect(() => createLevel(grade, title, xp)).toThrow('Grade must be greater than 0')
+      const level = createLevel(grade, title, xp)
+      const result = isLeft(level) ? level.left : null
+
+      expect(result!.message).toEqual('Grade must be greater than 0')
     })
 
     it('should throw an error if title is empty', () => {
@@ -30,7 +35,10 @@ describe('Level Functions', () => {
       const title = ''
       const xp = 100
 
-      expect(() => createLevel(grade, title, xp)).toThrow('Title must not be empty')
+      const level = createLevel(grade, title, xp)
+      const result = isLeft(level) ? level.left : null
+
+      expect(result!.message).toEqual('Title cannot be empty')
     })
 
     it('should throw an error if XP is less than 1', () => {
@@ -38,17 +46,20 @@ describe('Level Functions', () => {
       const title = 'No XP'
       const xp = 0
 
-      expect(() => createLevel(grade, title, xp)).toThrow('XP must be greater than to 0')
+      const level = createLevel(grade, title, xp)
+      const result = isLeft(level) ? level.left : null
+
+      expect(result!.message).toEqual('XP must be greater than to 0')
     })
   })
 
   describe('createDefaultLevel', () => {
     it('should create a default Level with grade 1, title "Novice", and XP 1', () => {
       const defaultLevel = createDefaultLevel()
-
-      expect(defaultLevel.grade.value).toBe(1)
-      expect(defaultLevel.title).toBe('Novice')
-      expect(defaultLevel.xpLevel).toBe(1)
+      const result = isRight(defaultLevel) ? defaultLevel.right : null
+      expect(result!.grade.value).toBe(1)
+      expect(result!.title).toBe('Novice')
+      expect(result!.xpLevel).toBe(1)
     })
   })
 })

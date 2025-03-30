@@ -1,10 +1,11 @@
 import { Level, LevelId } from '../domain/level'
 import { LevelModel } from './schema'
-import { Either } from 'fp-ts/Either'
+import { chain, Either, left, right } from 'fp-ts/Either'
 import { LevelNotFound, UnknownError } from './repository-error'
 import { createLevel } from '../domain/level-factory'
 import { toLevelModel } from './conversion'
 import { tryCatch } from 'fp-ts/TaskEither'
+import { pipe } from 'fp-ts/function'
 
 export const saveLevel = async (level: Level): Promise<Either<Error, Level>> =>
   tryCatch(
@@ -16,22 +17,34 @@ export const saveLevel = async (level: Level): Promise<Either<Error, Level>> =>
   )()
 
 export const findLevel = async (levelId: LevelId): Promise<Either<Error, Level>> =>
-  tryCatch(
-    async () => {
-      const levelDocument = await LevelModel.findOne({ grade: levelId.value }).exec()
-      if (!levelDocument) throw new LevelNotFound('Level not found')
-      return createLevel(levelDocument.grade, levelDocument.title, levelDocument.xp)
-    },
-    (error) => (error instanceof Error ? error : new UnknownError())
-  )()
+  pipe(
+    await tryCatch(
+      async () => {
+        const levelDocument = await LevelModel.findOne({
+          grade: levelId.value,
+        }).exec()
+        return levelDocument
+          ? right(levelDocument)
+          : left(new LevelNotFound('Level not found'))
+      },
+      (error) => (error instanceof Error ? error : new UnknownError())
+    )(),
+    chain((either) => either),
+    chain((levelDoc) => createLevel(levelDoc.grade, levelDoc.title, levelDoc.xp))
+  )
 
 export const deleteLevel = async (levelId: LevelId): Promise<Either<Error, void>> =>
-  tryCatch(
-    async () => {
-      const levelDocument = await LevelModel.findOneAndDelete({
-        grade: levelId.value,
-      }).exec()
-      if (!levelDocument) throw new LevelNotFound('Level not found')
-    },
-    (error) => (error instanceof Error ? error : new UnknownError())
-  )()
+  pipe(
+    await tryCatch(
+      async () => {
+        const levelDocument = await LevelModel.findOneAndDelete({
+          grade: levelId.value,
+        }).exec()
+        return levelDocument
+          ? right(undefined)
+          : left(new LevelNotFound('Level not found'))
+      },
+      (error) => (error instanceof Error ? error : new UnknownError())
+    )(),
+    chain((either) => either)
+  )
