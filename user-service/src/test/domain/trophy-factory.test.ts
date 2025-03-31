@@ -46,19 +46,6 @@ describe('Trophy Functions', () => {
       expect(isLeft(trophy!)).toBeTruthy()
       expect(result?.message).toEqual('XP cannot be negative')
     })
-
-    it('should throw an error if the URL is incorrect', () => {
-      const title = 'First Win'
-      const description = 'Won your first game'
-      const url = 'htt://example'
-      const xp = 10
-
-      const trophy = createTrophy(title, description, url, xp)
-      const result = isLeft(trophy) ? trophy.left : null
-
-      expect(isLeft(trophy!)).toBeTruthy()
-      expect(result?.message).toEqual('Invalid URL format')
-    })
   })
 
   describe('createTrophyWithDefaultImage', () => {

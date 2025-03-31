@@ -1,6 +1,5 @@
 import { Trophy } from './trophy'
-import { checkUrl } from './validator'
-import { chain, Either, left, match, right } from 'fp-ts/Either'
+import { chain, Either, left, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 
 export const createTrophy = (
@@ -18,19 +17,12 @@ export const createTrophy = (
         : left(new Error('XP cannot be negative'))
     ),
     chain(({ validTitle, validXp }) =>
-      pipe(
-        checkUrl(url),
-        match(
-          (error) => left(error),
-          (validUrl) =>
-            right({
-              title: { value: validTitle },
-              description,
-              url: validUrl,
-              xp: validXp,
-            })
-        )
-      )
+      right({
+        title: { value: validTitle },
+        description,
+        url,
+        xp: validXp,
+      })
     )
   )
 
