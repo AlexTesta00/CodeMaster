@@ -5,7 +5,7 @@ import { Language } from "../domain/language/language"
 export interface CodeQuestService {
   addCodeQuest(title: String, author: String, problem: Problem, timestamp: Date | null, languages: Language[]): Promise<CodeQuest>
   getCodeQuests(): Promise<CodeQuest[]>;
-  getCodeQuestsById(questId: String): Promise<CodeQuest>;
+  getCodeQuestById(questId: String): Promise<CodeQuest>;
   getCodeQuestsByAuthor(author: String): Promise<CodeQuest[]>;
   getCodeQuestsByLanguage(languageName: String, versions: String[]): Promise<CodeQuest[]>;
   updateProblem(questId: String, newProblem: Problem): Promise<void>;

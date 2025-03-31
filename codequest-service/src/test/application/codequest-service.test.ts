@@ -86,7 +86,7 @@ describe('TestCodequestService', () => {
 
         it('should retrieve codequest by id', async () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
-            const foundCodequest = await service.getCodeQuestsById(newCodequest.id)
+            const foundCodequest = await service.getCodeQuestById(newCodequest.id)
 
             expect(foundCodequest).not.toBeNull();
             expect(foundCodequest.problem.body).toBe(newCodequest.problem.body);
@@ -101,7 +101,7 @@ describe('TestCodequestService', () => {
             await service.addCodeQuest(title, author, problem, null, languages)
             const newId = new mongoose.Types.ObjectId().toString()
 
-            await expect(() => service.getCodeQuestsById(newId)).rejects.toThrow(CodeQuestServiceError.InvalidCodeQuestId)
+            await expect(() => service.getCodeQuestById(newId)).rejects.toThrow(CodeQuestServiceError.InvalidCodeQuestId)
         },timeout)
 
         it('should retrieve all codequests created by a user', async () => {
@@ -133,7 +133,7 @@ describe('TestCodequestService', () => {
             const newProblem = new Problem("New Problem", [new Example("input", "output", "explanation")], null)
 
             await service.updateProblem(newCodequest.id, newProblem)
-            const updatedCodequest = await service.getCodeQuestsById(newCodequest.id)
+            const updatedCodequest = await service.getCodeQuestById(newCodequest.id)
             expect(updatedCodequest.problem.body).toBe(newProblem.body);
             expect(updatedCodequest.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!))).toEqual(newProblem.examples);
             expect(updatedCodequest.problem.constraints).toEqual(newProblem.constraints);
@@ -144,7 +144,7 @@ describe('TestCodequestService', () => {
             const newTitle = "New Title"
 
             await service.updateTitle(newCodequest.id, newTitle)
-            const updatedCodequest = await service.getCodeQuestsById(newCodequest.id)
+            const updatedCodequest = await service.getCodeQuestById(newCodequest.id)
             expect(updatedCodequest.title).toBe(newTitle);
         }, timeout)
 
@@ -153,7 +153,7 @@ describe('TestCodequestService', () => {
             const newLanguages = [LanguageFactory.createLanguage("Java", ["17", "21"])]
 
             await service.updateLanguages(newCodequest.id, newLanguages)
-            const updatedCodequest = await service.getCodeQuestsById(newCodequest.id)
+            const updatedCodequest = await service.getCodeQuestById(newCodequest.id)
             expect(updatedCodequest.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(newLanguages);
         }, timeout)
 
@@ -189,7 +189,7 @@ describe('TestCodequestService', () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
 
             await service.delete(newCodequest.id)
-            await expect(() => service.getCodeQuestsById(newCodequest.id)).rejects.toThrow(CodeQuestServiceError.InvalidCodeQuestId)
+            await expect(() => service.getCodeQuestById(newCodequest.id)).rejects.toThrow(CodeQuestServiceError.InvalidCodeQuestId)
         }, timeout)
 
         it('should throw error if there are no codequest with given id', async () => {

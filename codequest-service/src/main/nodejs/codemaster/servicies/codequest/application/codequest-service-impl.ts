@@ -28,7 +28,7 @@ export class CodeQuestServiceImpl implements CodeQuestService{
             throw new CodeQuestServiceError.CodeQuestNotFound('No codequests found in database')
         }
     }
-    async getCodeQuestsById(questId: String): Promise<CodeQuest> {
+    async getCodeQuestById(questId: String): Promise<CodeQuest> {
         try {
             return await this.codequestRepo.findCodeQuestById(questId)
         } catch(error) {
