@@ -1,5 +1,5 @@
-import { LanguageError } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
-import { LanguageFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
+import { LanguageError } from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
+import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
 
 describe('TestCodeQuestFactory', () => {
 

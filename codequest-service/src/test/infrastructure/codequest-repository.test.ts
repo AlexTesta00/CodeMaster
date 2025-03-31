@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import { CodeQuest } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest";
-import { CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
-import { CodeQuestModel } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-model";
-import { CodeQuestRepositoryImpl } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository-impl";
-import { CodeQuestRepository } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository';
-import { LanguageFactory } from '../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory';
-import { Problem } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem';
-import { Example } from '../main/nodejs/codemaster/servicies/codequest/domain/codequest/example';
+import { CodeQuest } from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest";
+import { CodeQuestFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
+import { CodeQuestModel } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model";
+import { CodeQuestRepositoryImpl } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository-impl";
+import { CodeQuestRepository } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-repository';
+import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory';
+import { Problem } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem';
+import { Example } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { LanguageModel } from '../main/nodejs/codemaster/servicies/codequest/domain/language/language-model';
+import { LanguageModel } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-model';
 
 describe('TestCodeQuestRepository', () => {
 

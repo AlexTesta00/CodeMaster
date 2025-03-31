@@ -1,10 +1,10 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { LanguageRepository } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository";
-import { LanguageRepositoryImpl } from "../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository-impl";
+import { LanguageRepository } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository";
+import { LanguageRepositoryImpl } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository-impl";
 import mongoose from "mongoose";
-import { LanguageModel } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-model";
-import { LanguageFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
-import * as languages from '../main/nodejs/codemaster/servicies/codequest/infrastructure/language/languages.json';
+import { LanguageModel } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-model";
+import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
+import * as languages from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/languages.json';
 
 describe('TestLanguageRepository', () => {    
     let mongoServer: MongoMemoryServer;
@@ -40,7 +40,7 @@ describe('TestLanguageRepository', () => {
     }, 10000)
     
     it('should return a specific language', async () => {
-        const languageDoc = await languageRepo.findLanguage(exampleLanguage);
+        const languageDoc = await languageRepo.findLanguage(exampleLanguage.name);
         expect(languageDoc.name).toBe(exampleLanguage.name);
         expect(languageDoc.versions).toEqual(javaVersions);
     }, 10000)

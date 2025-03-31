@@ -1,9 +1,9 @@
-import { CodeQuestError, CodeQuestFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
+import { CodeQuestError, CodeQuestFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest-factory";
 import mongoose from "mongoose";
-import { LanguageFactory } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
-import { Problem } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem";
-import { Example } from "../main/nodejs/codemaster/servicies/codequest/domain/codequest/example";
-import { languageSchema } from "../main/nodejs/codemaster/servicies/codequest/domain/language/language-model";
+import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
+import { Problem } from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem";
+import { Example } from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example";
+import { languageSchema } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-model";
 
 describe('TestCodeQuestFactory', () => {
 

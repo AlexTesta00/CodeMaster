@@ -1,6 +1,6 @@
 import { CodeQuest } from "../../domain/codequest/codequest";
 import { CodeQuestFactory } from "../../domain/codequest/codequest-factory";
-import { CodeQuestModel } from "../../domain/codequest/codequest-model";
+import { CodeQuestModel } from "./codequest-model";
 import { Example } from "../../domain/codequest/example";
 import { Problem } from "../../domain/codequest/problem";
 import { Language } from "../../domain/language/language";
