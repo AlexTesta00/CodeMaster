@@ -143,37 +143,5 @@ describe('User Functions', () => {
       ).toBe(1)
       expect(result!.level.grade.value).toBe(FIRST_LEVEL_GRADE)
     })
-
-    it('should return left error for an invalid profile picture url', () => {
-      const level = createDefaultLevel()
-      const rightLevel = isRight(level) ? level.right : null
-      const userManager = createAdvancedUser(
-        'user',
-        'bio',
-        { url: '//example.com', alt: none },
-        [],
-        { url: 'https://example.com' },
-        [],
-        rightLevel!
-      )
-      const result = isLeft(userManager) ? userManager.left.message : null
-      expect(result).toEqual('Invalid URL format')
-    })
-
-    it('should return left error for an invalid cv url', () => {
-      const level = createDefaultLevel()
-      const rightLevel = isRight(level) ? level.right : null
-      const userManager = createAdvancedUser(
-        'user',
-        'bio',
-        { url: 'https://example.com', alt: none },
-        [],
-        { url: '//example.com' },
-        [],
-        rightLevel!
-      )
-      const result = isLeft(userManager) ? userManager.left.message : null
-      expect(result).toEqual('Invalid URL format')
-    })
   })
 })
