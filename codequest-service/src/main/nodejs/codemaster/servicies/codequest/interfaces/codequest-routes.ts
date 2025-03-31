@@ -11,6 +11,9 @@ router.route("/")
 router.route("/authors/:author")
     .get(controller.getCodeQuestsByAuthor);
 
+router.route("/languages")
+    .get(controller.getCodeQuestsByLanguage)
+
 router.route("/:id")
     .get(controller.getCodeQuestById)
     .delete(controller.deleteCodeQuest);
@@ -20,5 +23,8 @@ router.route("/codequest-problem/:id")
 
 router.route("/codequest-title/:id")
     .put(controller.updateTitle)
+
+router.route("/codequest-language/:id")
+    .put(controller.updateLanguages)
 
 export default router;
