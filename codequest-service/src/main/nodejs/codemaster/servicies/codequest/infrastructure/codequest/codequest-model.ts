@@ -2,23 +2,23 @@ import mongoose, {Schema} from 'mongoose';
 import { languageSchema } from '../language/language-model';
 
 const ExampleSchema = new Schema({
-    input: {type: String, required: true},
-    output: {type: String, required: true},
-    explanation: {type: String}
+    input: {type: 'string', required: true},
+    output: {type: 'string', required: true},
+    explanation: {type: 'string'}
 })
 
 const ProblemSchema = new Schema({
-    body: {type: String, required: true},
+    body: {type: 'string', required: true},
     examples: { type: [ExampleSchema], required: true },
-    constraints: [String]
+    constraints: ['string']
 })
 
 export const CodequestSchema = new Schema({
-    questId: {type: String, required: true, unique: true, key: true},
-    author: {type: String, required: true},
+    questId: {type: 'string', required: true, unique: true, key: true},
+    author: {type: 'string', required: true},
     problem: {type: ProblemSchema, required: true},
     timestamp: {type: Date, default: Date.now()},
-    title: {type: String, required: true},
+    title: {type: 'string', required: true},
     languages: [languageSchema]
 });
 

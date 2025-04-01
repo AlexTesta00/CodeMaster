@@ -3,6 +3,7 @@ import {LanguageFactory} from "../../domain/language/language-factory";
 import {LanguageModel} from "./language-model";
 import {LanguageRepository} from "./language-repository";
 import * as languages from "./languages.json"
+import {populateLanguages} from "./populate";
 
 export class LanguageRepositoryImpl implements LanguageRepository {
 
@@ -13,14 +14,5 @@ export class LanguageRepositoryImpl implements LanguageRepository {
     async getAllLanguages(): Promise<Language[]> {
         const languageDocs = await LanguageModel.find({}).orFail();
         return languageDocs.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions));
-    }
-    async saveAllAvailableLanguage(): Promise<void> {
-        for (let i = 0; i < languages.length; i++) {
-            const language = languages[i];
-            const languageDoc = await new LanguageModel({
-                name: language.name,
-                versions: language.versions
-            }).save()
-        }
     }
 }

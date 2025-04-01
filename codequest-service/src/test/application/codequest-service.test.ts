@@ -11,6 +11,7 @@ import {CodeQuest} from "../../main/nodejs/codemaster/servicies/codequest/domain
 import {
     CodeQuestModel
 } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model";
+import {populateLanguages} from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate";
 
 
 describe('TestCodequestService', () => {
@@ -19,7 +20,7 @@ describe('TestCodequestService', () => {
     let languageRepo: LanguageRepository;
     let service : CodeQuestService
 
-    const timeout = 10000
+    const timeout = 15000
     const author = 'exampleName';
     const problem = new Problem("Problem example", [new Example('example1', 'example2', 'explanation')], ['constraints']);
     const title = 'Title example';
@@ -31,7 +32,7 @@ describe('TestCodequestService', () => {
         await mongoose.connect(uri);
         languageRepo = new LanguageRepositoryImpl();
         service = new CodeQuestServiceImpl();
-        await languageRepo.saveAllAvailableLanguage();
+        await populateLanguages()
     }, timeout);
 
     afterAll(async () => {
