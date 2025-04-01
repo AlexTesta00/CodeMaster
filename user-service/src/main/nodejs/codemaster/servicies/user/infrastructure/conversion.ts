@@ -1,22 +1,26 @@
 import { UserManager } from '../domain/user-manager'
 import { LevelModel, TrophyModel, UserManagerModel } from './schema'
 import { pipe } from 'fp-ts/function'
-import { flatMap, fromNullable, getOrElse, map, none, toNullable } from 'fp-ts/Option'
-import { createTrophy } from '../domain/trophy-factory'
-import { createLevel } from '../domain/level-factory'
-import { createAdvancedUser } from '../domain/user-factory'
+import {
+  flatMap,
+  fromNullable,
+  getOrElse,
+  map,
+  none,
+  some,
+  toNullable,
+} from 'fp-ts/Option'
+import { createAdvancedUserOption } from '../domain/user-factory'
 import { Language } from '../domain/language'
 import { Trophy } from '../domain/trophy'
 import { Level } from '../domain/level'
-import { Applicative, chain, Either, right } from 'fp-ts/Either'
-import { sequenceS } from 'fp-ts/lib/Apply'
-import { array } from 'fp-ts'
+import { Either } from 'fp-ts/Either'
 
-const DEFAULT_BIO_VALUE = ''
-const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
-const DEFAULT_LANGUAGES_VALUE: Iterable<Language> = []
-const DEFAULT_CV_VALUE = { url: '' }
-const DEFAULT_TROPHIES_VALUE: Array<{
+export const DEFAULT_BIO_VALUE = ''
+export const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
+export const DEFAULT_LANGUAGES_VALUE: Iterable<Language> = []
+export const DEFAULT_CV_VALUE = { url: '' }
+export const DEFAULT_TROPHIES_VALUE: Iterable<{
   title: string
   description: string
   url: string
@@ -97,35 +101,40 @@ export const toUserManagerModel = (userManager: UserManager) => {
 }
 
 export const toUserManager = (userDocument: UserDocument): Either<Error, UserManager> =>
-  pipe(
-    sequenceS(Applicative)({
-      nickname: right(userDocument.userInfo.nickname),
-      bio: right(
-        pipe(
-          fromNullable(userDocument.userInfo.bio),
-          getOrElse(() => '')
+  createAdvancedUserOption(
+    userDocument.userInfo.nickname,
+    userDocument.userInfo.bio != '' && userDocument.userInfo.bio
+      ? some(userDocument.userInfo.bio)
+      : none,
+    userDocument.profilePicture.url != ''
+      ? some({
+          url: userDocument.profilePicture.url,
+          alt: fromNullable(userDocument.profilePicture.alt),
+        })
+      : none,
+    Array.from(userDocument.languages).length !== 0
+      ? some(
+          userDocument.languages.map((language) => ({
+            name: language.name,
+          }))
         )
-      ),
-      profilePicture: right({
-        url: userDocument.profilePicture.url,
-        alt: fromNullable(userDocument.profilePicture.alt),
-      }),
-      languages: right(userDocument.languages),
-      cv: right(userDocument.cv),
-      trophies: array.sequence(Applicative)(
-        userDocument.trophies.map((trophy) =>
-          createTrophy(trophy.title, trophy.description, trophy.url, trophy.xp)
+      : none,
+    userDocument.cv.url != '' ? some({ url: userDocument.cv.url }) : none,
+    Array.from(userDocument.trophies).length !== 0
+      ? some(
+          userDocument.trophies.map((trophy) => ({
+            title: { value: trophy.title },
+            description: trophy.description,
+            url: trophy.url,
+            xp: trophy.xp,
+          }))
         )
-      ),
-      level: createLevel(
-        userDocument.level.grade,
-        userDocument.level.title,
-        userDocument.level.xp
-      ),
-    }),
-    chain(({ nickname, bio, profilePicture, languages, cv, trophies, level }) =>
-      createAdvancedUser(nickname, bio, profilePicture, languages, cv, trophies, level)
-    )
+      : none,
+    {
+      grade: { value: userDocument.level.grade },
+      title: userDocument.level.title,
+      xpLevel: userDocument.level.xp,
+    }
   )
 
 export const toTrophyModel = (trophy: Trophy) => {

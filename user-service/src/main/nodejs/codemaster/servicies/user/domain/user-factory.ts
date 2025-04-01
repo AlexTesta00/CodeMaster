@@ -7,7 +7,7 @@ import { CV } from './cv'
 import { Trophy } from './trophy'
 import { checkNickname } from './validator'
 import { createDefaultLevel } from './level-factory'
-import { none, some } from 'fp-ts/Option'
+import { isSome, none, Option, some } from 'fp-ts/Option'
 import { chain, Either, left, match, right, map } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 
@@ -70,14 +70,34 @@ export const createAdvancedUser = (
     createUserInfo(nickname, bio),
     chain((userInfo) =>
       right({
-        userInfo:
-          userInfo.bio._tag === 'Some' && userInfo.bio.value != ''
-            ? userInfo
-            : { nickname: userInfo.nickname, bio: none },
-        profilePicture: profilePicture.url != '' ? some(profilePicture) : none,
-        languages: !languages[Symbol.iterator]().next().done ? some(languages) : none,
-        cv: cv.url != '' ? some(cv) : none,
-        trophies: !trophies[Symbol.iterator]().next().done ? some(trophies) : none,
+        userInfo,
+        profilePicture: some(profilePicture),
+        languages: some(languages),
+        cv: some(cv),
+        trophies: some(trophies),
+        level,
+      })
+    )
+  )
+
+export const createAdvancedUserOption = (
+  nickname: string,
+  bio: Option<string>,
+  profilePicture: Option<ProfilePicture>,
+  languages: Option<Iterable<Language>>,
+  cv: Option<CV>,
+  trophies: Option<Iterable<Trophy>>,
+  level: Level
+): Either<Error, UserManager> =>
+  pipe(
+    isSome(bio) ? createUserInfo(nickname, bio.value) : createDefaultUserInfo(nickname),
+    chain((userInfo) =>
+      right({
+        userInfo,
+        profilePicture: profilePicture,
+        languages: languages,
+        cv: cv,
+        trophies: trophies,
         level,
       })
     )
