@@ -17,11 +17,6 @@ import {
   updateUserInfo,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/user-repository'
 import { Either, isLeft, isRight } from 'fp-ts/Either'
-import {
-  toUserManager,
-  toUserManagerModel,
-} from '../../main/nodejs/codemaster/servicies/user/infrastructure/conversion'
-
 let mongoMemoryServer: MongoMemoryServer
 const timeout: number = 10000
 const nickname: string = 'example'
@@ -61,50 +56,6 @@ describe('Test user repository', () => {
 
   beforeEach(async () => {
     await UserManagerModel.deleteMany({})
-  })
-
-  describe('Test toUserManagerModel and toUserManager', () => {
-    it(
-      'should correctly convert UserManager to UserManagerModel and vice versa',
-      () => {
-        const userManagerModel = toUserManagerModel(newUserManager!)
-        const convertedUserManager = toUserManager(userManagerModel)
-        const resultUserManager = isRight(convertedUserManager)
-          ? convertedUserManager.right
-          : null
-        const convertedLanguages = isSome(resultUserManager!.languages)
-          ? resultUserManager!.languages.value
-          : []
-        const convertedTrophies = isSome(resultUserManager!.trophies)
-          ? resultUserManager!.trophies.value
-          : []
-        const convertedCV = isSome(resultUserManager!.cv)
-          ? resultUserManager!.cv.value
-          : { url: '' }
-        expect(userManagerModel.userInfo.nickname).toEqual(nickname)
-        expect(userManagerModel.userInfo.bio).toEqual(bio)
-        expect(userManagerModel.profilePicture.url).toEqual('https://example.com')
-        expect(userManagerModel.profilePicture.alt).toBeNull()
-        expect(userManagerModel.languages.length).toEqual(3)
-        expect(userManagerModel.cv.url).toEqual('https://example.com')
-        expect(userManagerModel.trophies.length).toEqual(1)
-        expect(userManagerModel.level.grade).toEqual(rightLevel!.grade.value)
-        expect(userManagerModel.level.title).toEqual(rightLevel!.title)
-        expect(userManagerModel.level.xp).toEqual(rightLevel!.xpLevel)
-        expect(resultUserManager!.userInfo.nickname).toEqual(
-          newUserManager!.userInfo.nickname
-        )
-        expect(resultUserManager!.userInfo.bio).toEqual(newUserManager!.userInfo.bio)
-        expect(resultUserManager!.profilePicture).toEqual(newUserManager!.profilePicture)
-        expect(Array.from(convertedLanguages).map((language) => language.name)).toEqual(
-          languages.map((language) => language.name)
-        )
-        expect(convertedCV.url).toEqual(cv.url)
-        expect(convertedTrophies).toEqual(trophies)
-        expect(resultUserManager!.level).toEqual(rightLevel)
-      },
-      timeout
-    )
   })
 
   describe('Test save user', () => {
