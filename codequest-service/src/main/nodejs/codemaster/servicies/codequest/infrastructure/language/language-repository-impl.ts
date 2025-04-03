@@ -2,8 +2,6 @@ import {Language} from "../../domain/language/language";
 import {LanguageFactory} from "../../domain/language/language-factory";
 import {LanguageModel} from "./language-model";
 import {LanguageRepository} from "./language-repository";
-import * as languages from "./languages.json"
-import {populateLanguages} from "./populate";
 
 export class LanguageRepositoryImpl implements LanguageRepository {
 

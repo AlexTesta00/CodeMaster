@@ -7,12 +7,10 @@ import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codeques
 import { LanguageRepositoryImpl } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository-impl";
 import { CodeQuestService, CodeQuestServiceError } from "../../main/nodejs/codemaster/servicies/codequest/application/codequest-service";
 import { LanguageRepository } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository";
-import {CodeQuest} from "../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest";
 import {
     CodeQuestModel
 } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model";
 import {populateLanguages} from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate";
-import {Language} from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language";
 
 
 describe('TestCodequestService', () => {
@@ -196,7 +194,7 @@ describe('TestCodequestService', () => {
         }, timeout)
 
         it('should throw error if there are no codequest to update with given id', async () => {
-            const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
+            await service.addCodeQuest(title, author, problem, null, languages)
             const newProblem = new Problem("New Problem", [new Example("input", "output", "explanation")], null)
             const newId = new mongoose.Types.ObjectId().toString()
             const newLanguages = [LanguageFactory.newLanguage("Java", ["17", "21"])]
@@ -217,7 +215,7 @@ describe('TestCodequestService', () => {
         }, timeout)
 
         it('should throw error if there are no codequest with given id', async () => {
-            const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
+            await service.addCodeQuest(title, author, problem, null, languages)
             const newId = new mongoose.Types.ObjectId().toString()
 
             await expect(() => service.delete(newId)).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)

@@ -2,7 +2,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { LanguageRepository } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository";
 import { LanguageRepositoryImpl } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-repository-impl";
 import mongoose from "mongoose";
-import { LanguageModel } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/language-model";
 import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory";
 import * as languages from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/languages.json';
 import {populateLanguages} from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate";
@@ -22,12 +21,12 @@ describe('TestLanguageRepository', () => {
         await mongoose.connect(uri);
         languageRepo = new LanguageRepositoryImpl();
         await populateLanguages()
-    }, 10000);
+    }, timeout);
 
     afterAll(async () => {
         await mongoose.disconnect();
         await mongoServer.stop();
-    }, 10000);
+    }, timeout);
 
     describe('TEST language repository', () => {
         languageRepo = new LanguageRepositoryImpl()
@@ -35,13 +34,13 @@ describe('TestLanguageRepository', () => {
         it('should get all available languages', async () => {
             const languageDocs = await languageRepo.getAllLanguages();
             expect(languageDocs).toEqual(allLanguages);
-        }, 10000)
+        }, timeout)
 
         it('should return a specific language', async () => {
             const languageDoc = await languageRepo.findLanguage(exampleLanguage.name);
             expect(languageDoc.name).toBe(exampleLanguage.name);
             expect(languageDoc.versions).toEqual(javaVersions);
-        }, 10000)
+        }, timeout)
     })
 
 });

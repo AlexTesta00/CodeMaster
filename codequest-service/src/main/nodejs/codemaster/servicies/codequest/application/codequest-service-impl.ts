@@ -85,7 +85,7 @@ export class CodeQuestServiceImpl implements CodeQuestService{
         }
     }
     #languageAvailable = async (language: Language): Promise<void> => {
-        let foundLanguage = await this.languageRepo.findLanguage(language.name).catch(error => {
+        let foundLanguage = await this.languageRepo.findLanguage(language.name).catch(() => {
             throw new CodeQuestServiceError.LanguageNotFound('This language is not available')
         })
         if (foundLanguage == null || language.versions.every(v => !foundLanguage.versions.includes(v))) {

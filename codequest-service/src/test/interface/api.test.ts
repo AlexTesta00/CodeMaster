@@ -2,7 +2,6 @@ import { app } from "../../main/nodejs/codemaster/servicies/codequest/interfaces
 import supertest from 'supertest'
 import {
     BAD_REQUEST,
-    CONFLICT,
     CREATED,
     INTERNAL_ERROR, NOT_FOUND,
     OK
@@ -465,7 +464,7 @@ describe('Test API', () => {
         },timeout)
 
         it('should get 200 and DELETE codequest', async () => {
-            const postResponse = await request
+            await request
                 .post('/codequests')
                 .send(codeQuest)
                 .set('Accept', 'application/json')
