@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {CodeQuestServiceImpl} from "../application/codequest-service-impl";
-import {CREATED} from "./status";
+import { CREATED, OK } from './status'
 
 class Controller {
     private service = new CodeQuestServiceImpl();
@@ -8,7 +8,7 @@ class Controller {
     listCodeQuest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const codequests = await this.service.getCodeQuests()
-            res.status(CREATED).json({message: 'Codequests get', success: true, codequests})
+            res.status(OK).json({message: 'Codequests get', success: true, codequests})
         } catch(error) {
             next(error)
         }
@@ -17,14 +17,19 @@ class Controller {
     addCodeQuest = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const codequest = await this.service.addCodeQuest(req.body.title, req.body.author, req.body.problem, null, req.body.languages)
-            res.status(CREATED).json({message: 'Codequests get', success: true, codequest})
+            res.status(CREATED).json({message: 'Codequests add', success: true, codequest})
         } catch(error) {
             next(error)
         }
     }
 
     getCodeQuestById = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.getCodeQuestById(req.params.id));
+        try{
+            const codequest = await this.service.getCodeQuestById(req.params.id)
+            res.status(OK).json({message: 'Codequest get', success: true, codequest})
+        } catch(error) {
+            next(error)
+        }
     }
 
     getCodeQuestsByLanguage = async (req: Request, res: Response, next: NextFunction) => {
