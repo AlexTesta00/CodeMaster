@@ -12,6 +12,7 @@ import {
     CodeQuestModel
 } from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model";
 import {populateLanguages} from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate";
+import {Language} from "../../main/nodejs/codemaster/servicies/codequest/domain/language/language";
 
 
 describe('TestCodequestService', () => {
@@ -24,7 +25,7 @@ describe('TestCodequestService', () => {
     const author = 'exampleName';
     const problem = new Problem("Problem example", [new Example('example1', 'example2', 'explanation')], ['constraints']);
     const title = 'Title example';
-    const languages = [LanguageFactory.createLanguage("Java", ["17", "21"]), LanguageFactory.createLanguage("Scala", ["3.3", "3.4"])]
+    const languages = [LanguageFactory.newLanguage("Java", ["17", "21"]), LanguageFactory.newLanguage("Scala", ["3.3", "3.4"])]
 
     beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
@@ -55,19 +56,19 @@ describe('TestCodequestService', () => {
             expect(codequest.problem.constraints).toEqual(problem.constraints);
             expect(codequest.title).toBe(title);
             expect(codequest.author).toBe(author);
-            expect(codequest.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
+            expect(codequest.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
         }, timeout)
 
         it('should throw error if languages does not exist in the database', async () => {
-            const invalidLanguage = LanguageFactory.createLanguage("C", ["C99"])
+            const invalidLanguage = LanguageFactory.newLanguage("C", ["C99"])
 
-            await expect(() => service.addCodeQuest(title, author, problem, null, [invalidLanguage])).rejects.toThrow(CodeQuestServiceError.InvalidLanguage)
+            await expect(() => service.addCodeQuest(title, author, problem, null, [invalidLanguage])).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
         }, timeout)
 
-        it('should throw error if language versions does not exist in the database', async () => {
-            const invalidLanguage = LanguageFactory.createLanguage("Java", ["1"])
+        it('should throw error if language version does not exist in the database', async () => {
+            const invalidLanguage = LanguageFactory.newLanguage("Java", ["1"])
 
-            await expect(() => service.addCodeQuest(title, author, problem, null, [invalidLanguage])).rejects.toThrow(CodeQuestServiceError.InvalidLanguage)
+            await expect(() => service.addCodeQuest(title, author, problem, null, [invalidLanguage])).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
         }, timeout)
     })
 
@@ -81,8 +82,8 @@ describe('TestCodequestService', () => {
             expect((await service.getCodeQuests()).length).toBe(codequests.length)
         }, timeout)
 
-        it('should throw error if there are no codequest', async () => {
-            await expect(() => service.getCodeQuests()).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)
+        it('should return an empty list if there are no codequest', async () => {
+            expect(await service.getCodeQuests()).toStrictEqual([])
         }, timeout)
 
         it('should retrieve codequest by id', async () => {
@@ -95,7 +96,7 @@ describe('TestCodequestService', () => {
             expect(foundCodequest.problem.constraints).toEqual(newCodequest.problem.constraints);
             expect(foundCodequest.title).toBe(newCodequest.title);
             expect(foundCodequest.author).toBe(newCodequest.author);
-            expect(foundCodequest.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
+            expect(foundCodequest.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
         }, timeout)
 
         it('should throw error if there are no codequest with given id', async () => {
@@ -116,14 +117,36 @@ describe('TestCodequestService', () => {
                 expect(codequest.problem.constraints).toEqual(newCodequest.problem.constraints);
                 expect(codequest.title).toBe(newCodequest.title);
                 expect(codequest.author).toBe(newCodequest.author);
-                expect(codequest.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
+                expect(codequest.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
             })
         }, timeout);
 
-        it('should throw error if there are no codequests created by the given user', async () => {
-            await service.addCodeQuest(title, author, problem, null, languages)
+        it('should retrieve all codequests with given language', async () => {
+            const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
+            const language = LanguageFactory.newLanguage(languages[0].name, languages[0].versions)
+            const foundCodequests = await service.getCodeQuestsByLanguage(language.name, language.versions)
 
-            await expect(() => service.getCodeQuestsByAuthor("Username")).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)
+            foundCodequests.forEach((codequest) => {
+                expect(codequest).not.toBeNull();
+                expect(codequest.problem.body).toBe(newCodequest.problem.body);
+                expect(codequest.problem.examples.map(ex => new Example(ex.input, ex.output, ex.explanation!))).toEqual(newCodequest.problem.examples);
+                expect(codequest.problem.constraints).toEqual(newCodequest.problem.constraints);
+                expect(codequest.title).toBe(newCodequest.title);
+                expect(codequest.author).toBe(newCodequest.author);
+                expect(codequest.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toContainEqual(language);
+            })
+        }, timeout);
+
+        it('should throw error if languages does not exist in the database', async () => {
+            const invalidLanguage = LanguageFactory.newLanguage("C", ["C99"])
+
+            await expect(() => service.getCodeQuestsByLanguage(invalidLanguage.name, invalidLanguage.versions)).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
+        }, timeout)
+
+        it('should throw error if language version does not exist in the database', async () => {
+            const invalidLanguage = LanguageFactory.newLanguage("Java", ["1"])
+
+            await expect(() => service.getCodeQuestsByLanguage(invalidLanguage.name, invalidLanguage.versions)).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
         }, timeout)
     })
 
@@ -151,32 +174,32 @@ describe('TestCodequestService', () => {
 
         it('should update a codequest\'s Languages correctly', async () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
-            const newLanguages = [LanguageFactory.createLanguage("Java", ["17", "21"])]
+            const newLanguages = [LanguageFactory.newLanguage("Java", ["17", "21"])]
 
             await service.updateLanguages(newCodequest.id, newLanguages)
             const updatedCodequest = await service.getCodeQuestById(newCodequest.id)
-            expect(updatedCodequest.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(newLanguages);
+            expect(updatedCodequest.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toEqual(newLanguages);
         }, timeout)
 
         it('should throw error if the given new languages are not available', async () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
-            const newLanguages = [LanguageFactory.createLanguage("C", ["C99"])]
+            const newLanguages = [LanguageFactory.newLanguage("C", ["C99"])]
 
-            await expect(() => service.updateLanguages(newCodequest.id, newLanguages)).rejects.toThrow(CodeQuestServiceError.InvalidLanguage)
+            await expect(() => service.updateLanguages(newCodequest.id, newLanguages)).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
         }, timeout)
 
         it('should throw error if the given new languages versions are not available', async () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
-            const newLanguages = [LanguageFactory.createLanguage("Java", ["1"])]
+            const newLanguages = [LanguageFactory.newLanguage("Java", ["1"])]
 
-            await expect(() => service.updateLanguages(newCodequest.id, newLanguages)).rejects.toThrow(CodeQuestServiceError.InvalidLanguage)
+            await expect(() => service.updateLanguages(newCodequest.id, newLanguages)).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
         }, timeout)
 
         it('should throw error if there are no codequest to update with given id', async () => {
             const newCodequest = await service.addCodeQuest(title, author, problem, null, languages)
             const newProblem = new Problem("New Problem", [new Example("input", "output", "explanation")], null)
             const newId = new mongoose.Types.ObjectId().toString()
-            const newLanguages = [LanguageFactory.createLanguage("Java", ["17", "21"])]
+            const newLanguages = [LanguageFactory.newLanguage("Java", ["17", "21"])]
 
             await expect(() => service.updateProblem(newId, newProblem)).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)
             await expect(() => service.updateTitle(newId, "New Title")).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)
