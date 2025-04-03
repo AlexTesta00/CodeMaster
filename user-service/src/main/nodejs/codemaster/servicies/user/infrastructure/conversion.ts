@@ -15,6 +15,8 @@ import { Language } from '../domain/language'
 import { Trophy } from '../domain/trophy'
 import { Level } from '../domain/level'
 import { Either } from 'fp-ts/Either'
+import { createTrophy } from '../domain/trophy-factory'
+import { createLevel } from '../domain/level-factory'
 
 export const DEFAULT_BIO_VALUE = ''
 export const DEFAULT_PROFILE_PICTURE_VALUE = { url: '', alt: none }
@@ -27,7 +29,7 @@ export const DEFAULT_TROPHIES_VALUE: Iterable<{
   xp: number
 }> = []
 
-interface UserDocument {
+export interface UserDocument {
   profilePicture: {
     url: string
     alt?: string
@@ -49,6 +51,19 @@ interface UserDocument {
     bio?: string
   }
   cv: { url: string }
+}
+
+export interface TrophyDocument {
+  title: string
+  description: string
+  url: string
+  xp: number
+}
+
+export interface LevelDocument {
+  grade: number
+  title: string
+  xp: number
 }
 
 export const toUserManagerModel = (userManager: UserManager) => {
@@ -146,6 +161,14 @@ export const toTrophyModel = (trophy: Trophy) => {
   })
 }
 
+export const toTrophy = (trophyDocument: TrophyDocument): Either<Error, Trophy> =>
+  createTrophy(
+    trophyDocument.title,
+    trophyDocument.description,
+    trophyDocument.url,
+    trophyDocument.xp
+  )
+
 export const toLevelModel = (level: Level) => {
   return new LevelModel({
     grade: level.grade.value,
@@ -153,3 +176,6 @@ export const toLevelModel = (level: Level) => {
     xp: level.xpLevel,
   })
 }
+
+export const toLevel = (levelDocument: LevelDocument): Either<Error, Level> =>
+  createLevel(levelDocument.grade, levelDocument.title, levelDocument.xp)

@@ -1,6 +1,10 @@
 import {
+  LevelDocument,
+  toLevel,
+  toTrophy,
   toUserManager,
   toUserManagerModel,
+  TrophyDocument,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/conversion'
 import { Either, isRight } from 'fp-ts/Either'
 import { isSome, none } from 'fp-ts/Option'
@@ -97,5 +101,41 @@ describe('Test conversion', () => {
     expect(result?.profilePicture).toBe(none)
     expect(result?.cv).toBe(none)
     expect(result?.trophies).toBe(none)
+  })
+
+  it('should successfully convert a valid TrophyDocument to Trophy', () => {
+    const validTrophyDoc: TrophyDocument = {
+      title: 'Test Trophy',
+      description: 'Test Description',
+      url: 'https://example.com/trophy',
+      xp: 100,
+    }
+
+    const result = toTrophy(validTrophyDoc)
+
+    expect(result._tag).toBe('Right')
+    if (result._tag === 'Right') {
+      expect(result.right.title.value).toBe(validTrophyDoc.title)
+      expect(result.right.description).toBe(validTrophyDoc.description)
+      expect(result.right.url).toBe(validTrophyDoc.url)
+      expect(result.right.xp).toBe(validTrophyDoc.xp)
+    }
+  })
+
+  it('should successfully convert a valid LevelDocument to Level', () => {
+    const validLevelDoc: LevelDocument = {
+      grade: 3,
+      title: 'Intermediate',
+      xp: 1500,
+    }
+
+    const result = toLevel(validLevelDoc)
+
+    expect(result._tag).toBe('Right')
+    if (result._tag === 'Right') {
+      expect(result.right.grade.value).toBe(validLevelDoc.grade)
+      expect(result.right.title).toBe(validLevelDoc.title)
+      expect(result.right.xpLevel).toBe(validLevelDoc.xp)
+    }
   })
 })
