@@ -24,7 +24,7 @@ router.route("/codequest-problem/:id")
 router.route("/codequest-title/:id")
     .put(controller.updateTitle)
 
-router.route("/codequest-language/:id")
+router.route("/codequest-languages/:id")
     .put(controller.updateLanguages)
 
 export default router;
