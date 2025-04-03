@@ -1,13 +1,13 @@
 import { Language } from "./language";
 
 export class LanguageFactory{
-    static createLanguage(name: String, versions: String[]): Language {
+    static newLanguage(name: String, versions: String[]): Language {
         if(!name || name == "") {
-            throw new LanguageError.InvalidName('Invalid code language name: \"' + name + '\"')
+            throw new LanguageError.InvalidName('Invalid code language name')
         } 
 
         if(!versions || versions.length == 0) {
-            throw new LanguageError.InvalidVersion('Invalid version of \"' + name + '\" language')
+            throw new LanguageError.InvalidVersion('Invalid version of language')
         }
 
         return new Language(name, versions);

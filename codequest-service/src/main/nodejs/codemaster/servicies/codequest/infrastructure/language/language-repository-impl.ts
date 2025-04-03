@@ -9,10 +9,10 @@ export class LanguageRepositoryImpl implements LanguageRepository {
 
     async findLanguage(languageName: String): Promise<Language> {
         const languageDoc = await LanguageModel.findOne({ name: languageName }).orFail();
-        return LanguageFactory.createLanguage(languageDoc.name, languageDoc.versions);
+        return LanguageFactory.newLanguage(languageDoc.name, languageDoc.versions);
     }
     async getAllLanguages(): Promise<Language[]> {
         const languageDocs = await LanguageModel.find({}).orFail();
-        return languageDocs.map(lang => LanguageFactory.createLanguage(lang.name, lang.versions));
+        return languageDocs.map(lang => LanguageFactory.newLanguage(lang.name, lang.versions));
     }
 }
