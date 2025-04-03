@@ -7,11 +7,12 @@ import { LanguageFactory } from "../../main/nodejs/codemaster/servicies/codeques
 import * as languages from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/languages.json';
 import {populateLanguages} from "../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate";
 
-describe('TestLanguageRepository', () => {    
+describe('TestLanguageRepository', () => {
     let mongoServer: MongoMemoryServer;
     let languageRepo: LanguageRepository;
 
-    let exampleLanguage = LanguageFactory.createLanguage("Java", ["11","17","21"]); 
+    const timeout = 10000;
+    let exampleLanguage = LanguageFactory.newLanguage("Java", ["11","17","21"]);
     let javaVersions = ["8", "11", "17", "21"];
     let allLanguages = Array.from(Array(languages.length).keys()).map(i => languages[i]);
     

@@ -12,12 +12,13 @@ import { LanguageModel } from '../../main/nodejs/codemaster/servicies/codequest/
 
 describe('TestCodeQuestRepository', () => {
 
+    const timeout = 10000;
     let mongoServer: MongoMemoryServer;
     let codequestRepo: CodeQuestRepository;
     const author = 'exampleName';
     const problem = new Problem("Given two lists, sum all elements in a new list", [new Example('l1 = [2,4,3], l2 = [5,6,4]', '[7,0,8]', '342 + 465 = 807')], null);
     const title = 'Sum of numbers in a list';
-    const languages = [LanguageFactory.createLanguage("Java", ["17", "21"]), LanguageFactory.createLanguage("Scala", ["3.3", "3.4"])]
+    const languages = [LanguageFactory.newLanguage("Java", ["17", "21"]), LanguageFactory.newLanguage("Scala", ["3.3", "3.4"])]
     const firstCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
     const secondCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(new mongoose.Types.ObjectId().toString(), title, author, problem, null, languages);
 
@@ -26,21 +27,21 @@ describe('TestCodeQuestRepository', () => {
         const uri = mongoServer.getUri();
         await mongoose.connect(uri);
         codequestRepo = new CodeQuestRepositoryImpl();
-    }, 10000);
+    }, timeout);
 
     beforeEach(async () => {
         await codequestRepo.save(firstCodequest);
         await codequestRepo.save(secondCodequest);
-    }, 10000);
+    }, timeout);
 
     afterAll(async () => {
         await mongoose.disconnect();
         await mongoServer.stop();
-    }, 10000);
+    }, timeout);
 
     afterEach(async () => {
         await CodeQuestModel.deleteMany({});
-    }, 10000);
+    }, timeout);
 
     describe('Test codequest creation', () => {
 
@@ -52,19 +53,19 @@ describe('TestCodeQuestRepository', () => {
             expect(foundCodeQuest?.problem.constraints).toEqual(problem.constraints);
             expect(foundCodeQuest?.title).toBe(title);
             expect(foundCodeQuest?.author).toBe(author);
-            expect(foundCodeQuest?.languages.map(langDoc => LanguageFactory.createLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
-        }, 10000);
+            expect(foundCodeQuest?.languages.map(langDoc => LanguageFactory.newLanguage(langDoc.name, langDoc.versions))).toEqual(languages);
+        }, timeout);
 
         it('should return all codequests published from the same author', async () => {
             const codequests = await codequestRepo.findCodeQuestsByAuthor(author);
             expect(codequests[0]).toStrictEqual(firstCodequest);
             expect(codequests[1]).toStrictEqual(secondCodequest);
-        }, 10000);
+        }, timeout);
 
         it('should return all codequests created', async () => {
             const codequests = await codequestRepo.getAllCodeQuests();
             expect(codequests.length).toBe(2);
-        }, 10000)
+        }, timeout)
 
         it('should return all codequests resolvable with given language', async () => {
             const codequests = await codequestRepo.findCodeQuestsByLanguage(languages[0].name);
@@ -85,7 +86,7 @@ describe('TestCodeQuestRepository', () => {
             await codequestRepo.updateProblem(firstCodequest.id, newProblem);
             const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
-        }, 10000);
+        }, timeout);
     
         it('should update the title of the codequest as expected', async () => {
             const newCodequest = firstCodequest;
@@ -93,7 +94,7 @@ describe('TestCodeQuestRepository', () => {
             await codequestRepo.updateTitle(firstCodequest.id, "New Title");
             const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
-        }, 10000);
+        }, timeout);
 
         it('should update the languages of the codequest as expected', async () => {
             const newCodequest = firstCodequest;
@@ -101,7 +102,7 @@ describe('TestCodeQuestRepository', () => {
             await codequestRepo.updateLanguages(firstCodequest.id, [languages[0]]);
             const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id);
             expect(updatedCodequest).toStrictEqual(newCodequest);
-        }, 10000);
+        }, timeout);
     })
 
     describe('Test codequest removal', () => {
@@ -109,6 +110,6 @@ describe('TestCodeQuestRepository', () => {
         it('should delete the codequest succesfully', async () => {
             await codequestRepo.delete(firstCodequest.id);
             expect(await CodeQuestModel.findOne({ questId: firstCodequest.id }).exec()).toBeNull();
-        }, 10000);
+        }, timeout);
     });
 });
