@@ -1,10 +1,14 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { LevelModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/schema'
-import { createLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {
+  createDefaultLevel,
+  createLevel,
+} from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import {
   deleteLevel,
   findLevel,
+  getAllLevels,
   saveLevel,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/level-repository'
 import { isRight, left, right } from 'fp-ts/Either'
@@ -106,6 +110,32 @@ describe('Level Repository', () => {
       })
       const result = await deleteLevel({ value: 2 })
       expect(result).toEqual(left(new UnknownError()))
+    })
+  })
+
+  describe('getAllLevels', () => {
+    it('should correctly return all levels', async () => {
+      const firstLevel = createDefaultLevel()
+      const secondLevel = createLevel(2, 'Expert', 20)
+      const levels = [firstLevel, secondLevel]
+        .filter(isRight)
+        .map((either) => either.right)
+      await saveLevel(levels[0])
+      await saveLevel(levels[1])
+      const result = await getAllLevels()
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? Array.from(result.right) : null
+      expect(rightResult![0]).toEqual(firstLevel)
+      expect(rightResult![1]).toEqual(secondLevel)
+    })
+
+    it('should correctly return empty iterable of levels', async () => {
+      const result = await getAllLevels()
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? Array.from(result.right) : null
+      expect(rightResult!.length).toEqual(0)
     })
   })
 

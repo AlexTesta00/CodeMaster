@@ -3,7 +3,7 @@ import { chain, Either, left, right } from 'fp-ts/Either'
 import { TrophyNotFound, UnknownError } from './repository-error'
 import { TrophyModel } from './schema'
 import { createTrophy } from '../domain/trophy-factory'
-import { toTrophyModel } from './conversion'
+import { toTrophy, toTrophyModel } from './conversion'
 import { tryCatch } from 'fp-ts/TaskEither'
 import { pipe } from 'fp-ts/function'
 
@@ -50,3 +50,14 @@ export const deleteTrophy = async (trophyId: TrophyId): Promise<Either<Error, vo
     )(),
     chain((either) => either)
   )
+
+//TODO: refactor
+export const getAllTrophies = async (): Promise<Either<Error, Iterable<Trophy>>> => {
+  try {
+    const trophyDocument = await TrophyModel.find({}).exec()
+    const trophies = trophyDocument.map(toTrophy)
+    return right(trophies as Iterable<Trophy>)
+  } catch (error) {
+    return left(error instanceof Error ? error : new UnknownError())
+  }
+}

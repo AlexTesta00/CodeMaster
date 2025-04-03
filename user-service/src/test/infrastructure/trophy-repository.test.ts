@@ -5,6 +5,7 @@ import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain
 import {
   deleteTrophy,
   findTrophy,
+  getAllTrophies,
   saveTrophy,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/trophy-repository'
 import { isRight, left, right } from 'fp-ts/Either'
@@ -123,6 +124,32 @@ describe('Test Trophy Repository', () => {
       const result = await deleteTrophy({ value: 'any-id' })
 
       expect(result).toEqual(left(new UnknownError()))
+    })
+  })
+
+  describe('getAllTrophies', () => {
+    it('should correctly return all trophies', async () => {
+      const firstTrophy = createTrophy('First', 'First', 'https://first.com', 10)
+      const secondTrophy = createTrophy('Second', 'Second', 'https://second.com', 20)
+      const trophies = [firstTrophy, secondTrophy]
+        .filter(isRight)
+        .map((either) => either.right)
+      await saveTrophy(trophies[0])
+      await saveTrophy(trophies[1])
+      const result = await getAllTrophies()
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? Array.from(result.right) : null
+      expect(rightResult![0]).toEqual(firstTrophy)
+      expect(rightResult![1]).toEqual(secondTrophy)
+    })
+
+    it('should correctly return empty iterable of trophies', async () => {
+      const result = await getAllTrophies()
+      expect(isRight(result)).toBeTruthy()
+
+      const rightResult = isRight(result) ? Array.from(result.right) : null
+      expect(rightResult!.length).toEqual(0)
     })
   })
 
