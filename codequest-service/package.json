@@ -2,13 +2,13 @@
   "name": "codequest-service",
   "version": "1.0.0",
   "description": "Microservice supporting and managing codequests",
-  "main": "src/main/nodejs/codemaster/servicies/codequest/interfaces/index.ts",
+  "main": "src/main/nodejs/codemaster/servicies/codequest/index.ts",
   "scripts": {
     "test": "jest --runInBand --detectOpenHandles",
-    "start": "ts-node src/main/nodejs/codemaster/servicies/codequest/interfaces/index.ts",
-    "dev": "nodemon src/main/nodejs/codemaster/servicies/codequest/interfaces/index.ts",
+    "start": "ts-node src/main/nodejs/codemaster/servicies/codequest/index.ts",
+    "dev": "nodemon src/main/nodejs/codemaster/servicies/codequest/index.ts",
     "build": "tsc",
-    "serve": "node src/main/nodejs/codemaster/servicies/codequest/interfaces/index.ts",
+    "serve": "node src/main/nodejs/codemaster/servicies/codequest/index.ts",
     "codequest-service": "docker-compose -f ./docker-compose.yml up",
     "mongo-service": "docker run --rm -d -p 27017:27017 mongo"
   },
