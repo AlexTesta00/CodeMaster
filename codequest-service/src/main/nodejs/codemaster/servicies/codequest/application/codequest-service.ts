@@ -15,8 +15,8 @@ export interface CodeQuestService {
 }
 
 export class CodeQuestServiceError {
-  static InvalidLanguage = class extends Error {}
+  static LanguageNotFound = class extends Error {}
   static InvalidCodeQuestId = class extends Error {}
-  static InvalidLanguageVersions = class extends Error {}
+  static LanguageVersionNotFound = class extends Error {}
   static CodeQuestNotFound = class extends Error {}
 }
