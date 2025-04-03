@@ -33,27 +33,57 @@ class Controller {
     }
 
     getCodeQuestsByLanguage = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.getCodeQuestsByLanguage(req.body.language.name, req.body.language.versions))
+        try{
+            const codequests = await this.service.getCodeQuestsByLanguage(req.body.name, req.body.versions)
+            res.status(OK).json({message: 'Codequests get', success: true, codequests})
+        } catch(error) {
+            next(error)
+        }
     }
 
     getCodeQuestsByAuthor = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.getCodeQuestsByAuthor(req.params.author));
+        try{
+            const codequests = await this.service.getCodeQuestsByAuthor(req.params.author)
+            res.status(OK).json({message: 'Codequests get', success: true, codequests});
+        } catch(error) {
+            next(error)
+        }
     }
 
     updateProblem = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.updateProblem(req.params.id, req.body.problem));
+        try{
+            await this.service.updateProblem(req.params.id, req.body.problem)
+            res.status(OK).json({message: 'Codequest put', success: true});
+        } catch(error) {
+            next(error)
+        }
     }
 
     updateTitle = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.updateProblem(req.params.id, req.body.title));
+        try {
+            await this.service.updateTitle(req.params.id, req.body.title)
+            res.status(OK).json({message: 'Codequest put', success: true});
+        } catch(error) {
+            next(error)
+        }
     }
 
     updateLanguages = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.updateLanguages(req.params.id, req.body.languages))
+        try {
+            await this.service.updateLanguages(req.params.id, req.body.languages)
+            res.status(OK).json({message: 'Codequest put', success: true});
+        } catch(error) {
+            next(error)
+        }
     }
 
     deleteCodeQuest = async (req: Request, res: Response, next: NextFunction) => {
-        res.json(await this.service.delete(req.params.id));
+        try {
+            await this.service.delete(req.params.id)
+            res.status(OK).json({message: 'Codequest delete', success: true});
+        } catch(error) {
+            next(error)
+        }
     }
 }
 
