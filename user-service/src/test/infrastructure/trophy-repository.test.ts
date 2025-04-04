@@ -133,15 +133,14 @@ describe('Test Trophy Repository', () => {
       const secondTrophy = createTrophy('Second', 'Second', 'https://second.com', 20)
       const trophies = [firstTrophy, secondTrophy]
         .filter(isRight)
-        .map((either) => either.right)
+        .map((trophy) => trophy.right)
       await saveTrophy(trophies[0])
       await saveTrophy(trophies[1])
       const result = await getAllTrophies()
       expect(isRight(result)).toBeTruthy()
 
       const rightResult = isRight(result) ? Array.from(result.right) : null
-      expect(rightResult![0]).toEqual(firstTrophy)
-      expect(rightResult![1]).toEqual(secondTrophy)
+      expect(rightResult!).toEqual(trophies)
     })
 
     it('should correctly return empty iterable of trophies', async () => {

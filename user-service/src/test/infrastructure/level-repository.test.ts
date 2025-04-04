@@ -126,8 +126,7 @@ describe('Level Repository', () => {
       expect(isRight(result)).toBeTruthy()
 
       const rightResult = isRight(result) ? Array.from(result.right) : null
-      expect(rightResult![0]).toEqual(firstLevel)
-      expect(rightResult![1]).toEqual(secondLevel)
+      expect(rightResult!).toEqual(levels)
     })
 
     it('should correctly return empty iterable of levels', async () => {
