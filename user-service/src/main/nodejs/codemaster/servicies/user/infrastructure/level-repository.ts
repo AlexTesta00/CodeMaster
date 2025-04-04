@@ -1,6 +1,6 @@
 import { Level, LevelId } from '../domain/level'
 import { LevelModel } from './schema'
-import { chain, Either, left, right } from 'fp-ts/Either'
+import { chain, Either, isRight, left, right } from 'fp-ts/Either'
 import { LevelNotFound, UnknownError } from './repository-error'
 import { createLevel } from '../domain/level-factory'
 import { toLevel, toLevelModel } from './conversion'
@@ -51,11 +51,12 @@ export const deleteLevel = async (levelId: LevelId): Promise<Either<Error, void>
 
 //TODO: Refactor and test
 export const getAllLevels = async (): Promise<Either<Error, Iterable<Level>>> => {
-  try {
-    const levelDocument = await LevelModel.find({}).exec()
-    const levels = levelDocument.map(toLevel)
-    return right(levels as Iterable<Level>)
-  } catch (error) {
-    return left(error instanceof Error ? error : new UnknownError())
-  }
+  const levels = await LevelModel.find().exec()
+  if (!levels) left(new LevelNotFound('Levels not found'))
+  return right(
+    levels
+      .map(toLevel)
+      .filter(isRight)
+      .map((level) => level.right)
+  )
 }
