@@ -8,7 +8,6 @@ node{
     download.set(true)
 }
 
-
 allprojects {
     group = "codemaster"
 }
@@ -17,5 +16,6 @@ subprojects {}
 
 tasks.register("build"){
     dependsOn("npmInstall")
+    dependsOn(":codequest-service:build")
     dependsOn(":authentication-service:build")
 }

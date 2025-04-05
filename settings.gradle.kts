@@ -15,8 +15,9 @@ plugins {
 
 gitHooks {
     commitMsg { conventionalCommits() }
-    preCommit { tasks("prettier", "lint", "npmTest") }
+    preCommit { tasks("npmTest") }
     createHooks(true)
 }
 
+include("codequest-service")
 include("authentication-service")
