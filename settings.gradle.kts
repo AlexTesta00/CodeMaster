@@ -20,3 +20,4 @@ gitHooks {
 }
 
 include("codequest-service")
+include("authentication-service")

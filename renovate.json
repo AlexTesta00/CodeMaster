@@ -1,14 +1,18 @@
 {
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "packageRules": [
     {
-      "matchManagers": ["gradle"],
+      "matchManagers": [
+        "gradle"
+      ],
       "groupName": "Gradle dependencies"
     },
     {
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "groupName": "Node.js dependencies"
     }
   ],
@@ -18,5 +22,6 @@
   },
   "npm": {
     "enabled": true
-  }
+  },
+  "baseBranches": ["develop"]
 }
