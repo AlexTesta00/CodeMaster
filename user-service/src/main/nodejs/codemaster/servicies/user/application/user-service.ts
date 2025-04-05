@@ -7,7 +7,7 @@ import {
   saveDefaultUser,
   updateUserInfo,
 } from '../infrastructure/user-repository'
-import { isNone, none, some } from 'fp-ts/Option'
+import { isNone, isSome, none, some } from 'fp-ts/Option'
 import { ProfilePicture } from '../domain/profile-picture'
 import { CV } from '../domain/cv'
 import { Language } from '../domain/language'
@@ -117,7 +117,6 @@ export const changeUserLanguages = async (
   return await updateUserInfo(nickname, newUser.right)
 }
 
-//TODO: when change user trophy recompute level, and add old trophies...
 export const changeUserTrophy = async (
   nickname: UserId,
   trophies: Iterable<Trophy>
@@ -125,13 +124,17 @@ export const changeUserTrophy = async (
   const foundUser = await getAllUserInfo(nickname)
   if (isLeft(foundUser)) return left(foundUser.left)
   const rightFoundUser = foundUser.right
+  const oldTrophies = isSome(rightFoundUser.trophies)
+    ? Array.from(rightFoundUser.trophies.value)
+    : []
+  const allTrophies = Array.from(trophies).concat(oldTrophies)
   const newUser = createAdvancedUserOption(
     rightFoundUser.userInfo.nickname.value,
     rightFoundUser.userInfo.bio,
     rightFoundUser.profilePicture,
     rightFoundUser.languages,
     rightFoundUser.cv,
-    Array.from(trophies).length > 0 ? some(trophies) : none,
+    Array.from(allTrophies).length > 0 ? some(allTrophies) : none,
     rightFoundUser.level
   )
   if (isLeft(newUser)) return left(newUser.left)

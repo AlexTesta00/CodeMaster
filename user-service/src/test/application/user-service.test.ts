@@ -477,8 +477,42 @@ describe('Test user service', () => {
       timeout
     )
 
-    //TODO: Implement test that concat the old trophies with new trophies
-    //TODO: Implement test that change level correctly
+    it(
+      'should correctly concat old trophies with new trophies',
+      async () => {
+        await registerNewUser(nickname)
+        const trophy1 = createTrophy(
+          'First Trophy',
+          'First trophy',
+          'https://example.com/1',
+          100
+        )
+        const trophy2 = createTrophy(
+          'Second Trophy',
+          'Second trophy',
+          'https://example.com/2',
+          200
+        )
+        const expected = [trophy1, trophy2].filter(isRight).map((trophy) => trophy.right)
+        if (isRight(trophy1) && isRight(trophy2)) {
+          const resultFirstChange = await changeUserTrophy(nickname, [trophy1.right])
+          expect(isRight(resultFirstChange)).toBeTruthy()
+          const resultSecondChange = await changeUserTrophy(nickname, [trophy2.right])
+          expect(isRight(resultSecondChange)).toBeTruthy()
+          const foundUser = await getAllUserInfo(nickname)
+          expect(isRight(foundUser)).toBeTruthy()
+          const rightFoundUser = isRight(foundUser) ? foundUser.right : null
+          const trophyOfFoundUser = isSome(rightFoundUser!.trophies)
+            ? Array.from(rightFoundUser!.trophies.value)
+            : null
+          expect(trophyOfFoundUser![0]).toEqual(expected[1])
+          expect(trophyOfFoundUser![1]).toEqual(expected[0])
+        } else {
+          fail()
+        }
+      },
+      timeout
+    )
   })
 
   describe('Test registerNewTrophy', () => {
