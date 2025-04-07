@@ -1,10 +1,9 @@
-import express from "express";
-import router from "./codequest-routes";
-import { errorHandler } from "./error-handler";
-import helmet from "helmet";
+import express from 'express'
+import router from './codequest-routes'
+import { errorHandler } from './error-handler'
+import helmet from 'helmet'
 
 const app = express()
-const port = process.env.PORT!
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

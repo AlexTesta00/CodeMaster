@@ -9,6 +9,8 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*", "jest.config.js"],
+  "include": ["src/**/*",
+    "jest.config.js"
+  ],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

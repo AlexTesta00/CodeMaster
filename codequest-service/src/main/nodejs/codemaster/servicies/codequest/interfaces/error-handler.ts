@@ -1,8 +1,8 @@
 import { ErrorRequestHandler } from 'express'
 import { LanguageError } from '../domain/language/language-factory'
-import {BAD_REQUEST, CONFLICT, INTERNAL_ERROR, NOT_FOUND} from './status'
+import { BAD_REQUEST, INTERNAL_ERROR, NOT_FOUND } from './status'
 import { CodeQuestError } from '../domain/codequest/codequest-factory'
-import { CodeQuestServiceError } from "../application/codequest-service";
+import { CodeQuestServiceError } from '../application/codequest-service'
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
   if (error instanceof CodeQuestError.InvalidAuthor) {

@@ -1,3 +1,6 @@
 export class Language {
-    constructor(public readonly name: String, public versions: String[]){};
+  constructor(
+    public readonly name: string,
+    public versions: string[]
+  ) {}
 }

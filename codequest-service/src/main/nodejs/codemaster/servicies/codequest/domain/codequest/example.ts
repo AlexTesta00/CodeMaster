@@ -1,3 +1,7 @@
-export class Example{
-    constructor(public input: String, public output: String, public explanation: String | null){};
+export class Example {
+  constructor(
+    public input: string,
+    public output: string,
+    public explanation: string | null
+  ) {}
 }
