@@ -1,6 +1,13 @@
-import { Language } from "../language/language";
-import { Problem } from "./problem";
+import { Language } from '../language/language'
+import { Problem } from './problem'
 
-export class CodeQuest{
-    constructor(public readonly id: String, public title: String, public author: String, public problem: Problem, public timestamp: Date | null, public languages: Language[]){};
+export class CodeQuest {
+  constructor(
+    public readonly id: string,
+    public title: string,
+    public author: string,
+    public problem: Problem,
+    public timestamp: Date | null,
+    public languages: Language[]
+  ) {}
 }
