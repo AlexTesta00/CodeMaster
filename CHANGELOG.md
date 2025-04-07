@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/AlexTesta00/CodeMaster/compare/v1.1.2...v1.1.3) (2025-04-07)
+
+### Bug Fixes
+
+* **codequest-service:** solve eslint/jest errors ([0f93825](https://github.com/AlexTesta00/CodeMaster/commit/0f9382587e267b0148126df46770847b22f3f354))
+
 ## [1.1.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.1.1...v1.1.2) (2025-04-04)
 
 ### Bug Fixes
