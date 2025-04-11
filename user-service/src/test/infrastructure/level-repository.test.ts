@@ -131,7 +131,6 @@ describe('Level Repository', () => {
 
     it('should correctly return empty iterable of levels', async () => {
       const result = await getAllLevels()
-      console.log(result)
       expect(isLeft(result)).toBeTruthy()
     })
   })
