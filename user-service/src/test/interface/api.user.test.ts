@@ -462,7 +462,6 @@ describe('Test User API', () => {
           .get(`/api/v1/users/level/${nickname}`)
           .set('Accept', 'application/json')
         expect(response.status).toBe(200)
-        console.log(response.body)
         expect(response.body).toHaveProperty('message', 'User level computed')
         expect(response.body).toHaveProperty('success', true)
         expect(response.body).toHaveProperty('user', {

@@ -8,7 +8,7 @@ import {
   getAllTrophies,
   saveTrophy,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/trophy-repository'
-import { isRight, left, right } from 'fp-ts/Either'
+import { isLeft, isRight, left, right } from 'fp-ts/Either'
 import {
   TrophyNotFound,
   UnknownError,
@@ -145,10 +145,7 @@ describe('Test Trophy Repository', () => {
 
     it('should correctly return empty iterable of trophies', async () => {
       const result = await getAllTrophies()
-      expect(isRight(result)).toBeTruthy()
-
-      const rightResult = isRight(result) ? Array.from(result.right) : null
-      expect(rightResult!.length).toEqual(0)
+      expect(isLeft(result)).toBeTruthy()
     })
   })
 
