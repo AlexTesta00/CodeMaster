@@ -15,6 +15,7 @@ import {
   computeUserLevel,
   deleteLevel,
   deleteTrophy,
+  deleteUser,
   getAllLevels,
   getAllTrophies,
   getAllUserInfo,
@@ -510,6 +511,30 @@ describe('Test user service', () => {
         } else {
           fail()
         }
+      },
+      timeout
+    )
+  })
+
+  describe('Test deleteUser', () => {
+    it(
+      'should correctly delete a user',
+      async () => {
+        await registerNewUser(nickname)
+        const result = await deleteUser(nickname)
+        expect(isRight(result)).toBeTruthy()
+
+        const foundUser = await getAllUserInfo(nickname)
+        expect(isLeft(foundUser)).toBeTruthy()
+      },
+      timeout
+    )
+
+    it(
+      'should return error when trying to delete non-existent user',
+      async () => {
+        const result = await deleteUser(invalidNickname)
+        expect(isLeft(result)).toBeTruthy()
       },
       timeout
     )
