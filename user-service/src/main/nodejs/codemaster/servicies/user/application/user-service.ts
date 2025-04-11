@@ -6,6 +6,7 @@ import {
   findUser,
   saveDefaultUser,
   updateUserInfo,
+  deleteUser as deleteUserFromRepo,
 } from '../infrastructure/user-repository'
 import { isNone, isSome, none, some } from 'fp-ts/Option'
 import { ProfilePicture } from '../domain/profile-picture'
@@ -140,6 +141,10 @@ export const changeUserTrophy = async (
   if (isLeft(newUser)) return left(newUser.left)
   return await updateUserInfo(nickname, newUser.right)
 }
+
+//TODO: Test it
+export const deleteUser = async (nickname: UserId): Promise<Either<Error, void>> =>
+  await deleteUserFromRepo(nickname)
 
 export const registerNewTrophy = async (
   title: TrophyId,
