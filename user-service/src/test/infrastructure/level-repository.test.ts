@@ -11,7 +11,7 @@ import {
   getAllLevels,
   saveLevel,
 } from '../../main/nodejs/codemaster/servicies/user/infrastructure/level-repository'
-import { isRight, left, right } from 'fp-ts/Either'
+import { isLeft, isRight, left, right } from 'fp-ts/Either'
 import {
   LevelNotFound,
   UnknownError,
@@ -131,10 +131,8 @@ describe('Level Repository', () => {
 
     it('should correctly return empty iterable of levels', async () => {
       const result = await getAllLevels()
-      expect(isRight(result)).toBeTruthy()
-
-      const rightResult = isRight(result) ? Array.from(result.right) : null
-      expect(rightResult!.length).toEqual(0)
+      console.log(result)
+      expect(isLeft(result)).toBeTruthy()
     })
   })
 

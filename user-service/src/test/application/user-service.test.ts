@@ -593,11 +593,7 @@ describe('Test user service', () => {
         expect(isRight(deleteResult)).toBeTruthy()
 
         const getAllResult = await getAllTrophies()
-        expect(isRight(getAllResult)).toBeTruthy()
-        if (isRight(getAllResult)) {
-          const trophies = Array.from(getAllResult.right)
-          expect(trophies.length).toBe(0)
-        }
+        expect(isLeft(getAllResult)).toBeTruthy()
       },
       timeout
     )
@@ -641,15 +637,10 @@ describe('Test user service', () => {
     )
 
     it(
-      'should return empty iterable when no trophies exist',
+      'should return left error when no trophies exist',
       async () => {
         const result = await getAllTrophies()
-        expect(isRight(result)).toBeTruthy()
-
-        if (isRight(result)) {
-          const trophies = Array.from(result.right)
-          expect(trophies.length).toBe(0)
-        }
+        expect(isLeft(result)).toBeTruthy()
       },
       timeout
     )
@@ -700,11 +691,7 @@ describe('Test user service', () => {
         expect(isRight(deleteResult)).toBeTruthy()
 
         const getAllResult = await getAllLevels()
-        expect(isRight(getAllResult)).toBeTruthy()
-        if (isRight(getAllResult)) {
-          const levels = Array.from(getAllResult.right)
-          expect(levels.length).toBe(0)
-        }
+        expect(isLeft(getAllResult)).toBeTruthy()
       },
       timeout
     )
@@ -739,15 +726,10 @@ describe('Test user service', () => {
     )
 
     it(
-      'should return empty iterable when no levels exist',
+      'should return left error when no levels exist',
       async () => {
         const result = await getAllLevels()
-        expect(isRight(result)).toBeTruthy()
-
-        if (isRight(result)) {
-          const levels = Array.from(result.right)
-          expect(levels.length).toBe(0)
-        }
+        expect(isLeft(result)).toBeTruthy()
       },
       timeout
     )
