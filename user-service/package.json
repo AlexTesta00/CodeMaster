@@ -2,7 +2,7 @@
   "name": "user-service",
   "main": "index.js",
   "scripts": {
-    "dev": "",
+    "dev": "ts-node-dev --files --respawn --transpile-only --ignore-watch node_modules src/main/nodejs/codemaster/servicies/server.ts",
     "test": "jest",
     "build": "tsc",
     "lint": "npx eslint --config eslint.config.mjs .",
