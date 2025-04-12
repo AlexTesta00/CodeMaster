@@ -1,3 +1,48 @@
+## [1.2.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.1.4...v1.2.0) (2025-04-12)
+
+### Features
+
+* add entity, value objects and aggregate ([d83a86e](https://github.com/AlexTesta00/CodeMaster/commit/d83a86e4227bb4c648191e9036a5834d00a18b33))
+* add entity, value objects and aggregate ([6e3e0dd](https://github.com/AlexTesta00/CodeMaster/commit/6e3e0ddf9f51036cd1964348ee5e3f6b4ffd2775))
+* **api:** add api for user-service ([c8b2682](https://github.com/AlexTesta00/CodeMaster/commit/c8b2682e3b0515b24882aa1bac33fc5a3b586c59))
+* **api:** add api for user-service ([2b4f52f](https://github.com/AlexTesta00/CodeMaster/commit/2b4f52fd950a97c5400366c98568e825d72ee65f))
+* **conversion:** add methods to convert TrophyDocument into Trophy and LevelDocument into Level ([ae62205](https://github.com/AlexTesta00/CodeMaster/commit/ae622053339f8a5ef09845516ee34dcddcec3f96))
+* **conversion:** add methods to convert TrophyDocument into Trophy and LevelDocument into Level ([08c4baf](https://github.com/AlexTesta00/CodeMaster/commit/08c4baffa90598c69919a1e6c3aabd1a92677487))
+* dockerize user-service ([fd1db0d](https://github.com/AlexTesta00/CodeMaster/commit/fd1db0d1732a82188a4a40c85b32819608a6ba92))
+* **factory:** now user, trophy and level can be create trought factory ([d972dcb](https://github.com/AlexTesta00/CodeMaster/commit/d972dcbe826b183192b2009825c395dc3fe21c16))
+* **factory:** now user, trophy and level can be create trought factory ([e8e19a0](https://github.com/AlexTesta00/CodeMaster/commit/e8e19a02b41ed1ee9e097014f8e2f80b8c964129))
+* implement getAllTophies method and getAllLevels method ([af6fb75](https://github.com/AlexTesta00/CodeMaster/commit/af6fb7586d2a14646d8785af9ee031b81dedfaa4))
+* implement getAllTophies method and getAllLevels method ([0ccbd7f](https://github.com/AlexTesta00/CodeMaster/commit/0ccbd7f1e803d6785c168643274be65e6e163a43))
+* **level-repository:** now level can be stored in db ([e323480](https://github.com/AlexTesta00/CodeMaster/commit/e3234801dc6d4f4f6f58f0405739b352e84b7850))
+* **level-repository:** now level can be stored in db ([1c2c5e9](https://github.com/AlexTesta00/CodeMaster/commit/1c2c5e9245105fbc4707d9fc0ad98eec0268a426))
+* **trophy-repository:** now can store trophy ([796b19b](https://github.com/AlexTesta00/CodeMaster/commit/796b19be58ae1852c82820591344fa6bddb88e41))
+* **trophy-repository:** now can store trophy ([1d8560b](https://github.com/AlexTesta00/CodeMaster/commit/1d8560bf6fd22c94872b78b458c0cd9ef5411d6f))
+* **user-repository:** Add repository to save,find,update,delete user ([93f693c](https://github.com/AlexTesta00/CodeMaster/commit/93f693ce1e9b31917843a8ad8938eeae322cea87))
+* **user-repository:** Add repository to save,find,update,delete user ([8b4213e](https://github.com/AlexTesta00/CodeMaster/commit/8b4213ed836a11dd0f83e79f8b79cd0c1d91002f))
+* **user-service:** add deleteUser method ([42dd686](https://github.com/AlexTesta00/CodeMaster/commit/42dd686f4bc17423778b1b4a07cf8089816e016c))
+* **user-service:** add deleteUser method ([da0922d](https://github.com/AlexTesta00/CodeMaster/commit/da0922d0d6df6f2ffe60883cfc2c0a5f7ca3d3f1))
+* **user-service:** implement user-service ([50588be](https://github.com/AlexTesta00/CodeMaster/commit/50588bef2227a8cf2d1ac38a5c74e07322d6b3a3))
+* **user-service:** implement user-service ([6d81570](https://github.com/AlexTesta00/CodeMaster/commit/6d8157073e8578934e683f0b57536b05d1d885cf))
+
+### Bug Fixes
+
+* **deps:** update node.js dependencies ([3d21c23](https://github.com/AlexTesta00/CodeMaster/commit/3d21c23ce626d863ca4219c69824b84aa14d1c3a))
+* **deps:** update node.js dependencies ([4db0f55](https://github.com/AlexTesta00/CodeMaster/commit/4db0f558e88c3024393d6987307a14300e5a537e))
+* **domain:** now classes control the input fileds ([c4dad43](https://github.com/AlexTesta00/CodeMaster/commit/c4dad432f04760f17ba839e6789b4897f33069e4))
+* **domain:** now classes control the input fileds ([38f1105](https://github.com/AlexTesta00/CodeMaster/commit/38f110526b261175e4982e9b10389404f0d0d2b3))
+* in getAllLevels and in getAllTrophies when trophies and levels are empty return left error ([f0a3c19](https://github.com/AlexTesta00/CodeMaster/commit/f0a3c19502d13bd26cf32498a9eab3672af61350))
+* in getAllLevels and in getAllTrophies when trophies and levels are empty return left error ([43f91ec](https://github.com/AlexTesta00/CodeMaster/commit/43f91ecd0697c9a2431f60326fd9336ae73f25e2))
+* merge conflict ([ef58c0a](https://github.com/AlexTesta00/CodeMaster/commit/ef58c0a75c08bca5b18af796c912e2531525390f))
+* **rebase:** resolve rebase conflict ([0b9960d](https://github.com/AlexTesta00/CodeMaster/commit/0b9960db6948b769e2fe91ed7217abb221af68ad))
+* **repository:** now trophy and level repository when get allTrophies or allLevels return an Iterable element without either option ([7ca171c](https://github.com/AlexTesta00/CodeMaster/commit/7ca171c6b50ef70cd04292ed120db87c960d813c))
+* **repository:** now trophy and level repository when get allTrophies or allLevels return an Iterable element without either option ([ad1587b](https://github.com/AlexTesta00/CodeMaster/commit/ad1587bafc2b138163a63d35b4a93fa72b238e49))
+* **test:** delete console.log ([bea7f37](https://github.com/AlexTesta00/CodeMaster/commit/bea7f37978934feba55ec72ddef2647470cf6ce5))
+* **test:** delete console.log ([f20439a](https://github.com/AlexTesta00/CodeMaster/commit/f20439a64147c445b50e065f8ad4b37dafc40dee))
+* **user-service:** now in changeTrophies method, old trophies are concat with new trophies ([1d5fbd7](https://github.com/AlexTesta00/CodeMaster/commit/1d5fbd73033eed5b3a57380956b472d3edf295e9))
+* **user-service:** now in changeTrophies method, old trophies are concat with new trophies ([821d80f](https://github.com/AlexTesta00/CodeMaster/commit/821d80f73b9405db8bb25862b5b5024539afc265))
+* **user:** now when user insert an incorrect URL for CV or Profile Picture cause error ([4a52fea](https://github.com/AlexTesta00/CodeMaster/commit/4a52fea4afa8e4cae09253d3107fabb1bd034ef9))
+* **user:** now when user insert an incorrect URL for CV or Profile Picture cause error ([0d85ee0](https://github.com/AlexTesta00/CodeMaster/commit/0d85ee07060fec8c331fe23054a41bb99eaa91b9))
+
 ## [1.1.4](https://github.com/AlexTesta00/CodeMaster/compare/v1.1.3...v1.1.4) (2025-04-08)
 
 ### Bug Fixes
