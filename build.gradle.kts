@@ -18,4 +18,5 @@ tasks.register("build"){
     dependsOn("npmInstall")
     dependsOn(":codequest-service:build")
     dependsOn(":authentication-service:build")
+    dependsOn(":user-service:build")
 }
