@@ -142,7 +142,6 @@ export const changeUserTrophy = async (
   return await updateUserInfo(nickname, newUser.right)
 }
 
-//TODO: Test it
 export const deleteUser = async (nickname: UserId): Promise<Either<Error, void>> =>
   await deleteUserFromRepo(nickname)
 

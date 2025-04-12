@@ -108,5 +108,3 @@ export const deleteUser = async (nickname: UserId): Promise<Either<Error, void>>
     )(),
     chain((either) => either)
   )
-
-//TODO: Miss getAllUsers
