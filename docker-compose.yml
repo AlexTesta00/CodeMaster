@@ -1,0 +1,95 @@
+services:
+  mongo-user:
+    image: mongo
+    command: ['mongod', '--quiet', '--logpath', '/dev/null']
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data_user:/codemaster/user/db
+
+  mongo-express-user:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8081:8081'
+    depends_on:
+      - mongo-user
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-user
+
+  codemaster-user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4005:4005'
+    depends_on:
+      - mongo-user
+    env_file:
+      - ./user-service/.env
+
+  mongo-authentication:
+    image: mongo
+    command: ['mongod', '--quiet', '--logpath', '/dev/null']
+    ports:
+      - '27018:27017'
+    volumes:
+      - mongo_data_authentication:/codemaster/authentication/db
+
+  mongo-express-authentication:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8082:8081'
+    depends_on:
+      - mongo-authentication
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-authentication
+
+  codemaster-authentication-service:
+    build:
+      context: ./authentication-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4004:4004'
+    depends_on:
+      - mongo-authentication
+    env_file:
+      - ./authentication-service/.env
+
+  mongo-codequest:
+    image: mongo
+    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
+    ports:
+      - '27019:27017'
+    volumes:
+      - mongo_data_codequest:/codemaster/codequest/db
+
+  mongo-express-codequest:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8083:8081'
+    depends_on:
+      - mongo-codequest
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-codequest
+
+  codequest-service:
+    build:
+      context: ./codequest-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo-codequest
+    env_file:
+      - ./codequest-service/.env
+
+volumes:
+  mongo_data_user:
+  mongo_data_authentication:
+  mongo_data_codequest:
