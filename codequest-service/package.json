@@ -9,7 +9,6 @@
     "dev": "nodemon src/main/nodejs/codemaster/servicies/codequest/index.ts",
     "build": "tsc",
     "serve": "node src/main/nodejs/codemaster/servicies/codequest/index.ts",
-    "codequest-service": "docker-compose -f ./docker-compose.yml up",
     "lint": "npx eslint --config eslint.config.mjs .",
     "prettier": "npx prettier . --write",
     "check:pretty": "npx prettier . --check"
