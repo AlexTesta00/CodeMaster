@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.2.0...v1.3.0) (2025-04-13)
+
+### Features
+
+* create docker-compose.yml file to start all microservice ([85b65d9](https://github.com/AlexTesta00/CodeMaster/commit/85b65d9cf63ddef06aa62633331e934e57f640ae))
+
 ## [1.2.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.1.4...v1.2.0) (2025-04-12)
 
 ### Features
