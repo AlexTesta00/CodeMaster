@@ -1,8 +1,8 @@
 FROM node:alpine
-RUN mkdir /codequest-service
-WORKDIR /codequest-service
-COPY package.json .
-RUN npm install
+WORKDIR /codemaster-codequest-service
+COPY package*.json ./
+RUN npm install && npm install -g nodemon
 COPY . .
-EXPOSE 8080
+RUN npm run build
+EXPOSE 3000
 CMD npm run dev
