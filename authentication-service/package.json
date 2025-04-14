@@ -3,7 +3,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --files src/main/nodejs/codemaster/servicies/authentication/app.ts",
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "tsc",
     "lint": "npx eslint --config eslint.config.mjs .",
     "prettier": "npx prettier . --write",
