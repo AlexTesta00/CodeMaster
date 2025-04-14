@@ -36,6 +36,7 @@ jobs:
           MONGO_URI: ${{ env.MONGO_URI }}
         run: ./gradlew build
       - name: Upload coverage for authentication-service
+        if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -44,6 +45,7 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
       - name: Upload coverage for codequest-service
+        if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -52,6 +54,7 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
       - name: Upload coverage for user-service
+        if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
