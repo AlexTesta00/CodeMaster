@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.0...v1.3.1) (2025-04-14)
+
+### Bug Fixes
+
+* **coverage:** fix bug in coverage ([ed11fc3](https://github.com/AlexTesta00/CodeMaster/commit/ed11fc3df3944f8485d4e7abd0d758837ab532ad))
+
 ## [1.3.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.2.0...v1.3.0) (2025-04-13)
 
 ### Features
