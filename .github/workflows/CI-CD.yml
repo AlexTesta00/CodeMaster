@@ -21,7 +21,7 @@ jobs:
           node-version: '23.5.0'
           check-latest: false
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4.3.0 #v3 for act test
+        uses: gradle/actions/setup-gradle@v4.3.0
       - name: Add Permission To Gradle
         run:  chmod +x ./gradlew
       - name: Start MongoDB
@@ -35,6 +35,33 @@ jobs:
         env:
           MONGO_URI: ${{ env.MONGO_URI }}
         run: ./gradlew build
+      - name: Upload coverage for authentication-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: authentication-service/coverage/lcov.info
+          flags: authentication-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
+      - name: Upload coverage for codequest-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: codequest-service/coverage/lcov.info
+          flags: codequest-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
+      - name: Upload coverage for user-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: user-service/coverage/lcov.info
+          flags: user-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
   release:
     needs: build-and-test
