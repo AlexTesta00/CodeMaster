@@ -16,7 +16,7 @@ describe('TestSolutionRepository', () => {
 
   const id = new mongoose.Types.ObjectId()
   const author = 'exampleName'
-  const content = `
+  const code = `
       class Solution {
         public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
             
@@ -27,7 +27,7 @@ describe('TestSolutionRepository', () => {
   const language = new Language('Java', '21')
   const result = [1,2,3,4]
 
-  const newSolution = SolutionFactory.newSolution(id, content, codequest, author, language, fileEncoding, result)
+  const newSolution = SolutionFactory.newSolution(id, code, codequest, author, language, fileEncoding, result)
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create()
@@ -51,7 +51,7 @@ describe('TestSolutionRepository', () => {
     expect(sol.id).toStrictEqual(id)
     expect(sol.codequest).toStrictEqual(codequest)
     expect(sol.author).toBe(author)
-    expect(sol.content).toBe(content)
+    expect(sol.code).toBe(code)
     expect(sol.fileEncoding).toBe(fileEncoding)
     expect(sol.result).toStrictEqual(result)
   }
@@ -89,12 +89,12 @@ describe('TestSolutionRepository', () => {
               l1.append(l2)
           }
         }`
-      await solutionRepo.updateContent(id, newContent)
+      await solutionRepo.updateCode(id, newContent)
       const solution = await solutionRepo.findSolutionById(id)
 
       expect(solution).not.toBeNull()
       expect(solution.id).toStrictEqual(id)
-      expect(solution.content).toBe(newContent)
+      expect(solution.code).toBe(newContent)
     })
 
     it('should update language correctly', async () => {

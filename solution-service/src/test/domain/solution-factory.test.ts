@@ -10,7 +10,7 @@ describe('TestSolutionFactory', () => {
 
   const id = new mongoose.Types.ObjectId()
   const codequest = new mongoose.Types.ObjectId()
-  const content = `
+  const code = `
       class Solution {
         public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
             
@@ -21,13 +21,13 @@ describe('TestSolutionFactory', () => {
   const fileEncoding = "CRLF"
 
   it('should create solution with correct values', () => {
-    const newSolution = SolutionFactory.newSolution(id, content, codequest, author, language, fileEncoding, null)
+    const newSolution = SolutionFactory.newSolution(id, code, codequest, author, language, fileEncoding, null)
 
     expect(newSolution).not.toBeNull()
     expect(newSolution.id).toBe(id)
     expect(newSolution.codequest).toBe(codequest)
     expect(newSolution.author).toBe(author)
-    expect(newSolution.content).toBe(content)
+    expect(newSolution.code).toBe(code)
     expect(newSolution.fileEncoding).toBe(fileEncoding)
     expect(newSolution.result).toBeNull()
   }, timeout)
@@ -37,20 +37,20 @@ describe('TestSolutionFactory', () => {
   }, timeout)
 
   it('should throw error if ', () => {
-    expect(() => SolutionFactory.newSolution(id, content, codequest, '', language, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidAuthor)
+    expect(() => SolutionFactory.newSolution(id, code, codequest, '', language, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidAuthor)
   }, timeout)
 
   it('should throw error if language name is empty', () => {
     const invalidLanguage = new Language('', "21")
-    expect(() => SolutionFactory.newSolution(id, content, codequest, author, invalidLanguage, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidLanguage)
+    expect(() => SolutionFactory.newSolution(id, code, codequest, author, invalidLanguage, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidLanguage)
   }, timeout)
 
   it('should throw error if language version is empty', () => {
     const invalidLanguage = new Language('Java', '')
-    expect(() => SolutionFactory.newSolution(id, content, codequest, author, invalidLanguage, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidLanguage)
+    expect(() => SolutionFactory.newSolution(id, code, codequest, author, invalidLanguage, fileEncoding, null)).toThrow(SolutionFactoryError.InvalidLanguage)
   }, timeout)
 
   it('should throw error if file encoding is empty', () => {
-    expect(() => SolutionFactory.newSolution(id, content, codequest, author, language, '', null)).toThrow(SolutionFactoryError.InvalidEncodingFile)
+    expect(() => SolutionFactory.newSolution(id, code, codequest, author, language, '', null)).toThrow(SolutionFactoryError.InvalidEncodingFile)
   }, timeout)
 })

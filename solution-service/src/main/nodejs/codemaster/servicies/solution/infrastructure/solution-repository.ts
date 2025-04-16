@@ -7,6 +7,6 @@ export interface SolutionRepository{
   findSolutionById(id: mongoose.Types.ObjectId): Promise<Solution>
   updateLanguage(id: mongoose.Types.ObjectId, newLanguage: Language): Promise<void>
   updateResult(id: mongoose.Types.ObjectId, newResult: any): Promise<void>
-  updateContent(id: mongoose.Types.ObjectId, newContent: string): Promise<void>
+  updateCode(id: mongoose.Types.ObjectId, newCode: string): Promise<void>
   removeSolution(id: mongoose.Types.ObjectId): Promise<void>
 }

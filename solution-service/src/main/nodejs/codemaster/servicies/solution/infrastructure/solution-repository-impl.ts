@@ -13,14 +13,14 @@ export class SolutionRepositoryImpl implements SolutionRepository {
       codequest: newSolution.codequest,
       author: newSolution.author,
       language: newSolution.language,
-      content: newSolution.content,
+      code: newSolution.code,
       fileEncoding: newSolution.fileEncoding,
       result: newSolution.result
     }).save()
 
     return SolutionFactory.newSolution(
       solutionDoc._id,
-      solutionDoc.content,
+      solutionDoc.code,
       mongoose.Types.ObjectId.createFromHexString(solutionDoc.codequest),
       solutionDoc.author,
       solutionDoc.language,
@@ -34,7 +34,7 @@ export class SolutionRepositoryImpl implements SolutionRepository {
 
     return SolutionFactory.newSolution(
       solutionDoc._id,
-      solutionDoc.content,
+      solutionDoc.code,
       mongoose.Types.ObjectId.createFromHexString(solutionDoc.codequest),
       solutionDoc.author,
       solutionDoc.language,
@@ -47,16 +47,16 @@ export class SolutionRepositoryImpl implements SolutionRepository {
     await SolutionModel.findOneAndDelete({ _id: id.toString() }).orFail()
   }
 
-  async updateContent(id: mongoose.Types.ObjectId, newContent: string): Promise<void> {
-    await SolutionModel.findOneAndUpdate({ _id: id }, { content: newContent })
+  async updateCode(id: mongoose.Types.ObjectId, newCode: string): Promise<void> {
+    await SolutionModel.findOneAndUpdate({ _id: id }, { code: newCode }).orFail()
   }
 
   async updateLanguage(id: mongoose.Types.ObjectId, newLanguage: Language): Promise<void> {
-    await SolutionModel.findOneAndUpdate({ _id: id }, { language: newLanguage })
+    await SolutionModel.findOneAndUpdate({ _id: id }, { language: newLanguage }).orFail()
   }
 
   async updateResult(id: mongoose.Types.ObjectId, newResult: any): Promise<void> {
-    await SolutionModel.findOneAndUpdate({ _id: id }, { result: newResult })
+    await SolutionModel.findOneAndUpdate({ _id: id }, { result: newResult }).orFail()
   }
 
 }

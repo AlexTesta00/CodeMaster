@@ -6,7 +6,7 @@ const LanguageSchema = new Schema({
 })
 
 const SolutionSchema = new Schema({
-  content: { type: 'string', required: true },
+  code: { type: 'string', required: true },
   codequest: { type: 'string', required: true },
   author: { type: 'string', required: true },
   language: { type: LanguageSchema, required: true },

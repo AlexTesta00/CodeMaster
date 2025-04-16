@@ -3,8 +3,8 @@ import { Language } from './language'
 import { Solution } from './solution'
 
 export class SolutionFactory {
-  static newSolution(id: mongoose.Types.ObjectId, content: string, codequest: mongoose.Types.ObjectId, author: string, language: Language, fileEncoding: string, result: any): Solution {
-    if(content == '') {
+  static newSolution(id: mongoose.Types.ObjectId, code: string, codequest: mongoose.Types.ObjectId, author: string, language: Language, fileEncoding: string, result: any): Solution {
+    if(code == '') {
       throw new SolutionFactoryError.InvalidSolution('Solution content cannot be empty')
     }
 
@@ -19,7 +19,7 @@ export class SolutionFactory {
     if(fileEncoding == '') {
       throw new SolutionFactoryError.InvalidEncodingFile('Invalid type of encoding')
     }
-    return new Solution(id, content, codequest, author, language, fileEncoding, result)
+    return new Solution(id, code, codequest, author, language, fileEncoding, result)
   }
 }
 
