@@ -16,11 +16,11 @@ describe('Test User API', () => {
   beforeAll(async () => {
     dotenv.config()
     await connectToDatabase()
-  })
+  }, timeout)
 
   afterAll(async () => {
     await request.delete(`/api/v1/users/${nickname}`).set('Accept', 'application/json')
-  })
+  }, timeout)
 
   describe('Test /register', () => {
     it(

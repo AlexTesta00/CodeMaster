@@ -11,7 +11,7 @@ describe('Test Trophy API', () => {
     beforeAll(async () => {
       dotenv.config()
       await connectToDatabase()
-    })
+    }, timeout)
 
     afterAll(async () => {
       const trophy = 'First trophy'
