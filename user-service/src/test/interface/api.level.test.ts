@@ -11,7 +11,7 @@ describe('Test Level API', () => {
   beforeAll(async () => {
     dotenv.config()
     await connectToDatabase()
-  })
+  }, timeout)
 
   afterAll(async () => {
     const grade = 1
