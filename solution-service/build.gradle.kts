@@ -38,7 +38,28 @@ kotlin {
 	}
 }
 
-tasks.withType<Test> {
+tasks.test {
+	outputs.upToDateWhen { false }
+	outputs.cacheIf { false }
+
 	useJUnitPlatform()
+
+	testLogging {
+		events("passed", "skipped", "failed")
+		exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+		showStandardStreams = true
+	}
 }
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+	enabled = false
+}
+
+tasks.build {
+	dependsOn(tasks.test)
+}
+
 
