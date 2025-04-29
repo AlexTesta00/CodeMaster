@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Barney",
+    "imageUrl": "/images/barney.png",
+    "alt": "Barney Stilson art",
+    "description": "Who is your daddy?"
+  },
+  {
+    "name": "Ted",
+    "imageUrl": "/images/ted.png",
+    "alt": "Ted Mosby art",
+    "description": "Yellow umbrella or blue French horn?"
+  },
+  {
+    "name": "Lily",
+    "imageUrl": "/images/lily.png",
+    "alt": "Lily Aldrin art",
+    "description": "The best friend you can have."
+  },
+  {
+    "name": "Marshall",
+    "imageUrl": "/images/marshall.png",
+    "alt": "Marshall Eriksen art",
+    "description": "Lawyered!"
+  },
+  {
+    "name": "Robin",
+    "imageUrl": "/images/robin.png",
+    "alt": "Robin Scherbatsky art",
+    "description": "But um... I'm Canadian."
+  }
+]
