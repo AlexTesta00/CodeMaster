@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import Choice from './pages/Choice.vue';
 
 </script>
 
-<template>
-    <h1 class="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+<template class="bg-background dark:bg-bgdark">
+  <choice class="bg-background dark:bg-bgdark"></choice>
 </template>
 
 <style scoped>

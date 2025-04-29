@@ -4,8 +4,52 @@ export default {
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
-    extend: {},
+    colors: {
+      'primary': '#6246EA',
+      'secondary': '#D1D1E9',
+      'headline': '#2B2C34',
+      'background': '#FFFFFE',
+      'success': '#0C7C59',
+      'info': '#58A4B0',
+      'error': '#D64933',
+      'warning': '#E1BC29',
+      'bgdark': '#161616',
+      'white': '#FFFFFF',
+      'black': '#000000',
+      'gray': {
+        50: '#F9FAFB',
+        100: '#F3F4F6',
+        200: '#E5E7EB',
+        300: '#D1D5DB',
+        400: '#9CA3AF',
+        500: '#6B7280',
+        600: '#4B5563',
+        700: '#374151',
+        800: '#1F2937',
+        900: '#111827',
+      },
+    },
+    extend: {
+      fontFamily: {
+        sans: ['Inter-Regular', 'sans-serif'],
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'fade-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 1.0s ease-in-out',
+        'fade-out': 'fade-out 1.0s ease-in-out',
+      }
+    },
   },
   plugins: [],
 }
