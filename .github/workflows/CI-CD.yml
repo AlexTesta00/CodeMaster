@@ -62,6 +62,15 @@ jobs:
           flags: user-service
           name: codecov-umbrella
           fail_ci_if_error: true
+      - name: Upload coverage for solution-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: solution-service/build/reports/kover/report.xml  # Path to your Kover XML report
+          flags: solution-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
   release:
     needs: build-and-test

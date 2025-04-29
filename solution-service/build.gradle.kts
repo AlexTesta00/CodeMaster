@@ -48,6 +48,9 @@ kotlin {
 kover {
     reports {
         total {
+            xml {
+                onCheck = true // Generate the XML report after running tests
+            }
             log {
                 onCheck = true
                 header = "Custom Coverage Header"
@@ -99,6 +102,11 @@ tasks.koverVerify {
     dependsOn(tasks.test)
 }
 
+tasks.koverXmlReport {
+    // Ensure this task depends on the test task, but without introducing circular dependencies
+    dependsOn(tasks.test)
+}
+
 tasks.test {
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }
@@ -115,6 +123,7 @@ tasks.test {
     }
 
     finalizedBy(tasks.koverLog)
+    finalizedBy(tasks.koverXmlReport)
 }
 
 tasks.build {
