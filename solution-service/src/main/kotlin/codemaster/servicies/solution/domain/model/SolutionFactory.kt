@@ -8,6 +8,6 @@ interface SolutionFactory {
         user: String,
         questId: ObjectId,
         language: Language,
-        code: String
+        code: String,
     ): Solution
 }

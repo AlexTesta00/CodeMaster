@@ -1,33 +1,31 @@
-package com.codemaster.solution_service.domain
+package com.codemaster.solutionservice.domain
 
 import codemaster.servicies.solution.domain.errors.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
-import codemaster.servicies.solution.domain.model.*
+import codemaster.servicies.solution.domain.model.ExecutionResult
+import codemaster.servicies.solution.domain.model.Language
+import codemaster.servicies.solution.domain.model.SolutionFactoryImpl
+import codemaster.servicies.solution.domain.model.SolutionId
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Configuration
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 internal class SolutionFactoryTest {
-
     val id = SolutionId.generate()
     val user = "user"
     val questId = ObjectId()
     val language = Language("Java", ".java", "21", "jvm")
-    val code = """
+    val code =
+        """
         class Solution {
             public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
                 
             }
         }
-    """.trimIndent()
+        """.trimIndent()
 
-     private val factory = SolutionFactoryImpl()
+    private val factory = SolutionFactoryImpl()
 
     @Test
     fun testSolutionParameters() {
@@ -53,5 +51,4 @@ internal class SolutionFactoryTest {
             factory.create(id, user, questId, language, "")
         }
     }
-
 }

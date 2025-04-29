@@ -12,9 +12,8 @@ class SolutionFactoryImpl : SolutionFactory {
         user: String,
         questId: ObjectId,
         language: Language,
-        code: String
+        code: String,
     ): Solution {
-
         if (user.isBlank()) {
             throw InvalidUserException(questId.toHexString())
         }
@@ -28,7 +27,7 @@ class SolutionFactoryImpl : SolutionFactory {
             user = user,
             questId = questId,
             language = language,
-            code = code
+            code = code,
         )
     }
 }

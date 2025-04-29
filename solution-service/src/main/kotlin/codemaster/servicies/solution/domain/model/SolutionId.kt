@@ -6,6 +6,7 @@ import org.bson.types.ObjectId
 value class SolutionId(private val value: ObjectId) {
     companion object {
         fun generate(): SolutionId = SolutionId(ObjectId())
+
         fun fromString(id: String): SolutionId = SolutionId(ObjectId(id))
     }
 
