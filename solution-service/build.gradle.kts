@@ -1,4 +1,6 @@
-import groovy.lang.ExpandoMetaClassCreationHandle.enable
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -43,6 +45,60 @@ kotlin {
     }
 }
 
+kover {
+    reports {
+        total {
+            log {
+                onCheck = true
+                header = "Custom Coverage Header"
+                format = "<entity> line coverage: <value>%"
+                groupBy = GroupingEntityType.CLASS
+                coverageUnits = CoverageUnit.LINE
+                aggregationForGroup = AggregationType.COVERED_PERCENTAGE
+            }
+            verify {
+                rule {
+                    bound {
+                        coverageUnits.set(CoverageUnit.LINE)
+                        aggregationForGroup.set(AggregationType.COVERED_PERCENTAGE)
+                    }
+                }
+            }
+        }
+    }
+}
+
+detekt {
+    config.setFrom(files("config/detekt/detekt.yml")) // Optional config file
+    buildUponDefaultConfig = true
+    parallel = true
+}
+
+ktlint {
+    version.set("1.2.1") // match your project's ktlint version
+    verbose.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
+}
+
+tasks.check {
+    dependsOn("detekt")
+    dependsOn("ktlintCheck")
+    dependsOn("koverVerify")
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
+}
+
+tasks.koverVerify {
+    dependsOn(tasks.test)
+}
+
 tasks.test {
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }
@@ -58,44 +114,7 @@ tasks.test {
         showStandardStreams = true
     }
 
-    finalizedBy(tasks.koverVerify)
-}
-
-kover {
-    enable()
-}
-
-tasks.koverVerify {
-    dependsOn(tasks.test)
-}
-
-detekt {
-    config.setFrom(files("config/detekt/detekt.yml")) // Optional config file
-    buildUponDefaultConfig = true
-    parallel = true
-}
-
-tasks.named("check") {
-    dependsOn("detekt")
-}
-
-ktlint {
-    version.set("1.2.1") // match your project's ktlint version
-    verbose.set(true)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    reporters {
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-    }
-}
-
-tasks.named("check") {
-    dependsOn("ktlintCheck")
-}
-
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    enabled = false
+    finalizedBy(tasks.koverLog)
 }
 
 tasks.build {
