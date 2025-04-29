@@ -15,7 +15,7 @@ plugins {
 
 gitHooks {
     commitMsg { conventionalCommits() }
-    preCommit { tasks("npmTest") }
+    preCommit { tasks("npmTest", "test") }
     createHooks(true)
 }
 
