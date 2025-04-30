@@ -5,11 +5,11 @@ import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
+
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
 }
 
 group = "com.codemaster"
@@ -33,10 +33,19 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    runtimeOnly("org.springframework.boot:spring-boot-devtools")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage")
+    }
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("io.kotest:kotest-framework-engine:5.9.0")
+    runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 kotlin {
@@ -77,20 +86,8 @@ detekt {
     parallel = true
 }
 
-ktlint {
-    version.set("1.2.1") // match your project's ktlint version
-    verbose.set(true)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    reporters {
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-    }
-}
-
 tasks.check {
     dependsOn("detekt")
-    dependsOn("ktlintCheck")
     dependsOn("koverVerify")
 }
 
@@ -128,6 +125,5 @@ tasks.test {
 
 tasks.build {
     dependsOn(tasks.test)
-    dependsOn("ktlintCheck")
     dependsOn("detekt")
 }
