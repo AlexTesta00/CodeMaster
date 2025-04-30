@@ -339,3 +339,6 @@ gradle-app.setting
 
 # Ignore Gradle build output directory
 buildq
+
+# Kotlin
+.kotlin
