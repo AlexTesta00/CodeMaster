@@ -4,7 +4,9 @@ import codemaster.servicies.solution.domain.service.CodeEvaluator
 import jakarta.persistence.ManyToOne
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
 
+@Document("solution")
 data class Solution(
     @Id val id: SolutionId,
     val code: String,
