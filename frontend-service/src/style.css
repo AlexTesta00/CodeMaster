@@ -19,5 +19,10 @@
 
     h1{
         font-family: "Inter-Bold", -apple-system, sans-serif;
+        @apply select-none;
+    }
+
+    p{
+        @apply select-none;
     }
 }
