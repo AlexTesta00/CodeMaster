@@ -18,6 +18,7 @@ export default {
       'bgdark': '#161616',
       'white': '#FFFFFF',
       'black': '#000000',
+      'border-gray': '#1E1E1E',
       'gray': {
         50: '#F9FAFB',
         100: '#F3F4F6',
@@ -32,6 +33,9 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        'liquid-pattern': "url('/images/background-image.png')"
+      },
       fontFamily: {
         sans: ['Inter-Regular', 'sans-serif'],
       },
