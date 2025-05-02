@@ -1,0 +1,3 @@
+<configuration>
+    <logger name="org.mongodb.driver" level="OFF"/>
+</configuration>

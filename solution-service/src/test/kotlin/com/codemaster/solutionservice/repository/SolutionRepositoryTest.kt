@@ -6,8 +6,9 @@ import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.transitions.Mongod
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
-import de.flapdoodle.reverse.StateID
+import de.flapdoodle.embed.process.io.ProcessOutput
 import de.flapdoodle.reverse.TransitionWalker
+import de.flapdoodle.reverse.transitions.Start
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -50,8 +51,14 @@ class SolutionRepositoryTest : DescribeSpec() {
         val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code)
 
         beforeSpec {
-            val transitions = Mongod.instance().transitions(Version.Main.V6_0)
-            mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
+            val mongodb = object : Mongod() {
+                override fun processOutput(): Start<ProcessOutput> {
+                    return Start.to(ProcessOutput::class.java)
+                        .initializedWith(ProcessOutput.silent())
+                        .withTransitionLabel("no output")
+                }
+            }
+            mongodProcess = mongodb.start(Version.Main.V6_0)
             val port = mongodProcess.current().serverAddress.port
 
             val connectionString = "mongodb://localhost:$port"
