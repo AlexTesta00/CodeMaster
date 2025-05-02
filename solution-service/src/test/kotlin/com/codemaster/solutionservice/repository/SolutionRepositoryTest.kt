@@ -6,9 +6,8 @@ import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.transitions.Mongod
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
-import de.flapdoodle.embed.process.io.ProcessOutput
+import de.flapdoodle.reverse.StateID
 import de.flapdoodle.reverse.TransitionWalker
-import de.flapdoodle.reverse.transitions.Start
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -29,67 +28,62 @@ import org.springframework.data.mongodb.core.query.Query
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SolutionRepositoryTest : DescribeSpec() {
+
+    private lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
+    private var startedEmbeddedMongo = false
+    private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
+    private lateinit var repository: SolutionRepositoryImpl
+
+    private val id = SolutionId.generate()
+    private val user = "user"
+    private val questId = ObjectId()
+    private val language = Language("Java", ".java", "21", "jvm")
+    private val code =
+        """
+        class Solution {
+            public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+                // ...
+            }
+        }
+        """.trimIndent()
+
+    private val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code)
+
     init {
-
-        lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
-        lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
-        lateinit var repository: SolutionRepositoryImpl
-
-        val id = SolutionId.generate()
-        val user = "user"
-        val questId = ObjectId()
-        val language = Language("Java", ".java", "21", "jvm")
-        val code =
-            """
-            class Solution {
-                public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-                    // ...
-                }
-            }
-            """.trimIndent()
-
-        val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code)
-
         beforeSpec {
-            val mongodb = object : Mongod() {
-                override fun processOutput(): Start<ProcessOutput> {
-                    return Start.to(ProcessOutput::class.java)
-                        .initializedWith(ProcessOutput.silent())
-                        .withTransitionLabel("no output")
-                }
+            val mongoUri = System.getenv("MONGO_URI")
+            val connectionString = mongoUri ?: run {
+                val transitions = Mongod.instance().transitions(Version.Main.V6_0)
+                mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
+                startedEmbeddedMongo = true
+                "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
             }
-            mongodProcess = mongodb.start(Version.Main.V6_0)
-            val port = mongodProcess.current().serverAddress.port
 
-            val connectionString = "mongodb://localhost:$port"
             val client = MongoClients.create(connectionString)
             val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
 
-            val mappingContext = MongoMappingContext()
-            mappingContext.setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
-            mappingContext.afterPropertiesSet()
+            val mappingContext = MongoMappingContext().apply {
+                setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
+                afterPropertiesSet()
+            }
 
-            val customConversions =
-                MongoCustomConversions(
-                    listOf(
-                        SolutionIdWriter(),
-                        SolutionIdReader(),
-                    ),
-                )
+            val customConversions = MongoCustomConversions(
+                listOf(SolutionIdWriter(), SolutionIdReader())
+            )
 
-            val converter =
-                MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
-                    setCustomConversions(customConversions)
-                    afterPropertiesSet()
-                }
+            val converter = MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
+                setCustomConversions(customConversions)
+                afterPropertiesSet()
+            }
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
-
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
         }
 
         afterSpec {
-            mongodProcess.close()
+            if (startedEmbeddedMongo) {
+                mongodProcess.close()
+            }
         }
 
         afterEach {
