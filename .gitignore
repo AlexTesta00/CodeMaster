@@ -341,4 +341,4 @@ gradle-app.setting
 buildq
 
 # Kotlin
-.kotlin
+.kotlin/
