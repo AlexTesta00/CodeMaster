@@ -17,12 +17,16 @@
         src: url(/fonts/Inter-Regular.woff2) format('woff2');
     }
 
-    h1{
+    h1,h2,h3{
         font-family: "Inter-Bold", -apple-system, sans-serif;
         @apply select-none;
     }
 
     p{
         @apply select-none;
+    }
+
+    progress{
+        @apply [&::-webkit-progress-bar]:bg-white;
     }
 }
