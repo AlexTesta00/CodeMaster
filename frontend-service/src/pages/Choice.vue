@@ -5,16 +5,18 @@ import FlatBackButton from '../components/FlatBackButton.vue'
 
 const characters = ref([])
 const hoverText = ref('')
+const errorMessage = ref('')
 
 onMounted(async () => {
   try {
     const response = await fetch('/data/characters.json')
     if (!response.ok) {
-      throw new Error('Failed to fetch characters') //TODO: Tech debit -> error page
+      errorMessage.value = 'Failed to fetch characters'
     }
     characters.value = await response.json()
   } catch (error) {
-    console.error('Errore durante il fetch dei characters:', error) //TODO: Tech debit -> error page
+    errorMessage.value = "Can't load characters"
+    console.error('Errore durante il fetch dei characters:', error)
   }
 })
 </script>
@@ -42,7 +44,3 @@ onMounted(async () => {
     <flat-back-button></flat-back-button>
   </footer>
 </template>
-
-<style scoped>
-
-</style>

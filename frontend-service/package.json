@@ -9,10 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "aos": "^3.0.0-beta.6",
     "fp-ts": "^2.16.10",
     "vue": "^3.5.13"
   },
   "devDependencies": {
+    "@types/aos": "^3.0.7",
     "@vitejs/plugin-vue": "^5.2.2",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
