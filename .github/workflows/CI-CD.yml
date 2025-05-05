@@ -67,14 +67,14 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: solution-service/build/reports/kover/report.xml  # Path to your Kover XML report
+          files: solution-service/build/reports/kover/report.xml
           flags: solution-service
           name: codecov-umbrella
           fail_ci_if_error: true
 
   release:
     needs: build-and-test
-    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')  # Execute only on push on branch main
+    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -105,7 +105,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
