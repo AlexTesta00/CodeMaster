@@ -1,6 +1,7 @@
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -55,6 +56,14 @@ kotlin {
     }
 }
 
+tasks.bootJar {
+    enabled = false
+}
+
+tasks.jar {
+    enabled = true
+}
+
 kover {
     reports {
         total {
@@ -90,10 +99,6 @@ detekt {
 tasks.check {
     dependsOn("detekt")
     dependsOn("koverVerify")
-}
-
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    enabled = false
 }
 
 tasks.koverVerify {
