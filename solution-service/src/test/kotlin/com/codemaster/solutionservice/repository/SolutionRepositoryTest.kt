@@ -12,6 +12,7 @@ import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -34,7 +35,8 @@ class SolutionRepositoryTest : DescribeSpec() {
     private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
     private lateinit var repository: SolutionRepositoryImpl
 
-    private val id = SolutionId.generate()
+    private val id1 = SolutionId.generate()
+    private val id2 = SolutionId.generate()
     private val user = "user"
     private val questId = ObjectId()
     private val language = Language("Java", ".java", "21", "jvm")
@@ -47,7 +49,8 @@ class SolutionRepositoryTest : DescribeSpec() {
         }
         """.trimIndent()
 
-    private val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code)
+    private val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, language, code)
+    private val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, language, code)
 
     init {
         beforeSpec {
@@ -93,7 +96,7 @@ class SolutionRepositoryTest : DescribeSpec() {
         }
 
         fun checkSolution(solution: Solution) {
-            solution.id shouldBe id
+            solution.id shouldBe id1
             solution.code shouldBe code
             solution.result shouldBe ExecutionResult.Pending
             solution.questId shouldBe questId
@@ -103,28 +106,56 @@ class SolutionRepositoryTest : DescribeSpec() {
         describe("SolutionRepositoryTest") {
 
             context("Add new solution") {
-                it("should save and retieve solution correctly") {
-                    val saved = repository.addNewSolution(newSolution).awaitSingle()
+                it("should save and retrieve solution correctly") {
+                    val saved = repository.addNewSolution(newSolution1).awaitSingle()
 
                     checkSolution(saved)
                 }
             }
 
-            context("Find solution by id") {
+            context("Find solution") {
                 beforeTest {
-                    repository.addNewSolution(newSolution).awaitSingleOrNull()
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
+                    repository.addNewSolution(newSolution2).awaitSingleOrNull()
                 }
 
                 it("should retrieve solution by his id") {
-                    val allSolutions =
-                        reactiveMongoTemplate
-                            .findAll(Solution::class.java)
-                            .collectList()
-                            .awaitSingleOrNull()
-                    println(allSolutions)
-                    val founded = repository.findSolutionById(id).awaitSingleOrNull()
+                    val founded = repository.findSolutionById(id1).awaitSingleOrNull()
+
                     founded shouldNotBe null
                     checkSolution(founded!!)
+                }
+
+                it("should get all solutions by questId") {
+                    val source = repository
+                        .findSolutionsByQuestId(questId)
+                        .collectList()
+                        .awaitSingleOrNull()
+
+                    source?.size shouldBe 2
+                    checkSolution(source?.first()!!)
+
+                    source.last().id shouldBe id2
+                    source.last().code shouldBe code
+                    source.last().result shouldBe ExecutionResult.Pending
+                    source.last().questId shouldBe questId
+                    source.last().language shouldBe language
+                }
+
+                it("should get all solutions by language") {
+                    val source = repository
+                        .findSolutionsByLanguage(language)
+                        .collectList()
+                        .awaitSingleOrNull()
+
+                    source?.size shouldBe 2
+                    checkSolution(source?.first()!!)
+
+                    source.last().id shouldBe id2
+                    source.last().code shouldBe code
+                    source.last().result shouldBe ExecutionResult.Pending
+                    source.last().questId shouldBe questId
+                    source.last().language shouldBe language
                 }
 
                 it("should throw exception if there is no solution with given id") {
@@ -134,17 +165,37 @@ class SolutionRepositoryTest : DescribeSpec() {
                         repository.findSolutionById(fakeId).awaitSingle()
                     }
                 }
+
+                it("should be empty if there are no solutions with given questId") {
+                    val fakeQuestId = ObjectId()
+                    val solutions = repository
+                        .findSolutionsByQuestId(fakeQuestId)
+                        .collectList()
+                        .awaitSingleOrNull()
+
+                    solutions?.isEmpty() shouldBe true
+                }
+
+                it("should be empty if there are no solutions with given language") {
+                    val fakeLanguage = Language("Scala", ".scala", "3.3", "jvm")
+                    val solutions = repository
+                        .findSolutionsByLanguage(fakeLanguage)
+                        .collectList()
+                        .awaitSingleOrNull()
+
+                    solutions?.isEmpty() shouldBe true
+                }
             }
 
             context("Update solution") {
                 beforeTest {
-                    repository.addNewSolution(newSolution).awaitSingleOrNull()
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
                 }
 
                 it("should update the language correctly") {
                     val newLanguage = Language("Scala", ".scala", "3.3.4", "jvm")
 
-                    val modified = repository.updateLanguage(id, newLanguage).awaitSingleOrNull()
+                    val modified = repository.updateLanguage(id1, newLanguage).awaitSingleOrNull()
 
                     modified shouldNotBe null
                     modified!!.language shouldBe newLanguage
@@ -160,16 +211,16 @@ class SolutionRepositoryTest : DescribeSpec() {
                         }
                         """.trimIndent()
 
-                    val modified = repository.updateCode(id, newCode).awaitSingleOrNull()
+                    val modified = repository.updateCode(id1, newCode).awaitSingleOrNull()
 
                     modified shouldNotBe null
                     modified!!.code shouldBe newCode
                 }
 
                 it("should update the result correctly") {
-                    val newResult = ExecutionResult.Accepted
+                    val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
 
-                    val modified = repository.updateResult(id, newResult).awaitSingleOrNull()
+                    val modified = repository.updateResult(id1, newResult).awaitSingleOrNull()
 
                     modified shouldNotBe null
                     modified!!.result shouldBe newResult
@@ -178,7 +229,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 it("should fail if the solution with given id does not exist in the database") {
                     val fakeId = SolutionId.generate()
                     val newLanguage = Language("Scala", ".scala", "3.3.4", "jvm")
-                    val newResult = ExecutionResult.Accepted
+                    val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
                     val newCode =
                         """
                         class Solution {
@@ -196,10 +247,10 @@ class SolutionRepositoryTest : DescribeSpec() {
 
             context("Delete solution") {
                 beforeTest {
-                    repository.addNewSolution(newSolution).awaitSingleOrNull()
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
                 }
                 it("should delete the solution by id correctly") {
-                    val deleted = repository.removeSolutionById(id).awaitSingleOrNull()
+                    val deleted = repository.removeSolutionById(id1).awaitSingleOrNull()
 
                     deleted shouldNotBe null
                     repository.findSolutionById(deleted!!.id).awaitSingleOrNull() shouldBe null

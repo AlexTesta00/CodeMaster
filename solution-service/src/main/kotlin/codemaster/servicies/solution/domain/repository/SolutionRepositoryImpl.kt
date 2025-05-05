@@ -4,12 +4,15 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
+import com.mongodb.client.model.Filters
+import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Repository
@@ -20,6 +23,16 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
 
     override fun findSolutionById(id: SolutionId): Mono<Solution> {
         return mongoTemplate.findById(id.toString(), Solution::class.java)
+    }
+
+    override fun findSolutionsByQuestId(questId: ObjectId): Flux<Solution> {
+        val query = Query(Criteria.where("questId").`is`(questId))
+        return mongoTemplate.find(query, Solution::class.java)
+    }
+
+    override fun findSolutionsByLanguage(language: Language): Flux<Solution> {
+        val query = Query(Criteria.where("language").`is`(language))
+        return mongoTemplate.find(query, Solution::class.java)
     }
 
     override fun updateLanguage(
