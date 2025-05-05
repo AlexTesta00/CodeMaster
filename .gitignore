@@ -344,3 +344,6 @@ buildq
 **/.kotlin/sessions/
 **/*.salive
 .kotlin/
+
+# Execution directory
+solution-service/tmp
