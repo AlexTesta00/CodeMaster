@@ -3,7 +3,7 @@
 @tailwind utilities;
 @tailwind variants;
 
-@layer base{
+@layer base {
     @font-face {
         font-family: 'Inter-Bold';
         font-style: normal;
@@ -17,16 +17,21 @@
         src: url(/fonts/Inter-Regular.woff2) format('woff2');
     }
 
-    h1,h2,h3{
-        font-family: "Inter-Bold", -apple-system, sans-serif;
+    h1,
+    h2,
+    h3 {
+        font-family:
+            'Inter-Bold',
+            -apple-system,
+            sans-serif;
         @apply select-none;
     }
 
-    p{
+    p {
         @apply select-none;
     }
 
-    progress{
+    progress {
         @apply [&::-webkit-progress-bar]:bg-white;
     }
 }
