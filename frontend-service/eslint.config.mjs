@@ -16,6 +16,7 @@ export default ts.config(
                 fetch: 'readonly',
                 window: 'readonly',
                 console: 'readonly',
+                setTimeout: 'readonly',
             },
         },
     },

@@ -5,9 +5,9 @@ import HomeDashboard from './pages/HomeDashboard.vue'
 </script>
 
 <template class="bg-background dark:bg-bgdark">
-    <!-- <choice class="bg-background dark:bg-bgdark"/>-->
-    <!-- <login/> login can be refactor -->
-    <home-dashboard class="bg-background dark:bg-bgdark" />
+  <!-- <choice class="bg-background dark:bg-bgdark"/>-->
+  <!-- <login/> login can be refactor -->
+  <home-dashboard class="bg-background dark:bg-bgdark" />
 </template>
 
 <style scoped></style>
