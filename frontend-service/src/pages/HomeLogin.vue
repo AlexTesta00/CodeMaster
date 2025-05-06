@@ -1,189 +1,61 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 
-const currentPage = ref('register')
-
-const toggleLogin = (): void => {
-    currentPage.value = currentPage.value === 'register' ? 'login' : 'register'
-}
 </script>
 
 <template>
-  <section
-    class="h-screen bg-liquid-pattern bg-no-repeat bg-center bg-cover flex flex-col justify-center items-center"
-    :class="currentPage === 'login' ? 'lg:items-end' : 'lg:items-start'"
-  >
-    <!--DashboardCard Section-->
-    <Transition
-      name="form-slide"
-      mode="out-in"
-      appear
-    >
-      <div
-        :key="currentPage"
-        class="h-full bg-white w-4/5 lg:w-2/5 my-6 rounded-3xl flex flex-col justify-start items-center lg:ml-24 transform transition-all duration-700 ease-in-out"
-        :class="currentPage === 'login' ? 'lg:mr-24' : 'lg:ml-24'"
-      >
-        <!--Logo Section-->
-        <div
-          class="flex flex-row justify-center items-center gap-2 mt-8"
-        >
-          <img
-            src="/images/logo.png"
-            alt="CodeMaster Logo"
-            class="w-10 h-10 lg:w-16 lg:h-16"
-          >
-          <h1
-            class="text-black dark:text-white text-base lg:text-2xl select-none"
-          >
-            CodeMaster
-          </h1>
+
+  <div class="bg-white dark:bg-gray-900 animate-fade-in transition duration-500 ease-in-out">
+    <div class="flex justify-center h-screen">
+      <div class="hidden bg-cover lg:block lg:w-2/3" style="background-image: url('/images/background-image.png')">
+        <div class="flex items-center h-full px-20 bg-gray-900 bg-opacity-40">
+          <div>
+            <h2 class="text-2xl font-bold text-white sm:text-3xl">CodeMaster</h2>
+
+            <p class="max-w-xl mt-3 text-gray-300">
+              Improve your coding skills with our platform. Join a community of developers and learn from each other.
+            </p>
+          </div>
         </div>
-        <!--Title Section-->
-        <h1
-          v-if="currentPage == 'register'"
-          class="text-4xl text-black dark:text-white mt-4 text-center lg:text-5xl font-sans"
-        >
-          Create <br>Account
-        </h1>
-        <h1
-          v-if="currentPage == 'login'"
-          class="text-4xl text-black dark:text-white mt-4 text-center lg:text-5xl font-sans"
-        >
-          Welcome <br>Back
-        </h1>
-        <!--Field Section-->
-        <form
-          :key="currentPage"
-          class="w-full mt-8 flex flex-col justify-center items-center gap-4"
-        >
-          <label
-            v-if="currentPage == 'register'"
-            for="nickname"
-          />
-          <input
-            v-if="currentPage == 'register'"
-            id="nickname"
-            type="text"
-            name="nickname"
-            placeholder="Nickname"
-            required
-          >
-          <label
-            v-if="currentPage == 'register'"
-            for="email"
-          />
-          <input
-            v-if="currentPage == 'register'"
-            id="email"
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-          >
-          <label
-            v-if="currentPage == 'login'"
-            for="emailornickname"
-          />
-          <input
-            v-if="currentPage == 'login'"
-            id="emailornickname"
-            type="text"
-            name="emailornickname"
-            placeholder="Email or nickname"
-            required
-          >
-          <label for="password" />
-          <input
-            id="password"
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-          >
-          <label
-            v-if="currentPage == 'register'"
-            for="confirm-password"
-          />
-          <input
-            v-if="currentPage == 'register'"
-            id="confirm-password"
-            type="password"
-            name="confirm-password"
-            placeholder="Confirm Password"
-            required
-          >
-          <!--Create Account Section-->
-          <input
-            v-if="currentPage == 'register'"
-            type="submit"
-            value="Create Account"
-            class="text-white w-4/5 bg-primary mt-8 p-2 rounded-xl lg:rounded-lg lg:h-16 lg:w-2/4"
-          >
-          <input
-            v-if="currentPage == 'login'"
-            type="submit"
-            value="Log In"
-            class="text-white w-4/5 bg-primary mt-8 p-2 rounded-xl lg:rounded-lg lg:h-16 lg:w-2/4"
-          >
-        </form>
-        <p class="mt-8 text-gray-500">
-          ------ Or ------
-        </p>
-        <button
-          v-if="currentPage == 'register'"
-          class="mt-6 mb-6 p-2 rounded-xl text-primary text-center border-2 border-primary w-4/5 lg:rounded-lg lg:h-16 lg:w-2/4 md:hover:bg-primary md:hover:text-white duration-300"
-          @click="toggleLogin"
-        >
-          Log-In
-        </button>
-        <button
-          v-if="currentPage == 'login'"
-          class="mt-6 mb-6 p-2 rounded-xl text-primary text-center border-2 border-primary w-4/5 lg:rounded-lg lg:h-16 lg:w-2/4 md:hover:bg-primary md:hover:text-white duration-300"
-          @click="toggleLogin"
-        >
-          Register Now
-        </button>
-        <!--LogIn Section-->
       </div>
-    </Transition>
-  </section>
+
+      <div class="flex items-center w-full max-w-md px-6 mx-auto lg:w-2/6">
+        <div class="flex-1">
+          <div class="text-center">
+            <div class="flex justify-center mx-auto">
+              <img class="w-auto h-16 sm:h-16" src="/icons/logo.png" alt="CodeMaster Logo" />
+            </div>
+
+            <p class="mt-3 text-black dark:text-gray-300">Sign in to access your account</p>
+          </div>
+
+          <div class="mt-8">
+            <form>
+              <div>
+                <label for="email" class="block mb-2 text-sm text-black dark:text-gray-200">Email Address</label>
+                <input type="email" name="email" id="email" placeholder="example@example.com" class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+              </div>
+
+              <div class="mt-6">
+                <div class="flex justify-between mb-2">
+                  <label for="password" class="text-sm text-black dark:text-gray-200">Password</label>
+                  <!--<a href="#" class="text-sm text-gray-400 focus:text-blue-500 hover:text-blue-500 hover:underline">Forgot password?</a>-->
+                </div>
+
+                <input type="password" name="password" id="password" placeholder="Your Password" class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+              </div>
+
+              <div class="mt-6">
+                <button class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+                  Sign in
+                </button>
+              </div>
+
+            </form>
+
+            <p class="mt-6 text-sm text-center text-black">Don&#x27;t have an account yet? <a href="#" class="text-primary focus:outline-none focus:underline hover:underline underline">Sign up</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-input[type='text'],
-input[type='email'],
-input[type='password'] {
-    @apply w-4/5
-    border-2
-    border-gray-500
-    rounded-xl
-    p-2
-    dark:bg-white
-    lg:h-16
-    lg:w-2/4
-    focus:border-primary
-    focus:outline-none;
-}
-
-.form-slide-enter-active,
-.form-slide-leave-active {
-    @apply transition-all duration-1000 ease-in-out;
-}
-
-.form-slide-enter-from {
-    @apply opacity-0 translate-x-10;
-}
-
-.form-slide-enter-to {
-    @apply opacity-100 translate-x-0;
-}
-
-.form-slide-leave-from {
-    @apply opacity-100 translate-x-0;
-}
-
-.form-slide-leave-to {
-    @apply opacity-0 -translate-x-10;
-}
-</style>
