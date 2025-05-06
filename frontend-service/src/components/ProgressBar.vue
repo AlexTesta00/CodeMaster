@@ -6,9 +6,9 @@ defineProps<{
 }>()
 
 const colors: { [key: string]: string} = {
-  'easy': 'success',
-  'medium': 'warning',
-  'hard': 'error'
+  'easy': '[&::-webkit-progress-value]:bg-success [&::-moz-progress-value]:bg-success',
+  'medium': '[&::-webkit-progress-value]:bg-warning [&::-moz-progress-value]:bg-warning',
+  'hard': '[&::-webkit-progress-value]:bg-error [&::-moz-progress-value]:bg-error'
 }
 </script>
 
@@ -20,13 +20,7 @@ const colors: { [key: string]: string} = {
     class="w-11/12 h-2 rounded-lg mt-2 ml-2"
     :value="currentValue"
     :max="maxValue"
-    :class="'[&::-webkit-progress-value]:bg-' + colors[difficulty.toLowerCase()] + ' [&::-moz-progress-value]:bg-' + colors[difficulty.toLowerCase()]"
+    :class="colors[difficulty.toLowerCase()]"
     />
 </div>
 </template>
-
-<style scoped>
-
-</style>
-
-:class="'bg-' + colors[difficulty.toLowerCase()]"

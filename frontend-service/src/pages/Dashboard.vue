@@ -38,7 +38,7 @@ onMounted(async () => {
     <!--Title welcome back-->
     <header>
       <h1
-        class="text-center lg:text-left text-3xl lg:text-5xl mt-6 dark:text-white lg:ml-4 animate-fade-in">Welcome Back 👋🏻,<br>StopRosik</h1>
+        class="text-black text-center lg:text-left text-3xl lg:text-5xl mt-6 dark:text-white lg:ml-4 animate-fade-in">Welcome Back 👋🏻,<br>StopRosik</h1>
     </header>
     <!--First section-->
     <div class="mx-4 md:mx-12 lg:mx-4 mt-4 flex flex-col lg:flex-row lg:items-stretch lg:mt-12 items-center h-full gap-6">
@@ -63,18 +63,18 @@ onMounted(async () => {
       <card>
         <h2 class="text-2xl text-white">Level</h2>
         <img src="/images/project.png" class="w-32 h-32 object-cover" alt="Level Photo">
-        <progress class="w-4/5 h-3" value="50" max="100"></progress>
+        <progress class="w-4/5 h-3 [&::-webkit-progress-value]:bg-primary [&::-moz-progress-value]:bg-primary" value="50" max="100"></progress>
         <h3 class="text-xl text-white">Code Master</h3>
       </card>
     </div>
     <!--Title CodeQuest-->
     <div class="w-full flex flex-row justify-center items-center lg:justify-between">
       <h1
-        class="text-center lg:text-left text-3xl lg:text-5xl mt-16 dark:text-white lg:ml-4"
+        class="text-black text-center lg:text-left text-3xl lg:text-5xl mt-16 dark:text-white lg:ml-4"
         data-aos="zoom-in"
         data-aos-duration="1400">CodeQuest</h1>
       <h1
-        class="text-center lg:text-left text-3xl lg:text-5xl mt-16 dark:text-white lg:mr-8 collapse lg:visible"
+        class="text-black lg:text-left text-3xl lg:text-5xl mt-16 dark:text-white lg:mr-8 collapse lg:visible"
         data-aos="zoom-in"
         data-aos-duration="1400">Contacts</h1>
     </div>
@@ -94,12 +94,13 @@ onMounted(async () => {
            data-aos-duration="1400">
         <div class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4"
              data-aos="zoom-in"
-             data-aos-duration="600">
-          <code-quest :key= 1 :index=1 title="Reverse string" difficulty="Easy" :is-solved=true></code-quest>
-          <code-quest :key= 2 :index=2 title="Reverse string" difficulty="Medium" :is-solved=false></code-quest>
-          <code-quest :key= 3 :index=3 title="Reverse string" difficulty="Easy" :is-solved=true></code-quest>
-          <code-quest :key= 4 :index=4 title="Reverse string" difficulty="Medium" :is-solved=false></code-quest>
-          <code-quest :key= 5 :index=5 title="Reverse string" difficulty="Hard" :is-solved=true></code-quest>
+             data-aos-duration="600"
+             id="questcontainer">
+          <code-quest :key= 1 :index=1 title="Reverse string" difficulty="Easy" :is-solved=true data-aos-anchor="#questcontainer"></code-quest>
+          <code-quest :key= 2 :index=2 title="Reverse string" difficulty="Medium" :is-solved=false data-aos-anchor=".questcontainer"></code-quest>
+          <code-quest :key= 3 :index=3 title="Reverse string" difficulty="Easy" :is-solved=true data-aos-anchor="questcontainer"></code-quest>
+          <code-quest :key= 4 :index=4 title="Reverse string" difficulty="Medium" :is-solved=false data-aos-anchor="#questcontainer"></code-quest>
+          <code-quest :key= 5 :index=5 title="Reverse string" difficulty="Hard" :is-solved=true data-aos-anchor=".questcontainer"></code-quest>
         </div>
         <contacts-card v-for="contact in contacts" :role=contact.role :links=contact.link :image-url=contact.image :name=contact.name :alt="contact.name + 'Personal contacts info card'" />
       </div>

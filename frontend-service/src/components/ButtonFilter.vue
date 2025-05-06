@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
   <button
-    class="w-32 h-12 rounded-lg hover:animate-pulse"
+    class="w-32 h-12 rounded-lg hover:bg-primary hover:text-white duration-300"
     :class="isActive ? 'bg-primary text-white' : 'bg-secondary text-black'">{{ title }}</button>
 </template>
 
