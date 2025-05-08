@@ -6,10 +6,10 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.SolutionFactoryImpl
 import codemaster.servicies.solution.domain.model.SolutionId
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 
 internal class SolutionFactoryTest : DescribeSpec() {
     init {
@@ -32,21 +32,21 @@ internal class SolutionFactoryTest : DescribeSpec() {
             it("should create a new solution correctly") {
                 val solution = factory.create(id, user, questId, language, code)
 
-                assertEquals(solution.id, id)
-                assertEquals(solution.code, code)
-                assertEquals(solution.result, ExecutionResult.Pending)
-                assertEquals(solution.questId, questId)
-                assertEquals(solution.language, language)
+                solution.id shouldBe id
+                solution.code shouldBe code
+                solution.result shouldBe ExecutionResult.Pending
+                solution.questId shouldBe questId
+                solution.language shouldBe language
             }
 
             it("should fail if the username is invalid") {
-                assertThrows<InvalidUserException> {
+                shouldThrow<InvalidUserException> {
                     factory.create(id, "", questId, language, code)
                 }
             }
 
             it("should fail if execution code is invalid") {
-                assertThrows<EmptyCodeException> {
+                shouldThrow<EmptyCodeException> {
                     factory.create(id, user, questId, language, "")
                 }
             }
