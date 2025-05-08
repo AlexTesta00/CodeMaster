@@ -29,11 +29,9 @@ jobs:
         with:
           mongodb-version: 'latest'
           mongodb-port: '27017'
-      - name: Build multi-lang-runner
-        run: docker build -t multi-lang-runner ./multi-lang-runner
       - name: Set MONGO_URI environement variable
         run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
-      - name: Set runner path
+      - name: Set SOLUTION_RUNNER_PATH environment variable
         run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
       - name: Build with Gradle
         env:

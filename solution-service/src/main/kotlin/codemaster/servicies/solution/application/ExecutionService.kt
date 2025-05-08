@@ -7,7 +7,6 @@ import codemaster.servicies.solution.domain.model.SolutionId
 import codemaster.servicies.solution.domain.repository.SolutionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -26,14 +25,7 @@ class ExecutionService(
         const val TIMEOUT: Long = 20_000
     }
 
-    private fun resolveRunnerPath(): Path {
-        val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
-        val runnerPath = envPath ?: injectedRunnerPath.takeIf { it.isNotBlank() }
-        ?: Paths.get(System.getProperty("user.dir"), "build", "tmp", "code-run").toString()
-        return Paths.get(runnerPath).toAbsolutePath().normalize()
-    }
-
-    suspend fun executeSolution(id: SolutionId): ExecutionResult? {
+    suspend fun executeSolution(id: SolutionId): Solution? {
         val solution = repository.findSolutionById(id).awaitSingle()
         val codeDir = resolveRunnerPath()
         val sourceFile = codeDir.resolve("Main${solution.language.fileExtension}")
@@ -44,7 +36,7 @@ class ExecutionService(
         }
 
         val command = getCommandForLanguage(solution.language)
-        return getResult(codeDir, command)
+        return repository.updateResult(id, getResult(codeDir, command)).awaitSingle()
     }
 
     private fun toDockerPath(path: Path): String {
@@ -111,5 +103,12 @@ class ExecutionService(
             )
         }
         return result
+    }
+
+    private fun resolveRunnerPath(): Path {
+        val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
+        val runnerPath = envPath ?: injectedRunnerPath.takeIf { it.isNotBlank() }
+        ?: Paths.get(System.getProperty("user.dir"), "build", "tmp", "code-run").toString()
+        return Paths.get(runnerPath).toAbsolutePath().normalize()
     }
 }

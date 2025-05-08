@@ -103,18 +103,18 @@ class ExecutionServiceTest : DescribeSpec() {
                 }
 
                 it("should return the correct result") {
-                    val result = service.executeSolution(id)
+                    val solution = service.executeSolution(id)
 
-                    result shouldBe ExecutionResult.Accepted("Hello World", 0)
+                    solution?.result shouldBe ExecutionResult.Accepted("Hello World", 0)
                 }
 
                 it("should fail if the compile is not successful") {
                     val newId = SolutionId.generate()
                     val failingSolution = Solution(newId, nonCompilingCode, questId, user, language)
                     repository.addNewSolution(failingSolution).awaitSingleOrNull()
-                    val result = service.executeSolution(newId)
+                    val solution = service.executeSolution(newId)
 
-                    result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
+                    solution?.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
                         "Main.java:5: error: reached end of file while parsing\n" +
                                 "}\n" +
                                 " ^\n" +
