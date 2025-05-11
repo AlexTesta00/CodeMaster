@@ -27,7 +27,9 @@
         @apply select-none;
     }
 
-    p {
+    p,
+    button,
+    span {
         @apply select-none;
     }
 
