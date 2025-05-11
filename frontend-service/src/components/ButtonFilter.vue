@@ -6,12 +6,12 @@ defineProps<{
 </script>
 
 <template>
-  <button
-    class="w-32 h-12 rounded-lg hover:bg-primary hover:text-white duration-300"
-    :class="isActive ? 'bg-primary text-white' : 'bg-secondary text-black'"
-  >
-    {{ title }}
-  </button>
+    <button
+        class="w-32 h-12 rounded-lg hover:bg-primary hover:text-white duration-300"
+        :class="isActive ? 'bg-primary text-white' : 'bg-secondary text-black'"
+    >
+        {{ title }}
+    </button>
 </template>
 
 <style scoped></style>

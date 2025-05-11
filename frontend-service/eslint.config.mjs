@@ -17,6 +17,8 @@ export default ts.config(
                 window: 'readonly',
                 console: 'readonly',
                 setTimeout: 'readonly',
+                document: 'readonly',
+                localStorage: 'readonly',
             },
         },
     },

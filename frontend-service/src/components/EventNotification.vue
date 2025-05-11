@@ -35,36 +35,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <Transition
-    name="fade-slide"
-    appear
-  >
-    <div
-      v-if="visible"
-      class="fixed bottom-2 flex flex-row justify-start items-center w-4/5 lg:w-2/5 h-14 mb-4 rounded-full"
-      :class="bgColor[type]"
-    >
-      <img
-        :src="iconPath[type]"
-        class="w-6 h-6 ml-8"
-        :alt="type + ' Notification Icon'"
-      >
-      <div>
-        <h1
-          class="ml-6 text-sm"
-          :class="textColor[type]"
+    <Transition name="fade-slide" appear>
+        <div
+            v-if="visible"
+            class="fixed bottom-2 flex flex-row justify-start items-center w-4/5 lg:w-2/5 h-14 mb-4 rounded-full"
+            :class="bgColor[type]"
         >
-          {{ title }}
-        </h1>
-        <p
-          class="ml-6 text-xs"
-          :class="textColor[type]"
-        >
-          {{ message }}
-        </p>
-      </div>
-    </div>
-  </Transition>
+            <img
+                :src="iconPath[type]"
+                class="w-6 h-6 ml-8"
+                :alt="type + ' Notification Icon'"
+            />
+            <div>
+                <h1 class="ml-6 text-sm" :class="textColor[type]">
+                    {{ title }}
+                </h1>
+                <p class="ml-6 text-xs" :class="textColor[type]">
+                    {{ message }}
+                </p>
+            </div>
+        </div>
+    </Transition>
 </template>
 
 <style scoped>
