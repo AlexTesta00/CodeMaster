@@ -46,7 +46,7 @@ onMounted(() => {
     >
       <img
         :src="iconPath[type]"
-        class="w-6 h-6 ml-8",
+        class="w-6 h-6 ml-8"
         :alt="type + ' Notification Icon'"
       >
       <div>
