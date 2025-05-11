@@ -53,10 +53,21 @@ export default {
                         transform: 'scale(1)',
                     },
                 },
+                shake: {
+                    '0%': { transform: 'translateX(0)' },
+                    '15%': { transform: 'translateX(-10px)' },
+                    '30%': { transform: 'translateX(10px)' },
+                    '45%': { transform: 'translateX(-10px)' },
+                    '60%': { transform: 'translateX(10px)' },
+                    '75%': { transform: 'translateX(-10px)' },
+                    '90%': { transform: 'translateX(10px)' },
+                    '100%': { transform: 'translateX(0)' },
+                },
             },
             animation: {
                 'fade-in': 'fade-in 1.0s ease-in-out',
                 'fade-out': 'fade-out 1.0s ease-in-out',
+                shake: 'shake 1.0s ease-in-out infinite',
                 'scale-up-center':
                     'scale-up-center 1.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both',
             },
