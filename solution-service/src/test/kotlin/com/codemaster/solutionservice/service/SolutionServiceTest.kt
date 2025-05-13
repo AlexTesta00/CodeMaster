@@ -10,8 +10,6 @@ import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -41,13 +39,18 @@ class SolutionServiceTest : DescribeSpec() {
     private val user = "user"
     private val questId = ObjectId()
     private val language = Language("Java", ".java", "21", "jvm")
+    private val testCode =
+        """
+            String input1 = "test1";
+            String input2 = "test2";
+            System.out.println(myPrint(input1));
+            System.out.println(myPrint(input2));
+        """.trimIndent()
     private val code =
         """
-        public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello World");
+            public static String myPrint(String s) {
+                return "Hello World! " + s;
             }
-        }
         """.trimIndent()
 
     init {
@@ -74,7 +77,7 @@ class SolutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository)
+            service = SolutionService(repository, System.getProperty("user.home") + "/code-run")
         }
 
         afterSpec {
@@ -102,7 +105,7 @@ class SolutionServiceTest : DescribeSpec() {
             context("Add new solution") {
 
                 it("should save and retrieve solution correctly") {
-                    val saved = service.addSolution(id1, user, questId, language, code)
+                    val saved = service.addSolution(id1, user, questId, language, code, testCode)
 
                     if (saved != null) {
                         checkSolution(saved)
@@ -111,13 +114,19 @@ class SolutionServiceTest : DescribeSpec() {
 
                 it("should throw excpetion if code is empty") {
                     shouldThrow<EmptyCodeException> {
-                        service.addSolution(id1, user, questId, language, "")
+                        service.addSolution(id1, user, questId, language, "", testCode)
+                    }
+                }
+
+                it("should throw excpetion if test code is empty") {
+                    shouldThrow<EmptyCodeException> {
+                        service.addSolution(id1, user, questId, language, code, "")
                     }
                 }
 
                 it("should throw exception if username is invalid") {
                     shouldThrow<InvalidUserException> {
-                        service.addSolution(id1, "", questId, language, code)
+                        service.addSolution(id1, "", questId, language, code, testCode)
                     }
                 }
             }
@@ -125,8 +134,8 @@ class SolutionServiceTest : DescribeSpec() {
             context("Find solution by id") {
 
                 beforeTest {
-                    service.addSolution(id1, user, questId, language, code)
-                    service.addSolution(id2, user, questId, language, code)
+                    service.addSolution(id1, user, questId, language, code, testCode)
+                    service.addSolution(id2, user, questId, language, code, testCode)
                 }
 
                 it("should retrieve solution by his id") {
@@ -188,16 +197,18 @@ class SolutionServiceTest : DescribeSpec() {
 
             val fakeId = SolutionId.generate()
             val newLanguage = Language("Scala", ".scala", "3.3", "jvm")
+            val newTestCode = """
+                        String test1 = "test";
+                        System.out.println(print(test));
+                    """.trimIndent()
             val newCode = """
-                    public class Main {
-                        public static void main(String[] args) {
-                            return(0);
+                        private String print(String s) {
+                            return s;
                         }
-                    }
                     """.trimIndent()
 
             beforeTest {
-                service.addSolution(id1, user, questId, language, code)
+                service.addSolution(id1, user, questId, language, code, testCode)
             }
 
             it("should modify solution language correctly") {
@@ -214,6 +225,13 @@ class SolutionServiceTest : DescribeSpec() {
                 modifiedSolution?.code shouldBe newCode
             }
 
+            it("should modify solution test code correctly") {
+                val modifiedSolution = service.modifySolutionTestCode(id1, newTestCode)
+
+                modifiedSolution?.id shouldBe id1
+                modifiedSolution?.testCode shouldBe newTestCode
+            }
+
             it("should throw exeption if there is no solution with given id") {
                 shouldThrow<NoSuchElementException> {
                     service.modifySolutionLanguage(fakeId, newLanguage)
@@ -221,13 +239,16 @@ class SolutionServiceTest : DescribeSpec() {
                 shouldThrow<NoSuchElementException> {
                     service.modifySolutionCode(fakeId, newCode)
                 }
+                shouldThrow<NoSuchElementException> {
+                    service.modifySolutionTestCode(fakeId, newTestCode)
+                }
             }
         }
 
         describe("Delete solution") {
 
             beforeTest {
-                service.addSolution(id1, user, questId, language, code)
+                service.addSolution(id1, user, questId, language, code, testCode)
             }
 
             it("should delete solution correctly by id") {
@@ -243,6 +264,47 @@ class SolutionServiceTest : DescribeSpec() {
 
                 shouldThrow<NoSuchElementException> {
                     service.deleteSolution(fakeId)
+                }
+            }
+        }
+
+        context("Compile and execute solution code") {
+            val nonCompilingCode = """
+                private String print(String s) {
+                    return s;
+                
+            """.trimIndent()
+
+            beforeTest {
+                service.addSolution(id1, user, questId, language, code, testCode)
+            }
+
+            it("should return the correct result") {
+                val solution = service.executeSolution(id1)
+                val output = "Hello World! test1\nHello World! test2"
+
+                solution?.result shouldBe ExecutionResult.Accepted(output, 0)
+            }
+
+            it("should fail if the compile is not successful") {
+                val newId = SolutionId.generate()
+                val failingSolution = SolutionFactoryImpl().create(newId, user, questId,  language, nonCompilingCode, testCode)
+                repository.addNewSolution(failingSolution).awaitSingleOrNull()
+                val solution = service.executeSolution(newId)
+
+                solution?.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
+                    "Main.java:12: error: reached end of file while parsing\n" +
+                            "}\n" +
+                            " ^\n" +
+                            "1 error",
+                    exitCode = 1)
+            }
+
+            it("should throw exception if there is no solution with given id") {
+                val fakeId = SolutionId.generate()
+
+                shouldThrow<NoSuchElementException> {
+                    service.executeSolution(fakeId)
                 }
             }
         }
