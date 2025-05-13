@@ -4,7 +4,6 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
-import com.mongodb.client.model.Filters
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -77,6 +76,23 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         val update =
             Update()
                 .set("code", code)
+
+        return mongoTemplate.findAndModify(
+            query,
+            update,
+            FindAndModifyOptions.options().returnNew(true),
+            Solution::class.java,
+        )
+    }
+
+    override fun updateTestCode(
+        id: SolutionId,
+        testCode: String
+    ): Mono<Solution> {
+        val query = Query(Criteria.where("_id").`is`(id))
+        val update =
+            Update()
+                .set("testCode", testCode)
 
         return mongoTemplate.findAndModify(
             query,

@@ -13,12 +13,13 @@ class SolutionFactoryImpl : SolutionFactory {
         questId: ObjectId,
         language: Language,
         code: String,
+        testCode: String
     ): Solution {
         if (user.isBlank()) {
             throw InvalidUserException(questId.toHexString())
         }
 
-        if (code.isBlank()) {
+        if (code.isBlank() || testCode.isBlank()) {
             throw EmptyCodeException()
         }
 
@@ -28,6 +29,7 @@ class SolutionFactoryImpl : SolutionFactory {
             questId = questId,
             language = language,
             code = code,
+            testCode = testCode
         )
     }
 }

@@ -13,4 +13,6 @@ data class Solution(
     val user: String,
     @ManyToOne val language: Language,
     val result: ExecutionResult = ExecutionResult.Pending,
+    val testCode: String,
+    val solved: Boolean = false
 )

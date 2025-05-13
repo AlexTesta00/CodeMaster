@@ -17,20 +17,23 @@ internal class SolutionFactoryTest : DescribeSpec() {
         val user = "user"
         val questId = ObjectId()
         val language = Language("Java", ".java", "21", "jvm")
-        val code =
-            """
-            class Solution {
-                public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-                    
-                }
+        val testCode = """
+            String test1 = "test1";
+            System.out.println(print(test1));
+            String test2 = "test2";
+            System.out.println(print(test2));
+        """.trimIndent()
+        val code = """
+            private String print(String s) {
+                return "Hello World! " + s;
             }
-            """.trimIndent()
+        """.trimIndent()
 
         val factory = SolutionFactoryImpl()
 
-        describe("TestSOlutionFactory") {
+        describe("TestSolutionFactory") {
             it("should create a new solution correctly") {
-                val solution = factory.create(id, user, questId, language, code)
+                val solution = factory.create(id, user, questId, language, code, testCode)
 
                 solution.id shouldBe id
                 solution.code shouldBe code
@@ -41,13 +44,19 @@ internal class SolutionFactoryTest : DescribeSpec() {
 
             it("should fail if the username is invalid") {
                 shouldThrow<InvalidUserException> {
-                    factory.create(id, "", questId, language, code)
+                    factory.create(id, "", questId, language, code, testCode)
                 }
             }
 
             it("should fail if execution code is invalid") {
                 shouldThrow<EmptyCodeException> {
-                    factory.create(id, user, questId, language, "")
+                    factory.create(id, user, questId, language, "", testCode)
+                }
+            }
+
+            it("should fail if test code is invalid") {
+                shouldThrow<EmptyCodeException> {
+                    factory.create(id, user, questId, language, code, "")
                 }
             }
         }

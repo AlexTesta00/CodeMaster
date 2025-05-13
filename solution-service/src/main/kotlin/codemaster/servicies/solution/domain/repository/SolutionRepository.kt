@@ -32,5 +32,10 @@ interface SolutionRepository {
         code: String,
     ): Mono<Solution>
 
+    fun updateTestCode(
+        id: SolutionId,
+        testCode: String
+    ): Mono<Solution>
+
     fun removeSolutionById(id: SolutionId): Mono<Solution>
 }

@@ -12,7 +12,6 @@ import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -40,17 +39,20 @@ class SolutionRepositoryTest : DescribeSpec() {
     private val user = "user"
     private val questId = ObjectId()
     private val language = Language("Java", ".java", "21", "jvm")
-    private val code =
-        """
-        class Solution {
-            public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-                // ...
+    private val testCode = """
+            String test1 = "test1";
+            System.out.println(print(test1));
+            String test2 = "test2";
+            System.out.println(print(test2));
+        """.trimIndent()
+    private val code = """
+            private String print(String s) {
+                return "Hello World! " + s;
             }
-        }
         """.trimIndent()
 
-    private val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, language, code)
-    private val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, language, code)
+    private val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, language, code, testCode)
+    private val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, language, code, testCode)
 
     init {
         beforeSpec {
@@ -101,6 +103,7 @@ class SolutionRepositoryTest : DescribeSpec() {
             solution.result shouldBe ExecutionResult.Pending
             solution.questId shouldBe questId
             solution.language shouldBe language
+            solution.testCode shouldBe testCode
         }
 
         describe("SolutionRepositoryTest") {
@@ -156,6 +159,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                     source.last().result shouldBe ExecutionResult.Pending
                     source.last().questId shouldBe questId
                     source.last().language shouldBe language
+                    source.last().testCode shouldBe testCode
                 }
 
                 it("should throw exception if there is no solution with given id") {
@@ -202,19 +206,26 @@ class SolutionRepositoryTest : DescribeSpec() {
                 }
 
                 it("should update the code correctly") {
-                    val newCode =
-                        """
-                        class Solution {
-                            public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-                                l2.append(l2)
-                            }
+                    val newCode = """
+                        private String print(String s) {
+                            return s;
                         }
-                        """.trimIndent()
-
+                    """.trimIndent()
                     val modified = repository.updateCode(id1, newCode).awaitSingleOrNull()
 
                     modified shouldNotBe null
                     modified!!.code shouldBe newCode
+                }
+
+                it("should update the test code correctly") {
+                    val newTestCode = """
+                        String test1 = "test";
+                        System.out.println(print(test));
+                    """.trimIndent()
+                    val modified = repository.updateCode(id1, newTestCode).awaitSingleOrNull()
+
+                    modified shouldNotBe null
+                    modified!!.code shouldBe newTestCode
                 }
 
                 it("should update the result correctly") {
@@ -230,18 +241,20 @@ class SolutionRepositoryTest : DescribeSpec() {
                     val fakeId = SolutionId.generate()
                     val newLanguage = Language("Scala", ".scala", "3.3.4", "jvm")
                     val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
-                    val newCode =
-                        """
-                        class Solution {
-                            public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-                                l2.append(l2)
-                            }
+                    val newTestCode = """
+                        String test1 = "test";
+                        System.out.println(print(test));
+                    """.trimIndent()
+                    val newCode = """
+                        private String print(String s) {
+                            return s;
                         }
-                        """.trimIndent()
+                    """.trimIndent()
 
                     repository.updateResult(fakeId, newResult).awaitSingleOrNull() shouldBe null
                     repository.updateCode(fakeId, newCode).awaitSingleOrNull() shouldBe null
                     repository.updateLanguage(fakeId, newLanguage).awaitSingleOrNull() shouldBe null
+                    repository.updateTestCode(fakeId, newTestCode).awaitSingleOrNull() shouldBe null
                 }
             }
 

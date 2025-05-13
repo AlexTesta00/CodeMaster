@@ -9,5 +9,6 @@ interface SolutionFactory {
         questId: ObjectId,
         language: Language,
         code: String,
+        testCode: String
     ): Solution
 }
