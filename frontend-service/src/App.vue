@@ -1,9 +1,9 @@
 <script setup lang="ts">
-//import Choice from './pages/HomeChoice.vue';
-//import HomeDashboard from './pages/HomeDashboard.vue'
-//import HomeLogin from './pages/HomeLogin.vue'
-//import HomeProfile from './pages/HomeProfile.vue'
-//import HomeSetting from './pages/HomeSetting.vue'
+//import Choice from './pages/ChoicePage.vue';
+//import HomeDashboard from './pages/DashboardPage.vue'
+//import HomeLogin from './pages/LoginPage.vue'
+//import HomeProfile from './pages/ProfilePage.vue'
+//import HomeSetting from './pages/SettingPage.vue'
 import CodePage from './pages/CodePage.vue'
 </script>
 
