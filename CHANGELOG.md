@@ -1,3 +1,13 @@
+## [1.3.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.1...v1.3.2) (2025-05-14)
+
+### Bug Fixes
+
+* **authentication:** fix bug that was causing tests fail ([d14f173](https://github.com/AlexTesta00/CodeMaster/commit/d14f1739c8213e8473857ed31e06a9d3bea41408))
+* **deps:** update dependency mongoose to v8.14.3 ([b8cf44e](https://github.com/AlexTesta00/CodeMaster/commit/b8cf44e10e89219c5261d63c74622a8bec171905))
+* **deps:** update node.js dependencies ([f8af8d3](https://github.com/AlexTesta00/CodeMaster/commit/f8af8d367b5e367d8a48c734ac18beb7c5254123))
+* **deps:** update node.js dependencies ([41f3032](https://github.com/AlexTesta00/CodeMaster/commit/41f303293148e0fff05f16714920f65dca7f084c))
+* **deps:** update node.js dependencies ([72fffcc](https://github.com/AlexTesta00/CodeMaster/commit/72fffcc8244768dd7bc76a683b2c41c2bcb1bb9e))
+
 ## [1.3.1](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.0...v1.3.1) (2025-04-14)
 
 ### Bug Fixes
