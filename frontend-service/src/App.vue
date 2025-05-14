@@ -4,7 +4,8 @@
 //import HomeLogin from './pages/LoginPage.vue'
 //import HomeProfile from './pages/ProfilePage.vue'
 //import HomeSetting from './pages/SettingPage.vue'
-import CodePage from './pages/CodePage.vue'
+//import CodePage from './pages/CodePage.vue'
+import ErrorPage from './pages/ErrorPage.vue'
 </script>
 
 <template class="bg-background dark:bg-bgdark">
@@ -13,5 +14,6 @@ import CodePage from './pages/CodePage.vue'
     <!-- <home-dashboard class="bg-background dark:bg-bgdark" /> -->
     <!-- <home-profile class="bg-background dark:bg-bgdark" /> -->
     <!-- <home-setting /> -->
-    <code-page />
+    <!-- <code-page /> -->
+    <error-page title="Ops.. seems like you are lost" error-code="404" />
 </template>
