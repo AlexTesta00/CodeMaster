@@ -7,6 +7,8 @@ import {
   INTERNAL_ERROR,
   OK,
 } from '../../main/nodejs/codemaster/servicies/authentication/interfaces/status'
+import dotenv from 'dotenv'
+import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/db-connection'
 
 describe('Test API', () => {
   const timeout: number = 10000
@@ -17,12 +19,24 @@ describe('Test API', () => {
     password: 'Test1234!',
   }
 
+  beforeAll(async () => {
+    dotenv.config()
+    await connectToDatabase()
+  })
+
+  afterAll(async () => {
+    await request
+      .delete('/api/v1/authentication/' + newUser.nickname)
+      .send(newUser.nickname)
+      .set('Accept', 'application/json')
+  })
+
   describe('Test Register', () => {
     it(
       'should return 201 and user register',
       async () => {
         const response = await request
-          .post('/authentication/register')
+          .post('/api/v1/authentication/register')
           .send(newUser)
           .set('Accept', 'application/json')
 
@@ -45,7 +59,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/register')
+          .post('/api/v1/authentication/register')
           .send(badPasswordNewUser)
           .set('Accept', 'application/json')
 
@@ -68,7 +82,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/register')
+          .post('/api/v1/authentication/register')
           .send(badNicknameNewUser)
           .set('Accept', 'application/json')
 
@@ -91,7 +105,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/register')
+          .post('/api/v1/authentication/register')
           .send(badEmailNewUser)
           .set('Accept', 'application/json')
 
@@ -112,7 +126,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/register')
+          .post('/api/v1/authentication/register')
           .send(newUser)
           .set('Accept', 'application/json')
 
@@ -134,7 +148,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(existUserNickname)
           .set('Accept', 'application/json')
 
@@ -156,13 +170,13 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(normalUser)
           .set('Accept', 'application/json')
 
         const authToken = response.headers['set-cookie'][0].split(';')[0].split('=')[1]
         const alreadyAuthenticatedResponse = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .set('Accept', 'application/json')
           .set('Cookie', `auth_token=${authToken}`)
 
@@ -184,7 +198,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(existUserEmail)
           .set('Accept', 'application/json')
 
@@ -206,7 +220,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(incorrectPassword)
           .set('Accept', 'application/json')
 
@@ -226,7 +240,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(incorrectPassword)
           .set('Accept', 'application/json')
 
@@ -246,7 +260,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/login')
+          .post('/api/v1/authentication/login')
           .send(incorrectNickname)
           .set('Accept', 'application/json')
 
@@ -267,7 +281,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/logout')
+          .post('/api/v1/authentication/logout')
           .send(correctUser)
           .set('Accept', 'application/json')
 
@@ -288,7 +302,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/logout')
+          .post('/api/v1/authentication/logout')
           .send(incorrectUser)
           .set('Accept', 'application/json')
 
@@ -308,7 +322,7 @@ describe('Test API', () => {
       }
 
       await request
-        .post('/authentication/login')
+        .post('/api/v1/authentication/login')
         .send(existUserNickname)
         .set('Accept', 'application/json')
     }, timeout)
@@ -321,7 +335,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/refresh-access-token')
+          .post('/api/v1/authentication/refresh-access-token')
           .send(correctUser)
           .set('Accept', 'application/json')
 
@@ -341,7 +355,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .post('/authentication/refresh-access-token')
+          .post('/api/v1/authentication/refresh-access-token')
           .send(incorrectUser)
           .set('Accept', 'application/json')
 
@@ -360,12 +374,12 @@ describe('Test API', () => {
         }
 
         await request
-          .post('/authentication/logout')
+          .post('/api/v1/authentication/logout')
           .send(correctUser)
           .set('Accept', 'application/json')
 
         const response = await request
-          .post('/authentication/refresh-access-token')
+          .post('/api/v1/authentication/refresh-access-token')
           .send(correctUser)
           .set('Accept', 'application/json')
 
@@ -387,7 +401,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-email')
+          .put('/api/v1/authentication/update-email')
           .send(correctEmailParams)
           .set('Accept', 'application/json')
 
@@ -407,7 +421,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-email')
+          .put('/api/v1/authentication/update-email')
           .send(incorrectEmailParamsNotValidFormat)
           .set('Accept', 'application/json')
 
@@ -427,7 +441,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-email')
+          .put('/api/v1/authentication/update-email')
           .send(incorrectEmailUserNotExist)
           .set('Accept', 'application/json')
 
@@ -450,7 +464,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-password')
+          .put('/api/v1/authentication/update-password')
           .send(correctPasswordParams)
           .set('Accept', 'application/json')
 
@@ -471,7 +485,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-password')
+          .put('/api/v1/authentication/update-password')
           .send(incorrectPasswordParamsNotValidFormat)
           .set('Accept', 'application/json')
 
@@ -492,7 +506,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-password')
+          .put('/api/v1/authentication/update-password')
           .send(incorrectPasswordParamsOldPassword)
           .set('Accept', 'application/json')
 
@@ -513,7 +527,7 @@ describe('Test API', () => {
         }
 
         const response = await request
-          .put('/authentication/update-password')
+          .put('/api/v1/authentication/update-password')
           .send(userNotExist)
           .set('Accept', 'application/json')
 
@@ -532,7 +546,7 @@ describe('Test API', () => {
         const nickname: string = newUser.nickname
 
         const response = await request
-          .delete('/authentication/' + nickname)
+          .delete('/api/v1/authentication/' + nickname)
           .send(nickname)
           .set('Accept', 'application/json')
 
@@ -549,7 +563,7 @@ describe('Test API', () => {
         const notExistNickname: string = 'imNotExist'
 
         const response = await request
-          .delete('/authentication/' + notExistNickname)
+          .delete('/api/v1/authentication/' + notExistNickname)
           .send(notExistNickname)
           .set('Accept', 'application/json')
 
