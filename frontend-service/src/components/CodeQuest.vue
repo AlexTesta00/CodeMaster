@@ -1,16 +1,12 @@
 <script setup lang="ts">
+import DifficultyButton from './DifficultyButton.vue'
+
 defineProps<{
     index: number
     title: string
     difficulty: string
     isSolved: boolean
 }>()
-
-const colors: { [key: string]: string } = {
-    easy: 'border-success text-success',
-    medium: 'border-warning text-warning',
-    hard: 'border-error text-error',
-}
 </script>
 
 <template>
@@ -29,12 +25,7 @@ const colors: { [key: string]: string } = {
                 alt="CodeQuest Solved Mark"
                 class="w-6 h-6 lg:w-8 lg:h-8"
             />
-            <p
-                class="border-2 w-20 text-center"
-                :class="colors[difficulty.toLowerCase()]"
-            >
-                {{ difficulty }}
-            </p>
+            <difficulty-button difficulty="{{ difficulty }}" />
         </div>
     </div>
 </template>

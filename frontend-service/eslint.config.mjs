@@ -19,7 +19,11 @@ export default ts.config(
                 setTimeout: 'readonly',
                 document: 'readonly',
                 localStorage: 'readonly',
+                MouseEvent: 'readonly',
             },
+        },
+        rules: {
+            'vue/no-v-html': 'off',
         },
     },
 )
