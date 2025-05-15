@@ -1,0 +1,5 @@
+{
+    "Java": "public class Main {\n  public static void main(String[] args) {\n    System.out.println(\"Hello, World!\");\n  }\n}",
+    "Scala": "object Main {\n  def main(args: Array[String]): Unit = {\n    println(\"Hello, World!\")\n  }\n}",
+    "Kotlin": "fun main() {\n  println(\"Hello, World!\")\n}"
+}
