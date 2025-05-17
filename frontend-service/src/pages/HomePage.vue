@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import DarkOrLight from '../components/DarkOrLight.vue'
 
 const isOpen = ref(false)
 </script>
@@ -25,10 +26,10 @@ const isOpen = ref(false)
 
                     <div class="flex md:hidden">
                         <button
-                            @click="isOpen = !isOpen"
                             type="button"
                             class="text-gray-500 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400"
                             aria-label="toggle menu"
+                            @click="isOpen = !isOpen"
                         >
                             <svg
                                 v-show="!isOpen"
@@ -99,16 +100,17 @@ const isOpen = ref(false)
                             href="#"
                             >Login</a
                         >
+                        <dark-or-light />
                     </div>
                 </div>
             </div>
         </nav>
 
         <div
+            id="home"
             class="container px-6 py-16 mx-auto"
             data-aos="fade-right"
             data-aos-duration="1600"
-            id="home"
         >
             <div class="items-center lg:flex">
                 <div class="w-full lg:w-1/2">
@@ -117,7 +119,10 @@ const isOpen = ref(false)
                             class="text-3xl font-semibold text-gray-800 dark:text-white lg:text-4xl"
                         >
                             Best place to improve<br />
-                            your <span class="text-primary">codeskills</span>
+                            your
+                            <span class="text-primary dark:text-white"
+                                >codeskills</span
+                            >
                         </h1>
 
                         <p class="mt-3 text-gray-600 dark:text-gray-400">
@@ -145,10 +150,10 @@ const isOpen = ref(false)
         </div>
     </header>
 
-    <section class="bg-background dark:bg-bgdark" id="strengths">
+    <section id="strengths" class="bg-background dark:bg-bgdark">
         <div class="container px-6 py-10 mx-auto">
             <h1
-                class="text-2xl font-semibold text-center capitalize lg:text-3xl text-primary"
+                class="text-2xl font-semibold text-center capitalize lg:text-3xl text-primary dark:text-white"
                 data-aos="fade-up"
                 data-aos-duration="1000"
             >
@@ -359,10 +364,10 @@ const isOpen = ref(false)
         </div>
     </section>
 
-    <section class="bg-white dark:bg-gray-900" id="team">
+    <section id="team" class="bg-white dark:bg-gray-900">
         <div class="container px-6 py-10 mx-auto">
             <h1
-                class="text-2xl font-semibold text-center text-primary capitalize lg:text-3xl"
+                class="text-2xl font-semibold text-center text-primary capitalize lg:text-3xl dark:text-white"
                 data-aos="zoom-in"
                 data-aos-duration="1000"
             >
@@ -428,7 +433,7 @@ const isOpen = ref(false)
         </div>
     </section>
 
-    <section class="bg-white dark:bg-gray-900" id="review">
+    <section id="review" class="bg-white dark:bg-gray-900">
         <div class="container px-6 py-10 mx-auto">
             <h1
                 class="text-2xl font-semibold text-center text-primary capitalize lg:text-3xl dark:text-white"
@@ -549,10 +554,10 @@ const isOpen = ref(false)
         </div>
     </section>
 
-    <section class="bg-white dark:bg-gray-900" id="faq">
+    <section id="faq" class="bg-white dark:bg-gray-900">
         <div class="container px-6 py-12 mx-auto">
             <h1
-                class="text-2xl font-semibold text-primary lg:text-3xl text-center"
+                class="text-2xl font-semibold text-primary lg:text-3xl text-center dark:text-white"
                 data-aos="fade-in"
                 data-aos-duration="1000"
             >
