@@ -180,7 +180,7 @@ const addLanguage = (lang: string) => {
                     :key="1"
                     :index="1"
                     title="Reverse string"
-                    difficulty="Easy"
+                    difficulty="easy"
                     :is-solved="true"
                     data-aos-anchor="#questcontainer"
                 />
