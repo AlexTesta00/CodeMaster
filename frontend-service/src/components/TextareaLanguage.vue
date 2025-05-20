@@ -48,43 +48,43 @@ const closeDialog = () => {
 </script>
 
 <template>
-    <div class="w-full max-w-sm mx-auto z-10">
-        <Listbox
-            v-model="selectedLanguage"
-            @update:model-value="handleLanguageChange"
+  <div class="w-full max-w-sm mx-auto z-10">
+    <Listbox
+      v-model="selectedLanguage"
+      @update:model-value="handleLanguageChange"
+    >
+      <div class="relative">
+        <ListboxButton
+          class="w-full border rounded px-4 py-2 text-left bg-white"
         >
-            <div class="relative">
-                <ListboxButton
-                    class="w-full border rounded px-4 py-2 text-left bg-white"
-                >
-                    {{ selectedLanguage || 'Select your starred language...' }}
-                </ListboxButton>
-                <ListboxOptions
-                    class="absolute mt-1 w-full border bg-white rounded shadow z-30"
-                >
-                    <ListboxOption
-                        v-for="lang in allowedLanguages"
-                        :key="lang"
-                        :value="lang"
-                        class="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                    >
-                        {{ lang }}
-                    </ListboxOption>
-                </ListboxOptions>
-            </div>
-        </Listbox>
+          {{ selectedLanguage || 'Select your starred language...' }}
+        </ListboxButton>
+        <ListboxOptions
+          class="absolute mt-1 w-full border bg-white rounded shadow z-30"
+        >
+          <ListboxOption
+            v-for="lang in allowedLanguages"
+            :key="lang"
+            :value="lang"
+            class="cursor-pointer px-4 py-2 hover:bg-gray-100"
+          >
+            {{ lang }}
+          </ListboxOption>
+        </ListboxOptions>
+      </div>
+    </Listbox>
 
-        <!-- Dialog -->
-        <yes-or-no-dialog
-            title="Are you sure"
-            :message="
-                'Do you want to add ' +
-                selectedLanguage +
-                ' to yours starred languages?'
-            "
-            :is-open-dialog="isOpenDialog"
-            @confirm="confirmDialog"
-            @close="isOpenDialog = false"
-        />
-    </div>
+    <!-- Dialog -->
+    <yes-or-no-dialog
+      title="Are you sure"
+      :message="
+        'Do you want to add ' +
+          selectedLanguage +
+          ' to yours starred languages?'
+      "
+      :is-open-dialog="isOpenDialog"
+      @confirm="confirmDialog"
+      @close="isOpenDialog = false"
+    />
+  </div>
 </template>
