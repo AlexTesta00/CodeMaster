@@ -51,11 +51,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <vue-monaco-editor
-        v-model:value="code"
-        :language="props.currentLanguage.toLowerCase()"
-        theme="vs-dark"
-        :options="options"
-        class="border rounded-full"
-    />
+  <vue-monaco-editor
+    v-model:value="code"
+    :language="props.currentLanguage.toLowerCase()"
+    theme="vs-dark"
+    :options="options"
+    class="border rounded-full"
+  />
 </template>

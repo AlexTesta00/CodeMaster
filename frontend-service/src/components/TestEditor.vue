@@ -23,11 +23,11 @@ const options = {
 </script>
 
 <template>
-    <vue-monaco-editor
-        v-model:value="code"
-        language="python"
-        theme="vs-dark"
-        :options="options"
-        class="border rounded-full"
-    />
+  <vue-monaco-editor
+    v-model:value="code"
+    language="python"
+    theme="vs-dark"
+    :options="options"
+    class="border rounded-full"
+  />
 </template>

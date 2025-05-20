@@ -14,8 +14,8 @@ const renderedContent = computed(() => md.render(props.content))
 </script>
 
 <template>
-    <div
-        class="prose dark:prose-invert max-w-none max-h-full"
-        v-html="renderedContent"
-    />
+  <div
+    class="prose dark:prose-invert max-w-none max-h-full"
+    v-html="renderedContent"
+  />
 </template>
