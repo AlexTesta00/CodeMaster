@@ -1,13 +1,140 @@
-import { User } from '../domain/user'
-import { UserId } from '../domain/user-id'
+import { Error } from 'mongoose'
+import { User, UserId } from '../domain/user'
+import { Either, isRight, left, right } from 'fp-ts/Either'
+import { UserModel } from './user-model'
+import { createUserManager, UserManager } from '../domain/user-manager'
 
-export interface UserRepository {
-  save(user: User): Promise<void>
-  findUserByNickname(nickname: UserId): Promise<User>
-  findUserByEmail(email: string): Promise<User>
-  updateUserEmail(nickname: UserId, newEmail: string): Promise<void>
-  updateUserPassword(nickname: UserId, newPassword: string): Promise<void>
-  updateUserRefreshToken(nickname: UserId, refreshToken: string): Promise<void>
-  deleteUser(nickname: UserId): Promise<void>
-  getUserRefreshToken(nickname: UserId): Promise<string>
+export interface UserDocument {
+  nickname: string
+  email: string
+  password: string
+  isAdmin: boolean
+  isBanned: boolean
+  refreshToken: string
+}
+
+export const toUserModel = (user: User): UserDocument => ({
+  nickname: user.nickname.value,
+  email: user.email,
+  password: user.password,
+  isAdmin: user.role.name === 'admin',
+  isBanned: false,
+  refreshToken: '',
+})
+
+export const toUserManager = (userDocument: UserDocument): UserManager => ({
+  info: {
+    nickname: { value: userDocument.nickname },
+    email: userDocument.email,
+    password: userDocument.password,
+    role: userDocument.isAdmin ? { name: 'admin' } : { name: 'user' },
+  },
+  banned: userDocument.isBanned,
+  refreshToken: userDocument.refreshToken,
+})
+
+export const saveUser = async (user: User): Promise<Either<Error, UserManager>> => {
+  const userDocument = new UserModel(toUserModel(user))
+
+  try {
+    await userDocument.save()
+    const userManager = createUserManager(
+      user.nickname.value,
+      user.email,
+      user.password,
+      user.role.name,
+      false
+    )
+    if (isRight(userManager)) {
+      return right(userManager.right)
+    } else {
+      return left(userManager.left)
+    }
+  } catch (error) {
+    return left(error instanceof Error ? error : new Error(String(error)))
+  }
+}
+
+export const findUserByNickname = async (
+  nickname: UserId
+): Promise<Either<Error, UserManager>> => {
+  try {
+    const userDocument = await UserModel.findOne({ nickname: nickname.value }).orFail()
+    return right(toUserManager(userDocument))
+  } catch (error) {
+    void error
+    return left(new Error('User not found'))
+  }
+}
+
+export const findUserByEmail = async (
+  email: string
+): Promise<Either<Error, UserManager>> => {
+  try {
+    const userDocument = await UserModel.findOne({ email }).orFail()
+    return right(toUserManager(userDocument))
+  } catch (error) {
+    void error
+    return left(new Error('User not found'))
+  }
+}
+
+//TODO: Implement findAllUsers
+
+export const updateUserEmail = async (
+  nickname: UserId,
+  newEmail: string
+): Promise<Either<Error, UserManager>> => {
+  try {
+    const userDocument = await UserModel.findOneAndUpdate(
+      { nickname: nickname.value },
+      { email: newEmail },
+      { new: true }
+    ).orFail()
+    return right(toUserManager(userDocument))
+  } catch (error) {
+    return left(error instanceof Error ? error : new Error(String(error)))
+  }
+}
+
+export const updateUserPassword = async (
+  nickname: UserId,
+  newPassword: string
+): Promise<Either<Error, UserManager>> => {
+  try {
+    const userDocument = await UserModel.findOneAndUpdate(
+      { nickname: nickname.value },
+      { password: newPassword },
+      { new: true }
+    ).orFail()
+    return right(toUserManager(userDocument))
+  } catch (error) {
+    return left(error instanceof Error ? error : new Error(String(error)))
+  }
+}
+
+export const updateUserRefreshToken = async (
+  nickname: UserId,
+  refreshToken: string
+): Promise<Either<Error, string>> => {
+  try {
+    await UserModel.findOneAndUpdate(
+      { nickname: nickname.value },
+      { refreshToken: refreshToken },
+      { new: true }
+    ).orFail()
+    return right(refreshToken)
+  } catch (error) {
+    return left(error instanceof Error ? error : new Error(String(error)))
+  }
+}
+
+export const deleteUser = async (nickname: UserId): Promise<Either<Error, void>> => {
+  try {
+    await UserModel.findOneAndDelete({ nickname: nickname.value }).orFail()
+    return right(undefined)
+  } catch (error) {
+    void error
+    return left(new Error('User not found'))
+  }
 }
