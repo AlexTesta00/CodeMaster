@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import CardChoicheable from '../components/CardChoicheable.vue'
-import FlatBackButton from '../components/FlatBackButton.vue'
+import ButtonWithImage from '../components/ButtonWithImage.vue'
+import router from '../router/index.js'
 
 const characters = ref([])
 const hoverText = ref('')
@@ -22,37 +23,43 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section
-        class="ml-4 mr-4 md:overflow-y-hidden animate-fade-in dark:bg-bgdark"
+  <section
+    class="ml-4 mr-4 md:overflow-y-hidden animate-fade-in dark:bg-bgdark"
+  >
+    <header>
+      <h1
+        class="text-3xl md:text-5xl font-bold text-center mt-8 md:mt-24 dark:text-background"
+      >
+        Choose your character
+      </h1>
+    </header>
+    <div
+      class="flex flex-col md:flex-row justify-center items-center mb-12 md:mt-24 md:gap-x-16"
     >
-        <header>
-            <h1
-                class="text-3xl md:text-5xl font-bold text-center mt-8 md:mt-24 dark:text-background"
-            >
-                Choose your character
-            </h1>
-        </header>
-        <div
-            class="flex flex-col md:flex-row justify-center items-center mb-12 md:mt-24 md:gap-x-16"
-        >
-            <card-choicheable
-                v-for="(character, index) in characters"
-                :key="index"
-                :title="character.name"
-                :image-url="character.imageUrl"
-                :alt="character.alt"
-                :description="character.description"
-                @hover-in="hoverText = $event"
-                @hover-out="hoverText = ''"
-            />
-        </div>
-        <p class="text-center hidden md:block dark:text-background">
-            {{ hoverText }}
-        </p>
-    </section>
-    <footer
-        class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
-    >
-        <flat-back-button />
-    </footer>
+      <card-choicheable
+        v-for="(character, index) in characters"
+        :key="index"
+        :title="character.name"
+        :image-url="character.imageUrl"
+        :alt="character.alt"
+        :description="character.description"
+        @hover-in="hoverText = $event"
+        @hover-out="hoverText = ''"
+      />
+    </div>
+    <p class="text-center hidden md:block dark:text-background">
+      {{ hoverText }}
+    </p>
+  </section>
+  <footer
+    class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
+  >
+    <button-with-image
+      class="lg:mt-6"
+      image-url="/icons/back.svg"
+      alt-text="Return to profile page"
+      title="Return Back"
+      @click="router.back()"
+    />
+  </footer>
 </template>

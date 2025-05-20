@@ -4,6 +4,7 @@ import './style.css'
 import 'aos/dist/aos.css'
 import App from './App.vue'
 import { loader } from '@guolao/vue-monaco-editor'
+import router from './router'
 
 AOS.init()
 
@@ -15,4 +16,4 @@ loader.config({
     },
 })
 
-app.mount('#app')
+app.use(router).mount('#app')
