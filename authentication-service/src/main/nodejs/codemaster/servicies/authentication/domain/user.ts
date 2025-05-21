@@ -18,8 +18,7 @@ export type User = Readonly<{
 
 const nicknameRegEx: RegExp = /^[a-zA-Z0-9_]{3,10}$/
 const emailRegEx: RegExp = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
-const passwordRegEx: RegExp =
-  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/
+const passwordRegEx: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
 
 export const validateNickname = (nickname: string) =>
   fromPredicate(
