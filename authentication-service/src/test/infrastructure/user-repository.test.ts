@@ -6,10 +6,13 @@ import {
   User,
 } from '../../main/nodejs/codemaster/servicies/authentication/domain/user'
 import {
+  banUser,
   deleteUser,
+  findAllUsers,
   findUserByEmail,
   findUserByNickname,
   saveUser,
+  unbanUser,
   updateUserEmail,
   updateUserPassword,
   updateUserRefreshToken,
@@ -113,6 +116,30 @@ describe('TestUserRepository', () => {
         expect(result.left.message).toBe('User not found')
       }
     })
+
+    it('should correctly find all users', async () => {
+      const result = await findAllUsers()
+      expect(isRight(result)).toBeTruthy()
+      if (isRight(result)) {
+        const foundUsers = await UserModel.find().exec()
+        expect(foundUsers.length).toBe(1)
+        expect(foundUsers[0].nickname).toBe(nickname)
+        expect(foundUsers[0].email).toBe(email)
+        expect(foundUsers[0].password).toBe(password)
+        expect(foundUsers[0].isAdmin).toBeFalsy()
+        expect(foundUsers[0].isBanned).toBeFalsy()
+        expect(foundUsers[0].refreshToken).toBe(defaultRefreshToken)
+      }
+    })
+
+    it('should return an empty array when there are no users', async () => {
+      await UserModel.deleteMany({})
+      const result = await findAllUsers()
+      expect(isRight(result)).toBeTruthy()
+      if (isRight(result)) {
+        expect(Array.from(result.right).length).toBe(0)
+      }
+    })
   })
 
   describe('Test update operation', () => {
@@ -167,6 +194,46 @@ describe('TestUserRepository', () => {
       expect(isLeft(resultEmail)).toBeTruthy()
       expect(isLeft(resultPassword)).toBeTruthy()
       expect(isLeft(resultRefreshToken)).toBeTruthy()
+    })
+
+    it('should correctly ban user', async () => {
+      const result = await banUser({ value: nickname })
+      const foundUser = await UserModel.findOne({ nickname: nickname }).exec()
+      expect(isRight(result)).toBeTruthy()
+      if (isRight(result)) {
+        expect(result.right.banned).toBeTruthy()
+        expect(foundUser?.isBanned).toBeTruthy()
+      } else {
+        throw new Error(result.left.message)
+      }
+    })
+
+    it('should correct unban user', async () => {
+      const result = await unbanUser({ value: nickname })
+      const foundUser = await UserModel.findOne({ nickname: nickname }).exec()
+      expect(isRight(result)).toBeTruthy()
+      if (isRight(result)) {
+        expect(result.right.banned).toBeFalsy()
+        expect(foundUser?.isBanned).toBeFalsy()
+      } else {
+        throw new Error(result.left.message)
+      }
+    })
+
+    it('should fail to unban user that does not exist', async () => {
+      const result = await unbanUser({ value: nicknameNotInDatabase })
+      expect(isLeft(result)).toBeTruthy()
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User not found')
+      }
+    })
+
+    it('should fail to ban user that does not exist', async () => {
+      const result = await banUser({ value: nicknameNotInDatabase })
+      expect(isLeft(result)).toBeTruthy()
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User not found')
+      }
     })
   })
 
