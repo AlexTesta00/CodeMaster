@@ -3,35 +3,7 @@ import { User, UserId } from '../domain/user'
 import { Either, isRight, left, right } from 'fp-ts/Either'
 import { UserModel } from './user-model'
 import { createUserManager, UserManager } from '../domain/user-manager'
-
-export interface UserDocument {
-  nickname: string
-  email: string
-  password: string
-  isAdmin: boolean
-  isBanned: boolean
-  refreshToken: string
-}
-
-export const toUserModel = (user: User): UserDocument => ({
-  nickname: user.nickname.value,
-  email: user.email,
-  password: user.password,
-  isAdmin: user.role.name === 'admin',
-  isBanned: false,
-  refreshToken: '',
-})
-
-export const toUserManager = (userDocument: UserDocument): UserManager => ({
-  info: {
-    nickname: { value: userDocument.nickname },
-    email: userDocument.email,
-    password: userDocument.password,
-    role: userDocument.isAdmin ? { name: 'admin' } : { name: 'user' },
-  },
-  banned: userDocument.isBanned,
-  refreshToken: userDocument.refreshToken,
-})
+import { toUserModel, toUserManager } from './conversion'
 
 export const saveUser = async (user: User): Promise<Either<Error, UserManager>> => {
   const userDocument = new UserModel(toUserModel(user))
@@ -172,7 +144,7 @@ export const unbanUser = async (
     ).orFail()
     return right(toUserManager(userDocument))
   } catch (error) {
-    void error
+    void errors
     return left(new Error('User not found'))
   }
 }
