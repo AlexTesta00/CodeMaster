@@ -144,7 +144,7 @@ export const unbanUser = async (
     ).orFail()
     return right(toUserManager(userDocument))
   } catch (error) {
-    void errors
+    void error
     return left(new Error('User not found'))
   }
 }
