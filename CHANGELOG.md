@@ -1,3 +1,15 @@
+## [1.5.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.4.0...v1.5.0) (2025-05-22)
+
+### Features
+
+* **authentication:** add possibility to ban and unban user from only admin account ([6c9bc7b](https://github.com/AlexTesta00/CodeMaster/commit/6c9bc7bf67895a1c20e2ac594fb60693734cadc2))
+* **authentication:** now it's possible to get all users ([729067b](https://github.com/AlexTesta00/CodeMaster/commit/729067b44c433e1b108c6324378922dd5efdf56f))
+
+### Bug Fixes
+
+* **authentication:** for update, change put with patch ([0725942](https://github.com/AlexTesta00/CodeMaster/commit/072594282b4bcc20798d48dbd01167bb1306c7b6))
+* **deps:** update dependency fp-ts to v2.16.10 ([4848095](https://github.com/AlexTesta00/CodeMaster/commit/4848095ea10c8a5eae42d65cc80424bea8bf0130))
+
 ## [1.4.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.2...v1.4.0) (2025-05-22)
 
 ### Features
