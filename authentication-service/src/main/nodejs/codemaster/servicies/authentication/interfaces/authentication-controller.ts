@@ -1,5 +1,12 @@
 import { Request, Response } from 'express'
-import { BAD_REQUEST, CONFLICT, CREATED, INTERNAL_ERROR, OK } from './status'
+import {
+  BAD_REQUEST,
+  CONFLICT,
+  CREATED,
+  INTERNAL_ERROR,
+  OK,
+  UNAUTHORIZED,
+} from './status'
 import {
   registerUser,
   loginUser as login,
@@ -8,6 +15,8 @@ import {
   updateUserEmail,
   updateUserPassword,
   deleteUser as deleteUserFromService,
+  banUser as banUserFromService,
+  unbanUser as unbanUserFromService,
 } from '../application/authentication-service'
 import { isRight } from 'fp-ts/Either'
 
@@ -122,5 +131,40 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
   } else {
     const error = result.left
     res.status(BAD_REQUEST).json({ message: error.message, success: false })
+  }
+}
+
+export const banUser = async (req: Request, res: Response): Promise<void> => {
+  const { nicknameFrom, nicknameTo } = req.body
+
+  const result = await banUserFromService({ value: nicknameFrom }, { value: nicknameTo })
+  if (isRight(result)) {
+    res.status(OK).json({ message: 'User banned', success: true }).end()
+  } else {
+    const error = result.left
+    if (result.left.message.includes('not found')) {
+      res.status(BAD_REQUEST).json({ message: error.message, success: false })
+    } else {
+      res.status(UNAUTHORIZED).json({ message: error.message, success: false })
+    }
+  }
+}
+
+export const unbanUser = async (req: Request, res: Response): Promise<void> => {
+  const { nicknameFrom, nicknameTo } = req.body
+
+  const result = await unbanUserFromService(
+    { value: nicknameFrom },
+    { value: nicknameTo }
+  )
+  if (isRight(result)) {
+    res.status(OK).json({ message: 'User unbanned', success: true }).end()
+  } else {
+    const error = result.left
+    if (result.left.message.includes('not found')) {
+      res.status(BAD_REQUEST).json({ message: error.message, success: false })
+    } else {
+      res.status(UNAUTHORIZED).json({ message: error.message, success: false })
+    }
   }
 }
