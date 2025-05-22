@@ -1,6 +1,4 @@
-import {
-  createUser,
-} from '../../main/nodejs/codemaster/servicies/authentication/domain/user'
+import { createUser } from '../../main/nodejs/codemaster/servicies/authentication/domain/user'
 import { isRight } from 'fp-ts/Either'
 import {
   toUserManager,
