@@ -315,7 +315,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-email')
+        .patch('/api/v1/authentication/update-email')
         .send(correctEmailParams)
         .set('Accept', 'application/json')
 
@@ -331,7 +331,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-email')
+        .patch('/api/v1/authentication/update-email')
         .send(incorrectEmailParamsNotValidFormat)
         .set('Accept', 'application/json')
 
@@ -347,7 +347,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-email')
+        .patch('/api/v1/authentication/update-email')
         .send(incorrectEmailUserNotExist)
         .set('Accept', 'application/json')
 
@@ -366,7 +366,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-password')
+        .patch('/api/v1/authentication/update-password')
         .send(correctPasswordParams)
         .set('Accept', 'application/json')
 
@@ -383,7 +383,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-password')
+        .patch('/api/v1/authentication/update-password')
         .send(incorrectPasswordParamsNotValidFormat)
         .set('Accept', 'application/json')
 
@@ -400,7 +400,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-password')
+        .patch('/api/v1/authentication/update-password')
         .send(incorrectPasswordParamsOldPassword)
         .set('Accept', 'application/json')
 
@@ -417,7 +417,7 @@ describe('Test API', () => {
       }
 
       const response = await request
-        .put('/api/v1/authentication/update-password')
+        .patch('/api/v1/authentication/update-password')
         .send(userNotExist)
         .set('Accept', 'application/json')
 
