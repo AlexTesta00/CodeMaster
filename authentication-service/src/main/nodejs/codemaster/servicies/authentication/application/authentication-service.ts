@@ -18,6 +18,8 @@ const saltRounds: number = 16
 const accessSecret: string = process.env.ACCESS_SECRET || 'access'
 const refreshSecret: string = process.env.REFRESH_SECRET || 'refresh'
 
+//TODO: Add method for ban and unban user
+
 const fromPromiseEither =
   <E, A>(f: () => Promise<Either<E, A>>): TaskEither<E, A> =>
   () =>
