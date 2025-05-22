@@ -6,6 +6,7 @@ import {
   CREATED,
   INTERNAL_ERROR,
   OK,
+  UNAUTHORIZED,
 } from '../../main/nodejs/codemaster/servicies/authentication/interfaces/status'
 import dotenv from 'dotenv'
 import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/db-connection'
@@ -28,6 +29,11 @@ describe('Test API', () => {
     await request
       .delete('/api/v1/authentication/' + newUser.nickname)
       .send(newUser.nickname)
+      .set('Accept', 'application/json')
+
+    await request
+      .delete('/api/v1/authentication/admin')
+      .send('admin')
       .set('Accept', 'application/json')
   })
 
@@ -446,6 +452,138 @@ describe('Test API', () => {
       expect(response.status).toBe(BAD_REQUEST)
       expect(response.body.success).toBe(false)
       expect(response.body.message).toBe('User not found')
+    })
+  })
+
+  describe('Test ban/unban', () => {
+    beforeAll(async () => {
+      const adminUser = {
+        nickname: 'admin',
+        email: 'admin@example.com',
+        password: 'Test1234!',
+        role: 'admin',
+      }
+
+      await request
+        .post('/api/v1/authentication/register')
+        .send(adminUser)
+        .set('Accept', 'application/json')
+
+      await request
+        .post('/api/v1/authentication/register')
+        .send(newUser)
+        .set('Accept', 'application/json')
+    })
+
+    afterAll(async () => {
+      const adminUser = {
+        nickname: 'admin',
+      }
+
+      await request
+        .delete('/api/v1/authentication/' + adminUser.nickname)
+        .send(adminUser.nickname)
+        .set('Accept', 'application/json')
+
+      await request
+        .delete('/api/v1/authentication/' + newUser.nickname)
+        .send(newUser.nickname)
+        .set('Accept', 'application/json')
+    })
+
+    it('should successfully ban the user', async () => {
+      const banUser = {
+        nicknameFrom: 'admin',
+        nicknameTo: newUser.nickname,
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/ban')
+        .send(banUser)
+        .set('Accept', 'application/json')
+      expect(response.status).toBe(OK)
+      expect(response.body.success).toBe(true)
+      expect(response.body.message).toBe('User banned')
+    })
+
+    it('should return an error since the user does not exist and ban not produce effect', async () => {
+      const banUser = {
+        nicknameFrom: 'admin',
+        nicknameTo: 'imNotExist',
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/ban')
+        .send(banUser)
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(BAD_REQUEST)
+      expect(response.body.success).toBe(false)
+      expect(response.body.message).toBe('User not found')
+    })
+
+    it('should return an error since the user is not an admin and ban not produce effect', async () => {
+      const banUser = {
+        nicknameFrom: newUser.nickname,
+        nicknameTo: 'admin',
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/ban')
+        .send(banUser)
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(UNAUTHORIZED)
+      expect(response.body.success).toBe(false)
+      expect(response.body.message).toBe('User is not authorized')
+    })
+
+    it('should successfully unban the user', async () => {
+      const unbanUser = {
+        nicknameFrom: 'admin',
+        nicknameTo: newUser.nickname,
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/unban')
+        .send(unbanUser)
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(OK)
+      expect(response.body.success).toBe(true)
+      expect(response.body.message).toBe('User unbanned')
+    })
+
+    it('should return an error since the user does not exist and unban not produce effect', async () => {
+      const unbanUser = {
+        nicknameFrom: 'admin',
+        nicknameTo: 'imNotExist',
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/unban')
+        .send(unbanUser)
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(BAD_REQUEST)
+      expect(response.body.success).toBe(false)
+      expect(response.body.message).toBe('User not found')
+    })
+
+    it('should return an error since the user is not an admin and unban not produce effect', async () => {
+      const unbanUser = {
+        nicknameFrom: newUser.nickname,
+        nicknameTo: 'admin',
+      }
+
+      const response = await request
+        .patch('/api/v1/authentication/unban')
+        .send(unbanUser)
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(UNAUTHORIZED)
+      expect(response.body.success).toBe(false)
+      expect(response.body.message).toBe('User is not authorized')
     })
   })
 })

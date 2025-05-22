@@ -11,5 +11,7 @@ router.post('/refresh-access-token', AuthenticationController.refreshAccessToken
 router.put('/update-email', AuthenticationController.updateEmail)
 router.put('/update-password', AuthenticationController.updatePassword)
 router.delete('/:id', AuthenticationController.deleteUser)
+router.patch('/ban', AuthenticationController.banUser)
+router.patch('/unban', AuthenticationController.unbanUser)
 
 export { router }
