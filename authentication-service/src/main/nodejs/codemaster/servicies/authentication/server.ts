@@ -1,7 +1,7 @@
 import { connectToDatabase } from './infrastructure/db-connection'
 import { app } from './app'
 
-const port = process.env.PORT!
+const port = process.env.PORT! || 4004
 
 const connectToDB = async () => {
   try {
