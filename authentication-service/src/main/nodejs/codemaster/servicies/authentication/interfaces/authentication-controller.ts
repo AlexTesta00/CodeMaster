@@ -1,151 +1,126 @@
-import { AuthenticationService } from '../application/authentication-service'
-import { AuthenticationServiceImpl } from '../application/authentication-service-impl'
-import { NextFunction, Request, Response } from 'express'
-import { User } from '../domain/user'
-import { CREATED, OK } from './status'
-import { UserId } from '../domain/user-id'
+import { Request, Response } from 'express'
+import { BAD_REQUEST, CONFLICT, CREATED, INTERNAL_ERROR, OK } from './status'
+import {
+  registerUser,
+  loginUser as login,
+  logoutUser as logout,
+  refreshAccessUserToken,
+  updateUserEmail,
+  updateUserPassword,
+  deleteUser as deleteUserFromService,
+} from '../application/authentication-service'
+import { isRight } from 'fp-ts/Either'
 
-const authenticationService: AuthenticationService = new AuthenticationServiceImpl()
+export const registerNewUser = async (req: Request, res: Response): Promise<void> => {
+  const { nickname, email, password, role } = req.body
 
-export const registerNewUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { nickname, email, password } = req.body
+  const register = await registerUser({ value: nickname }, email, password, {
+    name: role,
+  })
 
-  try {
-    const user: User = await authenticationService.registerUser(
-      new UserId(nickname),
-      email,
-      password
-    )
-    res.status(CREATED).json({ message: 'User registered', success: true, user })
-  } catch (error) {
-    next(error)
+  if (isRight(register)) {
+    const newUser = register.right
+    res.status(CREATED).json({ message: 'User registered', success: true, user: newUser })
+  } else {
+    const error = register.left
+    if (error.message.includes('duplicate')) {
+      res.status(CONFLICT).json({ message: 'User already exist', success: false })
+    } else {
+      res.status(BAD_REQUEST).json({ message: error.message, success: false })
+    }
   }
 }
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { nickname, email, password } = req.body
-  let token: string
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
+  const { nickname, password } = req.body
 
-  try {
-    if (nickname) {
-      token = await authenticationService.loginUser(new UserId(nickname), password)
-    } else {
-      token = await authenticationService.loginUser(email, password)
-    }
+  const token = await login({ value: nickname }, password)
 
-    res.cookie('auth_token', token, {
+  if (isRight(token)) {
+    res.cookie('auth_token', token.right, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24, //Expire in one day
       sameSite: 'strict',
     })
-
-    res.status(OK).json({ message: 'User LoggedIn', success: true, token: token }).end()
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const logoutUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { nickname, email } = req.body
-
-  try {
-    if (nickname) {
-      await authenticationService.logoutUser(new UserId(nickname))
-    } else {
-      await authenticationService.logoutUser(email)
-    }
-
-    res.clearCookie('auth_token')
-
-    res.status(OK).json({ message: 'User LoggedOut', success: true }).end()
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const refreshAccessToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { nickname, email } = req.body
-  let accessToken: string
-
-  try {
-    if (nickname) {
-      accessToken = await authenticationService.refreshAccessUserToken(
-        new UserId(nickname)
-      )
-    } else {
-      accessToken = await authenticationService.refreshAccessUserToken(email)
-    }
     res
       .status(OK)
-      .json({ message: 'User Access Token refreshed', success: true, token: accessToken })
+      .json({ message: 'User LoggedIn', success: true, token: token.right })
       .end()
-  } catch (error) {
-    next(error)
+  } else {
+    const error = token.left
+    res.status(BAD_REQUEST).json({ message: error.message, success: false })
   }
 }
 
-export const updateEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const logoutUser = async (req: Request, res: Response): Promise<void> => {
+  const { nickname } = req.body
+
+  const result = await logout({ value: nickname })
+  if (isRight(result)) {
+    res.clearCookie('auth_token')
+    res.status(OK).json({ message: 'User LoggedOut', success: true }).end()
+  } else {
+    const error = result.left
+    res.status(BAD_REQUEST).json({ message: error.message, success: false })
+  }
+}
+
+export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
+  const { nickname } = req.body
+
+  const result = await refreshAccessUserToken({ value: nickname })
+  if (isRight(result)) {
+    res
+      .status(OK)
+      .json({
+        message: 'User Access Token refreshed',
+        success: true,
+        token: result.right,
+      })
+      .end()
+  } else {
+    const error = result.left
+    if (error.message.includes('Invalid refresh token')) {
+      res.status(INTERNAL_ERROR).json({ message: 'Invalid RefreshToken', success: false })
+    } else {
+      res.status(BAD_REQUEST).json({ message: error.message, success: false })
+    }
+  }
+}
+
+export const updateEmail = async (req: Request, res: Response): Promise<void> => {
   const { nickname, newEmail } = req.body
 
-  try {
-    await authenticationService.updateUserEmail(new UserId(nickname), newEmail)
+  const result = await updateUserEmail({ value: nickname }, newEmail)
+  if (isRight(result)) {
     res.status(OK).json({ message: 'Email updated', success: true }).end()
-  } catch (error) {
-    next(error)
+  } else {
+    const error = result.left
+    res.status(BAD_REQUEST).json({ message: error.message, success: false })
   }
 }
 
-export const updatePassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
   const { nickname, oldPassword, newPassword } = req.body
 
-  try {
-    await authenticationService.updateUserPassword(
-      new UserId(nickname),
-      oldPassword,
-      newPassword
-    )
+  const result = await updateUserPassword({ value: nickname }, oldPassword, newPassword)
+  if (isRight(result)) {
     res.status(OK).json({ message: 'Password updated', success: true }).end()
-  } catch (error) {
-    next(error)
+  } else {
+    const error = result.left
+    res.status(BAD_REQUEST).json({ message: error.message, success: false })
   }
 }
 
-export const deleteUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   const nickname: string = req.params.id
 
-  try {
-    await authenticationService.deleteUser(new UserId(nickname))
+  const result = await deleteUserFromService({ value: nickname })
+  if (isRight(result)) {
     res.status(OK).json({ message: 'User deleted', success: true }).end()
-  } catch (error) {
-    next(error)
+  } else {
+    const error = result.left
+    res.status(BAD_REQUEST).json({ message: error.message, success: false })
   }
 }
