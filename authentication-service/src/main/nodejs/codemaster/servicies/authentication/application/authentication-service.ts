@@ -11,14 +11,15 @@ import {
   updateUserPassword as updatePassword,
   updateUserEmail as updateEmail,
   deleteUser as deleteUserFromRepo,
+  banUser as ban,
+  unbanUser as unban,
+  findAllUsers as findAllUsersFromRepo,
 } from '../infrastructure/user-repository'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 const saltRounds: number = 16
 const accessSecret: string = process.env.ACCESS_SECRET || 'access'
 const refreshSecret: string = process.env.REFRESH_SECRET || 'refresh'
-
-//TODO: Add method for ban and unban user
 
 const fromPromiseEither =
   <E, A>(f: () => Promise<Either<E, A>>): TaskEither<E, A> =>
@@ -220,3 +221,61 @@ export const refreshAccessUserToken = async (
     }
   }
 }
+
+const checkIsAdmin = async (nickname: UserId): Promise<Either<Error, boolean>> => {
+  const user = await findUserByNickname(nickname)
+  if (isLeft(user)) {
+    return left(user.left)
+  } else {
+    return right(user.right.info.role.name === 'admin')
+  }
+}
+
+export const banUser = async (
+  from: UserId,
+  to: UserId
+): Promise<Either<Error, UserManager>> => {
+  const fromUser = await checkIsAdmin(from)
+
+  if (isRight(fromUser) && fromUser.right) {
+    const toUser = await findUserByNickname(to)
+    if (isRight(toUser)) {
+      const banResult = await ban(toUser.right.info.nickname)
+      if (isRight(banResult)) {
+        return right(banResult.right)
+      } else {
+        return left(banResult.left)
+      }
+    } else {
+      return left(new Error('User not found'))
+    }
+  } else {
+    return left(new Error('User is not authorized'))
+  }
+}
+
+export const unbanUser = async (
+  from: UserId,
+  to: UserId
+): Promise<Either<Error, UserManager>> => {
+  const fromUser = await checkIsAdmin(from)
+
+  if (isRight(fromUser) && fromUser.right) {
+    const toUser = await findUserByNickname(to)
+    if (isRight(toUser)) {
+      const unbanResult = await unban(toUser.right.info.nickname)
+      if (isRight(unbanResult)) {
+        return right(unbanResult.right)
+      } else {
+        return left(unbanResult.left)
+      }
+    } else {
+      return left(new Error('User not found'))
+    }
+  } else {
+    return left(new Error('User is not authorized'))
+  }
+}
+
+export const findAllUsers = async (): Promise<Either<Error, Iterable<UserManager>>> =>
+  await findAllUsersFromRepo()

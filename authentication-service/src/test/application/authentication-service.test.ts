@@ -2,6 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose, { Error } from 'mongoose'
 import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model'
 import {
+  banUser,
   deleteUser,
   generateAccessToken,
   generateHashFromPassword,
@@ -11,6 +12,7 @@ import {
   logoutUser,
   refreshAccessUserToken,
   registerUser,
+  unbanUser,
   updateUserEmail,
   updateUserPassword,
   verifyAccessToken,
@@ -526,6 +528,104 @@ describe('Test authentication service', () => {
       } else {
         console.log(result)
         throw new Error('Error updating user password')
+      }
+    })
+  })
+
+  describe('Test ban and unban user', () => {
+    let newUser: Either<Error, UserManager>
+    let admin: Either<Error, UserManager>
+
+    beforeEach(async () => {
+      newUser = await registerUser({ value: nickname }, email, password, { name: 'user' })
+      admin = await registerUser({ value: 'admin' }, 'admin@example.com', password, {
+        name: 'admin',
+      })
+    })
+
+    it('should correctly ban user', async () => {
+      if (isRight(admin) && isRight(newUser)) {
+        const result = await banUser({ value: 'admin' }, { value: nickname })
+        const foundUser = await UserModel.findOne({ nickname: nickname })
+        expect(isRight(result)).toBeTruthy()
+        expect(foundUser?.isBanned).toBeTruthy()
+      } else {
+        throw new Error('Error register user')
+      }
+    })
+
+    it('should return error because user not exist and ban not produce effect', async () => {
+      const result = await banUser({ value: 'admin' }, { value: wrongNickname })
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User not found')
+      } else {
+        console.log(result)
+        throw new Error('Error banning user')
+      }
+    })
+
+    it('should return error because user is not admin and ban not produce effect', async () => {
+      const result = await banUser({ value: nickname }, { value: nickname })
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User is not authorized')
+      } else {
+        console.log(result)
+        throw new Error('Error banning user')
+      }
+    })
+
+    it('should correctly unban user', async () => {
+      if (isRight(admin) && isRight(newUser)) {
+        await banUser({ value: 'admin' }, { value: nickname })
+        const result = await unbanUser({ value: 'admin' }, { value: nickname })
+        const foundUser = await UserModel.findOne({ nickname: nickname })
+        expect(isRight(result)).toBeTruthy()
+        expect(foundUser?.isBanned).toBeFalsy()
+      } else {
+        throw new Error('Error register user')
+      }
+    })
+
+    it('should return error because user not exist and unban not produce effect', async () => {
+      const result = await unbanUser({ value: 'admin' }, { value: wrongNickname })
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User not found')
+      } else {
+        console.log(result)
+        throw new Error('Error unbanning user')
+      }
+    })
+
+    it('should return error because user is not admin and unban not produce effect', async () => {
+      const result = await unbanUser({ value: nickname }, { value: nickname })
+      if (isLeft(result)) {
+        expect(result.left.message).toBe('User is not authorized')
+      } else {
+        console.log(result)
+        throw new Error('Error unbanning user')
+      }
+    })
+  })
+
+  describe('Test find all users', () => {
+    let newUser: Either<Error, UserManager>
+    let admin: Either<Error, UserManager>
+
+    beforeEach(async () => {
+      newUser = await registerUser({ value: nickname }, email, password, { name: 'user' })
+      admin = await registerUser({ value: 'admin' }, 'admin@example.com', password, {
+        name: 'admin',
+      })
+    })
+
+    it('should correctly find all users', async () => {
+      if (isRight(admin) && isRight(newUser)) {
+        const result = await UserModel.find()
+        expect(result.length).toBe(2)
+        expect(result[0].nickname).toBe(nickname)
+        expect(result[1].nickname).toBe('admin')
+      } else {
+        throw new Error('Error register user')
       }
     })
   })
