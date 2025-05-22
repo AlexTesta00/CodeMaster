@@ -1,3 +1,34 @@
+## [1.4.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.2...v1.4.0) (2025-05-22)
+
+### Features
+
+* **authentication:** add findAllUsers and possibility to ban and unban user ([4ad2808](https://github.com/AlexTesta00/CodeMaster/commit/4ad2808b31d0bfd67628038b662c46c725615011))
+* **authentication:** in authentication service, delete jwt-service and bycript-service and rewrite all function in functional programming style in particular function return Either<Error, Somethings>, this makes system more robust ([5ad322c](https://github.com/AlexTesta00/CodeMaster/commit/5ad322cd359d93cc96a58c7b27a68c3651d7acdd))
+* **authentication:** now user have role. Role can be type of 'admin' or 'user' ([bf0eb24](https://github.com/AlexTesta00/CodeMaster/commit/bf0eb2430308fc5fe2765b0a5b7e8e879e3b9db0))
+* **authentication:** now user-factory and user-repository look like more functional, delete getUserRefreshToken from user-repository because UserManager aggragate contains refresh token ([e39d599](https://github.com/AlexTesta00/CodeMaster/commit/e39d5992c5305f0d266c9e20a2035774dbce30c6))
+* **authentication:** remove error-handler middelwere, adapt api controller to current business logic, and adapt test to the current controller ([2cf8207](https://github.com/AlexTesta00/CodeMaster/commit/2cf8207014110d2199052f88814995cdb0855902))
+* **authentication:** remove error-handler middelwere, adapt api controller to current business logic, and adapt test to the current controller ([1e70952](https://github.com/AlexTesta00/CodeMaster/commit/1e709528e24b7febe009e8a16194dfcf71a56007))
+* **frontend:** in authentication service, delete jwt-service and bycript-service and rewrite all function in functional programming style in particular function return Either<Error, Somethings>, this makes system more robust ([accecaf](https://github.com/AlexTesta00/CodeMaster/commit/accecaf386e62a78f826521385f62d1f6077224f))
+
+### Bug Fixes
+
+* **authentication:** change password regex ([f9a69ba](https://github.com/AlexTesta00/CodeMaster/commit/f9a69ba2a1532fa8fa07a140806156554576b6ec))
+* **authentication:** change password regex ([d575231](https://github.com/AlexTesta00/CodeMaster/commit/d5752319965f2fccba20702c2227343a320d5141))
+* **authentication:** fix bug that was causing tests fail ([6b9f3e2](https://github.com/AlexTesta00/CodeMaster/commit/6b9f3e2250ebb0ccb035396eee1e48c27a2e4f08))
+* **authentication:** fix merge ([7b3e0f6](https://github.com/AlexTesta00/CodeMaster/commit/7b3e0f69830ed1580978a750628f4e02d7bc3599))
+* **authentication:** fix port listen into server.ts ([f2c03bd](https://github.com/AlexTesta00/CodeMaster/commit/f2c03bd187cc547ad796ac46599b8880a99573a6))
+* **authentication:** fix port listen into server.ts ([95e82be](https://github.com/AlexTesta00/CodeMaster/commit/95e82bec88caa4b0ec4445dd7bc63deade0ec18e))
+* **authentication:** integrate latest fix from develop ([30875f0](https://github.com/AlexTesta00/CodeMaster/commit/30875f096582f3bd8fc23ef57e7f934f9498d681))
+* **authentication:** launch server.ts and not app.ts ([2b6199a](https://github.com/AlexTesta00/CodeMaster/commit/2b6199a1c433fd8f50a2ed12ac9cffced5aaa62f))
+* **authentication:** launch server.ts and not app.ts ([b2244fa](https://github.com/AlexTesta00/CodeMaster/commit/b2244fa9cb821d03304ce58c5c1041c4fcf7f57e))
+* **authentication:** merge update from main ([10ed4d3](https://github.com/AlexTesta00/CodeMaster/commit/10ed4d37aea43c3064f6881f25a695af3dc9f61c))
+* **deps:** update dependency mongoose to v8.14.3 ([93408f1](https://github.com/AlexTesta00/CodeMaster/commit/93408f169d2473d585d0f76f4914b717660aff8c))
+* **deps:** update node.js dependencies ([5cb01a8](https://github.com/AlexTesta00/CodeMaster/commit/5cb01a860727ce9eee0e36121929c5c9b7f73bc0))
+* **deps:** update node.js dependencies ([41d01f8](https://github.com/AlexTesta00/CodeMaster/commit/41d01f8d456ca91ffc204e2e5b545beaa180db2b))
+* **deps:** update node.js dependencies ([90ef2f1](https://github.com/AlexTesta00/CodeMaster/commit/90ef2f1fd0f6a6fbe6a45c06f3423ada3e589db8))
+* **deps:** update node.js dependencies ([4dcdcdb](https://github.com/AlexTesta00/CodeMaster/commit/4dcdcdbe70ee80e528ccf941df4ea5626407feb8))
+* **deps:** update node.js dependencies ([50eb3b7](https://github.com/AlexTesta00/CodeMaster/commit/50eb3b759f0de0b68879bad682ee2b9d8dd5c0e8))
+
 ## [1.3.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.1...v1.3.2) (2025-05-14)
 
 ### Bug Fixes
