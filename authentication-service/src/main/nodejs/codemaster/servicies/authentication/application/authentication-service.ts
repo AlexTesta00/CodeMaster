@@ -13,6 +13,7 @@ import {
   deleteUser as deleteUserFromRepo,
   banUser as ban,
   unbanUser as unban,
+  findAllUsers as findAllUsersFromRepo,
 } from '../infrastructure/user-repository'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
@@ -276,4 +277,5 @@ export const unbanUser = async (
   }
 }
 
-//TODO: Add method to get all users
+export const findAllUsers = async (): Promise<Either<Error, Iterable<UserManager>>> =>
+  await findAllUsersFromRepo()

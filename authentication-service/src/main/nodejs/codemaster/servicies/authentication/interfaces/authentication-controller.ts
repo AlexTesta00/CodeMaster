@@ -17,6 +17,7 @@ import {
   deleteUser as deleteUserFromService,
   banUser as banUserFromService,
   unbanUser as unbanUserFromService,
+  findAllUsers as getAllUsersFromService,
 } from '../application/authentication-service'
 import { isRight } from 'fp-ts/Either'
 
@@ -166,5 +167,15 @@ export const unbanUser = async (req: Request, res: Response): Promise<void> => {
     } else {
       res.status(UNAUTHORIZED).json({ message: error.message, success: false })
     }
+  }
+}
+
+export const findAllUsers = async (req: Request, res: Response): Promise<void> => {
+  const result = await getAllUsersFromService()
+  if (isRight(result)) {
+    res.status(OK).json({ message: 'Users found', success: true, users: result.right })
+  } else {
+    const error = result.left
+    res.status(INTERNAL_ERROR).json({ message: error.message, success: false })
   }
 }
