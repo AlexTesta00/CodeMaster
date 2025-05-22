@@ -10,6 +10,7 @@ import {
 } from '../../main/nodejs/codemaster/servicies/authentication/interfaces/status'
 import dotenv from 'dotenv'
 import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/db-connection'
+import { UserManager } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-manager'
 
 describe('Test API', () => {
   const request = supertest(app)
@@ -584,6 +585,21 @@ describe('Test API', () => {
       expect(response.status).toBe(UNAUTHORIZED)
       expect(response.body.success).toBe(false)
       expect(response.body.message).toBe('User is not authorized')
+    })
+
+    describe('Test find all users', () => {
+      it('should correctly return all users', async () => {
+        const response = await request
+          .get('/api/v1/authentication/')
+          .set('Accept', 'application/json')
+
+        const users: UserManager[] = Array.from(response.body.users)
+        expect(response.status).toBe(OK)
+        expect(response.body.success).toBe(true)
+        expect(users.length).toBe(2)
+        expect(users[0].info.nickname.value).toBe('admin')
+        expect(users[1].info.nickname.value).toBe(newUser.nickname)
+      })
     })
   })
 })

@@ -606,4 +606,27 @@ describe('Test authentication service', () => {
       }
     })
   })
+
+  describe('Test find all users', () => {
+    let newUser: Either<Error, UserManager>
+    let admin: Either<Error, UserManager>
+
+    beforeEach(async () => {
+      newUser = await registerUser({ value: nickname }, email, password, { name: 'user' })
+      admin = await registerUser({ value: 'admin' }, 'admin@example.com', password, {
+        name: 'admin',
+      })
+    })
+
+    it('should correctly find all users', async () => {
+      if (isRight(admin) && isRight(newUser)) {
+        const result = await UserModel.find()
+        expect(result.length).toBe(2)
+        expect(result[0].nickname).toBe(nickname)
+        expect(result[1].nickname).toBe('admin')
+      } else {
+        throw new Error('Error register user')
+      }
+    })
+  })
 })
