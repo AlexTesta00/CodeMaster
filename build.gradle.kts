@@ -20,4 +20,5 @@ tasks.register("build"){
     dependsOn(":authentication-service:build")
     dependsOn(":user-service:build")
     dependsOn(":solution-service:build")
+    dependsOn(":api-gateway:build")
 }
