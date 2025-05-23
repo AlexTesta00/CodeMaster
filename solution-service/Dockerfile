@@ -1,5 +1,10 @@
+FROM eclipse-temurin:17-jdk AS builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew clean build --no-daemon
+
 FROM eclipse-temurin:17-jre
 WORKDIR /codemaster-solution-service
-COPY build/libs/*.jar codemaster-solution-service.jar
+COPY --from=builder /app/build/libs/*.jar codemaster-solution-service.jar
 EXPOSE 3000
 ENTRYPOINT ["java", "-jar", "codemaster-solution-service.jar"]
