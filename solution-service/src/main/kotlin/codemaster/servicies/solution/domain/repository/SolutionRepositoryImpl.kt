@@ -4,7 +4,6 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
-import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -24,7 +23,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         return mongoTemplate.findById(id.toString(), Solution::class.java)
     }
 
-    override fun findSolutionsByQuestId(questId: ObjectId): Flux<Solution> {
+    override fun findSolutionsByQuestId(questId: String): Flux<Solution> {
         val query = Query(Criteria.where("questId").`is`(questId))
         return mongoTemplate.find(query, Solution::class.java)
     }
@@ -38,7 +37,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         id: SolutionId,
         language: Language,
     ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id))
+        val query = Query(Criteria.where("_id").`is`(id.value))
         val update =
             Update()
                 .set("language", language)
@@ -55,7 +54,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         id: SolutionId,
         result: ExecutionResult,
     ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id))
+        val query = Query(Criteria.where("_id").`is`(id.value))
         val update =
             Update()
                 .set("result", result)
@@ -72,7 +71,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         id: SolutionId,
         code: String,
     ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id))
+        val query = Query(Criteria.where("_id").`is`(id.value))
         val update =
             Update()
                 .set("code", code)
@@ -89,7 +88,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         id: SolutionId,
         testCode: String
     ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id))
+        val query = Query(Criteria.where("_id").`is`(id.value))
         val update =
             Update()
                 .set("testCode", testCode)
@@ -103,7 +102,7 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
     }
 
     override fun removeSolutionById(id: SolutionId): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id))
+        val query = Query(Criteria.where("_id").`is`(id.value))
 
         return mongoTemplate
             .findAndRemove(query, Solution::class.java)

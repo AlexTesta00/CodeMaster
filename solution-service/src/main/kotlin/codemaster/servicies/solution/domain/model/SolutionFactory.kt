@@ -1,12 +1,10 @@
 package codemaster.servicies.solution.domain.model
 
-import org.bson.types.ObjectId
-
 interface SolutionFactory {
     fun create(
         id: SolutionId,
         user: String,
-        questId: ObjectId,
+        questId: String,
         language: Language,
         code: String,
         testCode: String

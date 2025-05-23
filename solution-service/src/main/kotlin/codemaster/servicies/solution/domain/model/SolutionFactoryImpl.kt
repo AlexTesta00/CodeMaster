@@ -1,8 +1,8 @@
 package codemaster.servicies.solution.domain.model
 
 import codemaster.servicies.solution.domain.errors.EmptyCodeException
+import codemaster.servicies.solution.domain.errors.InvalidLanguageException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
-import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 
 @Component
@@ -10,13 +10,17 @@ class SolutionFactoryImpl : SolutionFactory {
     override fun create(
         id: SolutionId,
         user: String,
-        questId: ObjectId,
+        questId: String,
         language: Language,
         code: String,
         testCode: String
     ): Solution {
+        if(language.name.isBlank() || language.fileExtension.isBlank()){
+            throw InvalidLanguageException()
+        }
+
         if (user.isBlank()) {
-            throw InvalidUserException(questId.toHexString())
+            throw InvalidUserException()
         }
 
         if (code.isBlank() || testCode.isBlank()) {

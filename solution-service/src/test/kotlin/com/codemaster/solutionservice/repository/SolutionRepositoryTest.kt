@@ -37,8 +37,8 @@ class SolutionRepositoryTest : DescribeSpec() {
     private val id1 = SolutionId.generate()
     private val id2 = SolutionId.generate()
     private val user = "user"
-    private val questId = ObjectId()
-    private val language = Language("Java", ".java", "21", "jvm")
+    private val questId = "test"
+    private val language = Language("Java", ".java")
     private val testCode = """
             String test1 = "test1";
             System.out.println(print(test1));
@@ -173,7 +173,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 it("should be empty if there are no solutions with given questId") {
                     val fakeQuestId = ObjectId()
                     val solutions = repository
-                        .findSolutionsByQuestId(fakeQuestId)
+                        .findSolutionsByQuestId(fakeQuestId.toString())
                         .collectList()
                         .awaitSingleOrNull()
 
@@ -181,7 +181,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 }
 
                 it("should be empty if there are no solutions with given language") {
-                    val fakeLanguage = Language("Scala", ".scala", "3.3", "jvm")
+                    val fakeLanguage = Language("Scala", ".scala")
                     val solutions = repository
                         .findSolutionsByLanguage(fakeLanguage)
                         .collectList()
@@ -197,7 +197,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 }
 
                 it("should update the language correctly") {
-                    val newLanguage = Language("Scala", ".scala", "3.3.4", "jvm")
+                    val newLanguage = Language("Scala", ".scala")
 
                     val modified = repository.updateLanguage(id1, newLanguage).awaitSingleOrNull()
 
@@ -239,7 +239,7 @@ class SolutionRepositoryTest : DescribeSpec() {
 
                 it("should fail if the solution with given id does not exist in the database") {
                     val fakeId = SolutionId.generate()
-                    val newLanguage = Language("Scala", ".scala", "3.3.4", "jvm")
+                    val newLanguage = Language("Scala", ".scala")
                     val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
                     val newTestCode = """
                         String test1 = "test";

@@ -9,14 +9,13 @@ import codemaster.servicies.solution.domain.model.SolutionId
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import org.bson.types.ObjectId
 
 internal class SolutionFactoryTest : DescribeSpec() {
     init {
         val id = SolutionId.generate()
         val user = "user"
-        val questId = ObjectId()
-        val language = Language("Java", ".java", "21", "jvm")
+        val questId = "test"
+        val language = Language("Java", ".java")
         val testCode = """
             String test1 = "test1";
             System.out.println(print(test1));

@@ -4,7 +4,6 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
-import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -13,7 +12,7 @@ interface SolutionRepository {
 
     fun findSolutionById(id: SolutionId): Mono<Solution>
 
-    fun findSolutionsByQuestId(questId: ObjectId): Flux<Solution>
+    fun findSolutionsByQuestId(questId: String): Flux<Solution>
 
     fun findSolutionsByLanguage(language: Language): Flux<Solution>
 
