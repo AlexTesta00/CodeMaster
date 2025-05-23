@@ -1,3 +1,15 @@
+## [1.6.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.1...v1.6.2) (2025-05-23)
+
+### Bug Fixes
+
+* **docker:** fix docker jar path ([b69a465](https://github.com/AlexTesta00/CodeMaster/commit/b69a465ae7623e3307b3c218378f75ad3a46eb71))
+* **docker:** fix dockerfile ([7da1277](https://github.com/AlexTesta00/CodeMaster/commit/7da1277d895e456446d22fe3ab4b91528adc4933))
+* **gradle:** add task to build multi-lang-runner docker image ([ffa7499](https://github.com/AlexTesta00/CodeMaster/commit/ffa749989939e69bc55ef417af5b01194e2b6f2d))
+* **gradle:** fix task to build multi lang runner ([4232006](https://github.com/AlexTesta00/CodeMaster/commit/42320069fced15549510b608f66a1dec89ee0074))
+* **service:** change javascript support to kotlin support ([a69e80e](https://github.com/AlexTesta00/CodeMaster/commit/a69e80e0105b43c94e14d81390929313e9dc3a30))
+* **service:** change javascript support to kotlin support ([79453e3](https://github.com/AlexTesta00/CodeMaster/commit/79453e305fada153180ce06642e8c41612e858df))
+* **solution:** change container name to multi-lang-runner:latest ([fb01528](https://github.com/AlexTesta00/CodeMaster/commit/fb01528b6e33ae9d74c9fbd6a6016c915c645761))
+
 ## [1.6.1](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.0...v1.6.1) (2025-05-23)
 
 ### Bug Fixes
