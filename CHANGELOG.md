@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.0...v1.6.1) (2025-05-23)
+
+### Bug Fixes
+
+* **docker:** fix docker jar path ([1450a9c](https://github.com/AlexTesta00/CodeMaster/commit/1450a9c64d1ef21908d312c80a12784221842d36))
+
 ## [1.6.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.5.0...v1.6.0) (2025-05-23)
 
 ### Features
