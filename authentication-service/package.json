@@ -2,7 +2,7 @@
   "name": "authentication-service",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --files src/main/nodejs/codemaster/servicies/authentication/app.ts",
+    "dev": "ts-node-dev --files src/main/nodejs/codemaster/servicies/authentication/server.ts",
     "test": "jest --coverage",
     "build": "tsc",
     "lint": "npx eslint --config eslint.config.mjs .",
@@ -47,6 +47,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fp-ts": "^2.16.6",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
