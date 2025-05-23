@@ -135,7 +135,7 @@ class SolutionService(
                     "docker", "run", "--rm",
                     "--name", containerName,
                     "-v", "${toDockerPath(codeDir)}:/code",
-                    "multi-lang-runner",
+                    "multi-lang-runner:latest",
                     "bash", "-c", command
                 ).redirectErrorStream(false)
                     .start()
