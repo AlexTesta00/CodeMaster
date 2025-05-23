@@ -20,6 +20,14 @@ jobs:
         with:
           node-version: '23.5.0'
           check-latest: false
+      - name: Fix /etc/resolv.conf
+        run: |
+          sudo rm -f /etc/resolv.conf
+          sudo ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dbus systemd
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.4.0
       - name: Add Permission To Gradle
@@ -31,10 +39,15 @@ jobs:
           mongodb-port: '27017'
       - name: Set MONGO_URI environement variable
         run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
+      - name: Set SOLUTION_RUNNER_PATH environment variable
+        run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
+      - name: Build multi-lang-runner
+        run: docker build -t multi-lang-runner ./multi-lang-runner
       - name: Build with Gradle
         env:
           MONGO_URI: ${{ env.MONGO_URI }}
-        run: ./gradlew build
+          RUNNER_PATH: ${{ github.workspace }}/build/tmp/code-run
+        run: ./gradlew clean build --no-build-cache
       - name: Upload coverage for authentication-service
         if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
@@ -62,10 +75,19 @@ jobs:
           flags: user-service
           name: codecov-umbrella
           fail_ci_if_error: true
+      - name: Upload coverage for solution-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: solution-service/build/reports/kover/report.xml
+          flags: solution-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
   release:
     needs: build-and-test
-    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')  # Execute only on push on branch main
+    if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -96,7 +118,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
