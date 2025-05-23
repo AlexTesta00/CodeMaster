@@ -1,7 +1,8 @@
 import { connectToDatabase } from './infrastructure/db-connection'
 import { app } from './app'
 
-const port = process.env.PORT! || 4004
+const port = Number(process.env.PORT!) || 4004
+const hostname = '0.0.0.0'
 
 const connectToDB = async () => {
   try {
@@ -15,7 +16,7 @@ const connectToDB = async () => {
 
 const startApp = () => {
   return new Promise<void>((resolve) => {
-    app.listen(port, () => {
+    app.listen(port, hostname, () => {
       console.log(`Server is running on port ${port}`)
       resolve()
     })

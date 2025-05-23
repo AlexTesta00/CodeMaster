@@ -5,7 +5,8 @@ import { pipe } from 'fp-ts/function'
 import dotenv from 'dotenv'
 
 dotenv.config()
-const port = process.env.PORT! || 3000
+const port = Number(process.env.PORT!) || 3000
+const hostname = '0.0.0.0'
 
 const connectToDB = tryCatch(
   () => connectToDatabase(),
@@ -15,7 +16,7 @@ const connectToDB = tryCatch(
 const startApp = tryCatch(
   () =>
     new Promise<void>((resolve) => {
-      app.listen(port, () => {
+      app.listen(port, hostname, () => {
         console.log(`Server is running on port ${port}`)
         resolve()
       })
