@@ -1,9 +1,9 @@
-FROM eclipse-temurin:17-jdk AS builder
+FROM eclipse-temurin:17.0.15_6-jdk AS builder
 WORKDIR /app
 COPY . .
 RUN ./gradlew clean build --no-daemon
 
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17.0.15_6-jre
 WORKDIR /codemaster-solution-service
 COPY --from=builder /app/build/libs/*.jar codemaster-solution-service.jar
 EXPOSE 3000
