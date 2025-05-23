@@ -122,7 +122,7 @@ class SolutionService(
     private fun getCommandForLanguage(language: Language): String = when (language.name) {
         "Java" -> "cd /code && javac Main.java && java Main"
         "Scala" -> "cd /code && scalac Main.scala && scala Main"
-        "Javascript" -> "cd /code && node Main.js"
+        "Kotlin" -> "cd /code && kotlinc Main.kt -include-runtime -d main.jar && java -jar main.jar"
         else -> throw IllegalArgumentException("Unsupported language: $language")
     }
 

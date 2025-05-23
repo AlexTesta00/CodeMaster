@@ -41,8 +41,6 @@ jobs:
         run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
       - name: Set SOLUTION_RUNNER_PATH environment variable
         run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
-      - name: Build multi-lang-runner
-        run: docker build -t multi-lang-runner ./multi-lang-runner
       - name: Build with Gradle
         env:
           MONGO_URI: ${{ env.MONGO_URI }}
