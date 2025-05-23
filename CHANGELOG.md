@@ -1,3 +1,31 @@
+## [1.6.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.5.0...v1.6.0) (2025-05-23)
+
+### Features
+
+* **build:** add uuid dependency ([24ad266](https://github.com/AlexTesta00/CodeMaster/commit/24ad2661cd31e6b4896b575cfa3ec17258121f6c))
+* **codemaster:** add solution-service service ([abf3d8a](https://github.com/AlexTesta00/CodeMaster/commit/abf3d8aa92e96c3eb4f6e85a573130b310c824c2))
+* **docker:** change dockerfile to run code in a container ([d93817c](https://github.com/AlexTesta00/CodeMaster/commit/d93817caafea8728fad6d763e762921e1cb5bd1e))
+* **multi-lang-runner:** add dockerfile with a script for executing solution code and update CI-CD ([48ccab5](https://github.com/AlexTesta00/CodeMaster/commit/48ccab59e5632a4561db1ef0edc949e05ed780d5))
+* **solution-repository:** add solution repository and test ([0c18d61](https://github.com/AlexTesta00/CodeMaster/commit/0c18d61e9f2f99b4bb2222766e5461b0b8ca6bcf))
+* **solution-service:** add controller and Application with tests ([b5d30c9](https://github.com/AlexTesta00/CodeMaster/commit/b5d30c920601bfa4dc76234b01b8a07e5859ba33))
+* **solution-service:** add execution service ([ce22ab7](https://github.com/AlexTesta00/CodeMaster/commit/ce22ab7fafd5d4adeb24f4a79cb9263f38e382bc))
+* **solution-service:** add new repository functionalities ([f553051](https://github.com/AlexTesta00/CodeMaster/commit/f55305119b1db4939f172df733d90ac08ec4996e))
+* **solution-service:** add new service solution-service ([6744ff8](https://github.com/AlexTesta00/CodeMaster/commit/6744ff8f168695a3f9f6f10c72eb189bb6f1a5a6))
+* **solution-service:** add solution factory and test ([2c47d8d](https://github.com/AlexTesta00/CodeMaster/commit/2c47d8d753a346370e24380ee8018de6e3aa05c0))
+* **solution-service:** add solution model and tests ([620412f](https://github.com/AlexTesta00/CodeMaster/commit/620412f41211fd35b34281b4ebe32feb59f037fd))
+* **solution-service:** add solution repository ([79976c3](https://github.com/AlexTesta00/CodeMaster/commit/79976c3807cec24da53c3d743e1708fb1a9aef0d))
+* **solution-service:** add solution service ([47e4106](https://github.com/AlexTesta00/CodeMaster/commit/47e41061d971a45d8f56147848420922642596f0))
+* **solution-service:** add solution service dockerfile and update ci-cd ([4e8d34b](https://github.com/AlexTesta00/CodeMaster/commit/4e8d34b589bd2ff78570cd02a4ac4a7267478ff4))
+* **solution-service:** add solution-service service with tests ([8a3db19](https://github.com/AlexTesta00/CodeMaster/commit/8a3db19dc3ead29fb353bf21a5b321a6d0fc32e3))
+* **solution-service:** add templates to assemble main file to execute ([a7296d5](https://github.com/AlexTesta00/CodeMaster/commit/a7296d56ed4b7eddd66eb11bf3435bb327753965))
+* **solution-service:** add testCode field to generate file to execute ([7eddb7e](https://github.com/AlexTesta00/CodeMaster/commit/7eddb7ea29d330a96a4930a66713b0fc1d3462ad))
+
+### Bug Fixes
+
+* **git:** resolve merge conflict ([358ddcd](https://github.com/AlexTesta00/CodeMaster/commit/358ddcd933feda875ae0e8ca6e6f1d0e36545e7a))
+* **gradle:** fix gradle test plugins issue ([8a364a9](https://github.com/AlexTesta00/CodeMaster/commit/8a364a90b556178f43b167c20445f283333cab77))
+* **solution-repository:** fix tests to pass CI-CD ([b4665b8](https://github.com/AlexTesta00/CodeMaster/commit/b4665b8210ba7bc75dc3f23bce08ab8e5fcf7366))
+
 ## [1.5.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.4.0...v1.5.0) (2025-05-22)
 
 ### Features
