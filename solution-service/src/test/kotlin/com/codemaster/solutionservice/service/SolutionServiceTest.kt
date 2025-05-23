@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.TestInstance
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
@@ -37,8 +36,8 @@ class SolutionServiceTest : DescribeSpec() {
     private val id1 = SolutionId.generate()
     private val id2 = SolutionId.generate()
     private val user = "user"
-    private val questId = ObjectId()
-    private val language = Language("Java", ".java", "21", "jvm")
+    private val questId = "test"
+    private val language = Language("Java", ".java")
     private val testCode =
         """
             String input1 = "test1";
@@ -107,9 +106,7 @@ class SolutionServiceTest : DescribeSpec() {
                 it("should save and retrieve solution correctly") {
                     val saved = service.addSolution(id1, user, questId, language, code, testCode)
 
-                    if (saved != null) {
-                        checkSolution(saved)
-                    }
+                    checkSolution(saved)
                 }
 
                 it("should throw excpetion if code is empty") {
@@ -142,14 +139,14 @@ class SolutionServiceTest : DescribeSpec() {
                     val founded = service.getSolution(id1)
 
                     founded shouldNotBe null
-                    checkSolution(founded!!)
+                    checkSolution(founded)
                 }
 
                 it("should retrieve al solutions with the same questId") {
                     val list = service.getSolutionsByQuestId(questId)
 
-                    list?.size shouldBe 2
-                    checkSolution(list?.first()!!)
+                    list.size shouldBe 2
+                    checkSolution(list.first())
 
                     list.last().id shouldBe id2
                     list.last().code shouldBe code
@@ -161,8 +158,8 @@ class SolutionServiceTest : DescribeSpec() {
                 it("should retrieve al solutions with the same user name") {
                     val list = service.getSolutionsByLanguage(language)
 
-                    list?.size shouldBe 2
-                    checkSolution(list?.first()!!)
+                    list.size shouldBe 2
+                    checkSolution(list.first())
 
                     list.last().id shouldBe id2
                     list.last().code shouldBe code
@@ -180,15 +177,15 @@ class SolutionServiceTest : DescribeSpec() {
                 }
 
                 it("should be empty if there are no solutions with given questId") {
-                    val fakeQuestId = ObjectId()
+                    val fakeQuestId = "fake"
 
-                    service.getSolutionsByQuestId(fakeQuestId)?.isEmpty() shouldBe true
+                    service.getSolutionsByQuestId(fakeQuestId).isEmpty() shouldBe true
                 }
 
                 it("should be empty if there are no solutions with given language") {
-                    val fakeLanguage = Language("Scala", ".scala", "3.3", "jvm")
+                    val fakeLanguage = Language("Scala", ".scala")
 
-                    service.getSolutionsByLanguage(fakeLanguage)?.isEmpty() shouldBe true
+                    service.getSolutionsByLanguage(fakeLanguage).isEmpty() shouldBe true
                 }
             }
         }
@@ -196,7 +193,7 @@ class SolutionServiceTest : DescribeSpec() {
         describe("Modify solution") {
 
             val fakeId = SolutionId.generate()
-            val newLanguage = Language("Scala", ".scala", "3.3", "jvm")
+            val newLanguage = Language("Scala", ".scala")
             val newTestCode = """
                         String test1 = "test";
                         System.out.println(print(test));
@@ -214,25 +211,25 @@ class SolutionServiceTest : DescribeSpec() {
             it("should modify solution language correctly") {
                 val modifiedSolution = service.modifySolutionLanguage(id1, newLanguage)
 
-                modifiedSolution?.id shouldBe id1
-                modifiedSolution?.language shouldBe newLanguage
+                modifiedSolution.id shouldBe id1
+                modifiedSolution.language shouldBe newLanguage
             }
 
             it("should modify solution code correctly") {
                 val modifiedSolution = service.modifySolutionCode(id1, newCode)
 
-                modifiedSolution?.id shouldBe id1
-                modifiedSolution?.code shouldBe newCode
+                modifiedSolution.id shouldBe id1
+                modifiedSolution.code shouldBe newCode
             }
 
             it("should modify solution test code correctly") {
                 val modifiedSolution = service.modifySolutionTestCode(id1, newTestCode)
 
-                modifiedSolution?.id shouldBe id1
-                modifiedSolution?.testCode shouldBe newTestCode
+                modifiedSolution.id shouldBe id1
+                modifiedSolution.testCode shouldBe newTestCode
             }
 
-            it("should throw exeption if there is no solution with given id") {
+            it("should throw exception if there is no solution with given id") {
                 shouldThrow<NoSuchElementException> {
                     service.modifySolutionLanguage(fakeId, newLanguage)
                 }
@@ -270,10 +267,16 @@ class SolutionServiceTest : DescribeSpec() {
 
         context("Compile and execute solution code") {
             val nonCompilingCode = """
-                private String print(String s) {
+                public static String myPrint(String s) {
                     return s;
                 
             """.trimIndent()
+
+            val loop = """
+                public static Void myPrint(String s) {
+                    while(true) {}
+                }
+                """.trimIndent()
 
             beforeTest {
                 service.addSolution(id1, user, questId, language, code, testCode)
@@ -283,21 +286,44 @@ class SolutionServiceTest : DescribeSpec() {
                 val solution = service.executeSolution(id1)
                 val output = "Hello World! test1\nHello World! test2"
 
-                solution?.result shouldBe ExecutionResult.Accepted(output, 0)
+                solution.result shouldBe ExecutionResult.Accepted(output, 0)
             }
 
             it("should fail if the compile is not successful") {
                 val newId = SolutionId.generate()
-                val failingSolution = SolutionFactoryImpl().create(newId, user, questId,  language, nonCompilingCode, testCode)
+                val failingSolution = SolutionFactoryImpl().create(
+                    newId,
+                    user,
+                    questId,
+                    language,
+                    nonCompilingCode,
+                    testCode
+                )
                 repository.addNewSolution(failingSolution).awaitSingleOrNull()
                 val solution = service.executeSolution(newId)
 
-                solution?.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
+                solution.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
                     "Main.java:12: error: reached end of file while parsing\n" +
                             "}\n" +
                             " ^\n" +
                             "1 error",
                     exitCode = 1)
+            }
+
+            it("should exceed timeout if computation is too heavy") {
+                val newId = SolutionId.generate()
+                val loopSolution = SolutionFactoryImpl().create(
+                    newId,
+                    user,
+                    questId,
+                    language,
+                    loop,
+                    testCode
+                )
+                repository.addNewSolution(loopSolution).awaitSingleOrNull()
+                val solution = service.executeSolution(newId)
+
+                solution.result shouldBe ExecutionResult.TimeLimitExceeded(20_000)
             }
 
             it("should throw exception if there is no solution with given id") {

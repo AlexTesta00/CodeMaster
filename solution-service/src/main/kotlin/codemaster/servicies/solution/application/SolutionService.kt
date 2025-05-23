@@ -1,11 +1,13 @@
 package codemaster.servicies.solution.application
 
+import codemaster.servicies.solution.application.errors.EmptyCodeException
+import codemaster.servicies.solution.application.errors.EmptyLanguageException
+import codemaster.servicies.solution.application.errors.EmptyTestCodeException
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.domain.repository.SolutionRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
-import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.file.Files
@@ -27,45 +29,67 @@ class SolutionService(
     suspend fun addSolution(
         id: SolutionId,
         user: String,
-        questId: ObjectId,
+        questId: String,
         language: Language,
         code: String,
         testCode: String
-    ): Solution? {
+    ): Solution {
         val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code, testCode)
-        return repository.addNewSolution(newSolution).awaitSingle()
+        val solution = repository.addNewSolution(newSolution).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("Error while inserting new solution")
     }
 
-    suspend fun modifySolutionCode(id: SolutionId, code: String): Solution? {
-        return repository.updateCode(id, code).awaitSingle()
+    suspend fun getSolution(id: SolutionId): Solution {
+        val solution = repository.findSolutionById(id).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun modifySolutionLanguage(id: SolutionId, language: Language): Solution? {
-        return repository.updateLanguage(id, language).awaitSingle()
+    suspend fun getSolutionsByQuestId(questId: String): List<Solution> {
+        val solution = repository.findSolutionsByQuestId(questId).collectList().awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun modifySolutionTestCode(id: SolutionId, testCode: String): Solution? {
-        return repository.updateTestCode(id, testCode).awaitSingle()
+    suspend fun getSolutionsByLanguage(language: Language): List<Solution> {
+        if (language.name.isBlank() || language.fileExtension.isBlank()) {
+            throw EmptyLanguageException()
+        }
+        val solution = repository.findSolutionsByLanguage(language).collectList().awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun getSolution(id: SolutionId): Solution? {
-        return repository.findSolutionById(id).awaitSingle()
+    suspend fun modifySolutionCode(id: SolutionId, code: String): Solution {
+        if (code.isBlank()) {
+            throw EmptyCodeException()
+        }
+        val solution = repository.updateCode(id, code).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun getSolutionsByQuestId(questId: ObjectId): List<Solution>? {
-        return repository.findSolutionsByQuestId(questId).collectList().awaitSingle()
+    suspend fun modifySolutionLanguage(id: SolutionId, language: Language): Solution {
+        if (language.name.isBlank() || language.fileExtension.isBlank()) {
+            throw EmptyLanguageException()
+        }
+        val solution = repository.updateLanguage(id, language).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun getSolutionsByLanguage(language: Language): List<Solution>? {
-        return repository.findSolutionsByLanguage(language).collectList().awaitSingle()
+    suspend fun modifySolutionTestCode(id: SolutionId, testCode: String): Solution {
+        if (testCode.isBlank()) {
+            throw EmptyTestCodeException()
+        }
+        val solution = repository.updateTestCode(id, testCode).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun deleteSolution(id: SolutionId): Solution? {
-        return repository.removeSolutionById(id).awaitSingle()
+    suspend fun deleteSolution(id: SolutionId): Solution {
+        val solution = repository.removeSolutionById(id).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
-    suspend fun executeSolution(id: SolutionId): Solution? {
-        val solution = repository.findSolutionById(id).awaitSingle()
+    suspend fun executeSolution(id: SolutionId): Solution {
+        val solution = repository
+            .findSolutionById(id)
+            .awaitSingleOrNull() ?: throw NoSuchElementException("No solution found in DB")
         val codeDir = resolveRunnerPath()
         val sourceFile = codeDir.resolve("Main${solution.language.fileExtension}")
 
@@ -75,8 +99,9 @@ class SolutionService(
         }
 
         val command = getCommandForLanguage(solution.language)
-        val result = getResult(codeDir, command)
-        return repository.updateResult(id, result).awaitSingle()
+        val result = getResult(codeDir, command, solution.id)
+        val updatedSolution = repository.updateResult(id, result).awaitSingleOrNull()
+        return updatedSolution ?: throw NoSuchElementException("No solution to update found in DB")
     }
 
     private fun toDockerPath(path: Path): String {
@@ -101,12 +126,14 @@ class SolutionService(
         else -> throw IllegalArgumentException("Unsupported language: $language")
     }
 
-    private suspend fun getResult(codeDir: Path, command: String): ExecutionResult {
+    private suspend fun getResult(codeDir: Path, command: String, id: SolutionId): ExecutionResult {
         lateinit var result: ExecutionResult
+        val containerName = "runner-${id.value}"
         try {
             val process = withContext(Dispatchers.IO) {
                 ProcessBuilder(
                     "docker", "run", "--rm",
+                    "--name", containerName,
                     "-v", "${toDockerPath(codeDir)}:/code",
                     "multi-lang-runner",
                     "bash", "-c", command
@@ -119,6 +146,11 @@ class SolutionService(
             }
             if (!finished) {
                 process.destroyForcibly()
+
+                withContext(Dispatchers.IO) {
+                    ProcessBuilder("docker", "rm", "-f", containerName).start().waitFor()
+                }
+
                 return ExecutionResult.TimeLimitExceeded(TIMEOUT)
             }
 

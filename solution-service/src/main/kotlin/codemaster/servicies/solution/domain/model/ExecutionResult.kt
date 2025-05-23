@@ -14,7 +14,5 @@ sealed class ExecutionResult {
         val exitCode: Int
     ) : ExecutionResult()
 
-    data class WrongAnswer(val details: String) : ExecutionResult()
-
     data class TimeLimitExceeded(val timeout: Long) : ExecutionResult()
 }
