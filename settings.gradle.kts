@@ -15,10 +15,11 @@ plugins {
 
 gitHooks {
     commitMsg { conventionalCommits() }
-    preCommit { tasks("npmTest") }
+    preCommit { tasks("npmTest", "test") }
     createHooks(true)
 }
 
 include("codequest-service")
 include("authentication-service")
 include("user-service")
+include("solution-service")

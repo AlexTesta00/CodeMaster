@@ -1,0 +1,8 @@
+object Main {
+
+  // USER_CODE_HERE
+
+  def main(args: Array[String]): Unit = {
+    // TEST_CODE_HERE
+  }
+}
