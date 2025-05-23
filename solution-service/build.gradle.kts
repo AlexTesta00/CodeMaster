@@ -134,10 +134,11 @@ tasks.test {
 
     finalizedBy(tasks.koverLog)
     finalizedBy(tasks.koverXmlReport)
+
+    dependsOn("buildMultiLangRunnerImage")
 }
 
 tasks.build {
     dependsOn(tasks.test)
     dependsOn("detekt")
-    dependsOn("buildMultiLangRunnerImage")
 }
