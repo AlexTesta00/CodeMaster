@@ -5,7 +5,6 @@ import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
-
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
@@ -102,6 +101,13 @@ tasks.check {
     dependsOn("koverVerify")
 }
 
+tasks.register<Exec>("buildMultiLangRunnerImage") {
+    group = "docker"
+    description = "Build Docker image for multi-lang-runner"
+
+    commandLine("docker", "build", "-t", "multi-lang-runner:latest", "../multi-lang-runner/")
+}
+
 tasks.koverVerify {
     dependsOn(tasks.test)
 }
@@ -133,4 +139,5 @@ tasks.test {
 tasks.build {
     dependsOn(tasks.test)
     dependsOn("detekt")
+    dependsOn("buildMultiLangRunnerImage")
 }
