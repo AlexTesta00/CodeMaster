@@ -2,13 +2,11 @@ package com.codemaster.solutionservice.interfaces
 
 import codemaster.servicies.solution.Application
 import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.model.ExecutionResult
-import codemaster.servicies.solution.domain.model.Language
-import codemaster.servicies.solution.domain.model.Solution
-import codemaster.servicies.solution.domain.model.SolutionId
+import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.interfaces.SolutionController
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -424,6 +422,38 @@ class ApiTest(
                         " ^\n" +
                         "1 error",
                 exitCode = 1)
+
+            webTestClient.get()
+                .uri("/solutions/execute/id=$id")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(id)
+                .jsonPath("$.result").isEqualTo(expectedResult)
+        }
+
+        it("should fail if there is a runtime exception") {
+            val newCode =
+                """
+                    public static Integer myPrint(String s) {
+                        return s.length();
+                    }
+                """.trimIndent()
+
+            val failingTestCode = """
+                    String input = null;
+                    System.out.println(myPrint(input));
+            """.trimIndent()
+
+            val expectedResult = ExecutionResult.Failed(error = "Non-zero exit code",
+                "Exception in thread \"main\" java.lang.NullPointerException: " +
+                        "Cannot invoke \"String.length()\" because \"<parameter1>\" is null\n" +
+                        "\tat Main.myPrint(Main.java:8)\n" +
+                        "\tat Main.main(Main.java:4)", exitCode = 1)
+
+            service.modifySolutionCode(id, newCode)
+            service.modifySolutionTestCode(id, failingTestCode)
 
             webTestClient.get()
                 .uri("/solutions/execute/id=$id")

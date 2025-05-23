@@ -37,7 +37,7 @@ class SolutionServiceTest : DescribeSpec() {
     private val id2 = SolutionId.generate()
     private val user = "user"
     private val questId = "test"
-    private val language = Language("Java", ".java")
+    private val javaLanguage = Language("Java", ".java")
     private val testCode =
         """
             String input1 = "test1";
@@ -96,7 +96,7 @@ class SolutionServiceTest : DescribeSpec() {
             solution.code shouldBe code
             solution.result shouldBe ExecutionResult.Pending
             solution.questId shouldBe questId
-            solution.language shouldBe language
+            solution.language shouldBe javaLanguage
         }
 
         describe("SolutionServiceTest") {
@@ -104,26 +104,26 @@ class SolutionServiceTest : DescribeSpec() {
             context("Add new solution") {
 
                 it("should save and retrieve solution correctly") {
-                    val saved = service.addSolution(id1, user, questId, language, code, testCode)
+                    val saved = service.addSolution(id1, user, questId, javaLanguage, code, testCode)
 
                     checkSolution(saved)
                 }
 
                 it("should throw excpetion if code is empty") {
                     shouldThrow<EmptyCodeException> {
-                        service.addSolution(id1, user, questId, language, "", testCode)
+                        service.addSolution(id1, user, questId, javaLanguage, "", testCode)
                     }
                 }
 
                 it("should throw excpetion if test code is empty") {
                     shouldThrow<EmptyCodeException> {
-                        service.addSolution(id1, user, questId, language, code, "")
+                        service.addSolution(id1, user, questId, javaLanguage, code, "")
                     }
                 }
 
                 it("should throw exception if username is invalid") {
                     shouldThrow<InvalidUserException> {
-                        service.addSolution(id1, "", questId, language, code, testCode)
+                        service.addSolution(id1, "", questId, javaLanguage, code, testCode)
                     }
                 }
             }
@@ -131,8 +131,8 @@ class SolutionServiceTest : DescribeSpec() {
             context("Find solution by id") {
 
                 beforeTest {
-                    service.addSolution(id1, user, questId, language, code, testCode)
-                    service.addSolution(id2, user, questId, language, code, testCode)
+                    service.addSolution(id1, user, questId, javaLanguage, code, testCode)
+                    service.addSolution(id2, user, questId, javaLanguage, code, testCode)
                 }
 
                 it("should retrieve solution by his id") {
@@ -152,18 +152,18 @@ class SolutionServiceTest : DescribeSpec() {
                     list.last().code shouldBe code
                     list.last().questId shouldBe questId
                     list.last().result shouldBe ExecutionResult.Pending
-                    list.last().language shouldBe language
+                    list.last().language shouldBe javaLanguage
                 }
 
                 it("should retrieve al solutions with the same user name") {
-                    val list = service.getSolutionsByLanguage(language)
+                    val list = service.getSolutionsByLanguage(javaLanguage)
 
                     list.size shouldBe 2
                     checkSolution(list.first())
 
                     list.last().id shouldBe id2
                     list.last().code shouldBe code
-                    list.last().language shouldBe language
+                    list.last().language shouldBe javaLanguage
                     list.last().result shouldBe ExecutionResult.Pending
                     list.last().questId shouldBe questId
                 }
@@ -205,7 +205,7 @@ class SolutionServiceTest : DescribeSpec() {
                     """.trimIndent()
 
             beforeTest {
-                service.addSolution(id1, user, questId, language, code, testCode)
+                service.addSolution(id1, user, questId, javaLanguage, code, testCode)
             }
 
             it("should modify solution language correctly") {
@@ -245,7 +245,7 @@ class SolutionServiceTest : DescribeSpec() {
         describe("Delete solution") {
 
             beforeTest {
-                service.addSolution(id1, user, questId, language, code, testCode)
+                service.addSolution(id1, user, questId, javaLanguage, code, testCode)
             }
 
             it("should delete solution correctly by id") {
@@ -278,8 +278,16 @@ class SolutionServiceTest : DescribeSpec() {
                 }
                 """.trimIndent()
 
+            val failingTestCode =
+                """
+                String input1 = null;
+                String input2 = "test2";
+                System.out.println(myPrint(input1));
+                System.out.println(myPrint(input2));
+            """.trimIndent()
+
             beforeTest {
-                service.addSolution(id1, user, questId, language, code, testCode)
+                service.addSolution(id1, user, questId, javaLanguage, code, testCode)
             }
 
             it("should return the correct result") {
@@ -295,7 +303,7 @@ class SolutionServiceTest : DescribeSpec() {
                     newId,
                     user,
                     questId,
-                    language,
+                    javaLanguage,
                     nonCompilingCode,
                     testCode
                 )
@@ -310,13 +318,41 @@ class SolutionServiceTest : DescribeSpec() {
                     exitCode = 1)
             }
 
+            it("should fail if there is a runtime exception") {
+                val newId = SolutionId.generate()
+                val newCode =
+                    """
+                    public static Integer myPrint(String s) {
+                        return s.length();
+                    }
+                """.trimIndent()
+
+                val failingSolution = SolutionFactoryImpl().create(
+                    newId,
+                    user,
+                    questId,
+                    javaLanguage,
+                    newCode,
+                    failingTestCode
+                )
+                repository.addNewSolution(failingSolution).awaitSingleOrNull()
+                val solution = service.executeSolution(newId)
+
+                solution.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
+                    "Exception in thread \"main\" java.lang.NullPointerException: " +
+                            "Cannot invoke \"String.length()\" because \"<parameter1>\" is null\n" +
+                            "\tat Main.myPrint(Main.java:10)\n" +
+                            "\tat Main.main(Main.java:5)",
+                    exitCode = 1)
+            }
+
             it("should exceed timeout if computation is too heavy") {
                 val newId = SolutionId.generate()
                 val loopSolution = SolutionFactoryImpl().create(
                     newId,
                     user,
                     questId,
-                    language,
+                    javaLanguage,
                     loop,
                     testCode
                 )
