@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21.0.7_6-jre
 WORKDIR /codemaster-solution-service
 COPY build/libs/*.jar codemaster-solution-service.jar
 EXPOSE 3000
