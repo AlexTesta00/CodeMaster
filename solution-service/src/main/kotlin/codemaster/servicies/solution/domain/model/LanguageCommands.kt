@@ -1,0 +1,54 @@
+package codemaster.servicies.solution.domain.model
+
+data class LanguageCommands(
+    val compileCommand: String,
+    val runCommand: String
+)
+
+object LanguageCommandProvider {
+    fun getCommandsFor(language: Language): LanguageCommands = when (language.name) {
+        "Java" -> LanguageCommands(
+            compileCommand = """
+                cd /code && \
+                javac -cp /usr/share/java/junit-platform-console-standalone.jar Main.java
+            """.trimIndent(),
+            runCommand = """
+                cd /code && \
+                java -jar /usr/share/java/junit-platform-console-standalone.jar \
+                    execute \
+                    --class-path . \
+                    --select-class Main 
+            """.trimIndent()
+        )
+
+        "Kotlin" -> LanguageCommands(
+            compileCommand = """
+                cd /code && \
+                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d main.jar
+            """.trimIndent(),
+            runCommand = """
+                cd /code && \
+                java -jar /usr/share/java/junit-platform-console-standalone.jar \
+                    execute \
+                    --class-path main.jar \
+                    --select-class Main 
+            """.trimIndent()
+        )
+
+        "Scala" -> LanguageCommands(
+            compileCommand = """
+                cd /code && \
+                scalac -cp /usr/share/java/junit-platform-console-standalone.jar Main.scala
+            """.trimIndent(),
+            runCommand = """
+                cd /code && \
+                java -jar /usr/share/java/junit-platform-console-standalone.jar \
+                    execute \
+                    --class-path . \
+                    --select-class Main 
+            """.trimIndent()
+        )
+
+        else -> throw IllegalArgumentException("Unsupported language: ${language.name}")
+    }
+}

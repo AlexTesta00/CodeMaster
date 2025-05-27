@@ -7,6 +7,8 @@ import codemaster.servicies.solution.interfaces.SolutionController
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,17 +37,19 @@ class ApiTest(
     val user = "user"
     val questId = "test"
     val language = Language("Java", ".java")
-    val testCode = """
-        String input1 = "test1";
-        String input2 = "test2";
-        System.out.println(myPrint(input1));
-        System.out.println(myPrint(input2));
-    """.trimIndent()
-    val code = """
-        public static String myPrint(String s) {
-            return "Hello World! " + s;
-        }
-    """.trimIndent()
+    val testCode =
+        """
+            @Test
+            void testFunction1() {
+                assertEquals("Hello World! test", Main.myPrint("test"));
+            }
+        """.trimIndent()
+    val code =
+        """
+            static String myPrint(String s) {
+                return "Hello World! " + s;
+            }
+        """.trimIndent()
     val solutionDTORequest = SolutionController.SolutionDTORequest(user, questId, language, code, testCode)
 
     afterEach {
@@ -387,7 +391,7 @@ class ApiTest(
         }
     }
 
-    describe("GET /solutions/execute/id={id}") {
+    describe("PUT /solutions/execute/id={id}") {
 
         beforeTest {
             runBlocking {
@@ -396,11 +400,12 @@ class ApiTest(
         }
 
         it("should execute the code correctly") {
-            val expectedResult = ExecutionResult.Accepted("Hello World! test1\nHello World! test2", 0)
+            val expectedResult = ExecutionResult.Accepted(listOf("testFunction1() [OK]"), 0)
 
-            webTestClient.get()
+            webTestClient.put()
                 .uri("/solutions/execute/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(code)
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
@@ -410,78 +415,38 @@ class ApiTest(
 
         it("should fail the execution if the code can't compile") {
             val nonCompilingCode = """
-                private String print(String s) {
+                static String myPrint(String s) {
                     return s;
                 
             """.trimIndent()
-            service.modifySolutionCode(id, nonCompilingCode)
 
-            val expectedResult = ExecutionResult.Failed(error = "Non-zero exit code",
-                "Main.java:12: error: reached end of file while parsing\n" +
-                        "}\n" +
-                        " ^\n" +
-                        "1 error",
-                exitCode = 1)
-
-            webTestClient.get()
+            webTestClient.put()
                 .uri("/solutions/execute/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(nonCompilingCode)
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.id").isEqualTo(id)
-                .jsonPath("$.result").isEqualTo(expectedResult)
-        }
-
-        it("should fail if there is a runtime exception") {
-            val newCode =
-                """
-                    public static Integer myPrint(String s) {
-                        return s.length();
-                    }
-                """.trimIndent()
-
-            val failingTestCode = """
-                    String input = null;
-                    System.out.println(myPrint(input));
-            """.trimIndent()
-
-            val expectedResult = ExecutionResult.Failed(error = "Non-zero exit code",
-                "Exception in thread \"main\" java.lang.NullPointerException: " +
-                        "Cannot invoke \"String.length()\" because \"<parameter1>\" is null\n" +
-                        "\tat Main.myPrint(Main.java:8)\n" +
-                        "\tat Main.main(Main.java:4)", exitCode = 1)
-
-            service.modifySolutionCode(id, newCode)
-            service.modifySolutionTestCode(id, failingTestCode)
-
-            webTestClient.get()
-                .uri("/solutions/execute/id=$id")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk
-                .expectBody()
-                .jsonPath("$.id").isEqualTo(id)
-                .jsonPath("$.result").isEqualTo(expectedResult)
+                .jsonPath("$.result.error").isEqualTo("Non-zero exit code")
+                .jsonPath("$.result.exitCode").isEqualTo(1)
         }
 
         it("should exceed the timeout") {
             val loop = """
-                public static Void myPrint(String s) {
+                 static Void myPrint(String s) {
                     while(true) {}
                 }
             """.trimIndent()
-
-            service.modifySolutionCode(id, loop)
 
             val customClient = webTestClient.mutate()
                 .responseTimeout(Duration.ofSeconds(25))
                 .build()
 
-            customClient
-                .get()
+            customClient.put()
                 .uri("/solutions/execute/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(loop)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.REQUEST_TIMEOUT)
         }
@@ -489,9 +454,10 @@ class ApiTest(
         it("should return 404 if no solution match the id") {
             val fakeId = SolutionId.generate()
 
-            webTestClient.get()
+            webTestClient.put()
                 .uri("/solutions/execute/id=$fakeId")
                 .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(code)
                 .exchange()
                 .expectStatus().isNotFound
         }

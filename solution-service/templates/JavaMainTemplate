@@ -1,7 +1,9 @@
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class Main {
-    public static void main(String[] args) {
-        // TEST_CODE_HERE
-    }
+
+    // TEST_CODE_HERE
 
     // USER_CODE_HERE
 }

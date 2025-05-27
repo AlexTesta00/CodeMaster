@@ -8,6 +8,8 @@ import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -139,14 +141,19 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @GetMapping("/execute/id={id}", produces = ["application/json"])
-    suspend fun executeSolutionCode(@PathVariable id : SolutionId): ResponseEntity<Solution?> {
+    @PutMapping("/execute/id={id}", produces = ["application/json"])
+    suspend fun executeSolutionCode(
+        @PathVariable id : SolutionId,
+        @RequestBody newCode: String
+    ): ResponseEntity<Solution?> {
         val solution : Solution
         try {
+            service.modifySolutionCode(id, newCode)
             solution = service.executeSolution(id)
         } catch (ex: Exception) {
             return when(ex) {
                 is NoSuchElementException -> ResponseEntity.notFound().build()
+                is EmptyCodeException -> ResponseEntity.badRequest().build()
                 else -> ResponseEntity.internalServerError().build()
             }
         }

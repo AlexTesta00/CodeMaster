@@ -10,8 +10,11 @@ import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.TestInstance
@@ -40,14 +43,19 @@ class SolutionServiceTest : DescribeSpec() {
     private val javaLanguage = Language("Java", ".java")
     private val testCode =
         """
-            String input1 = "test1";
-            String input2 = "test2";
-            System.out.println(myPrint(input1));
-            System.out.println(myPrint(input2));
+            @Test
+            void testFunction1() {
+                assertEquals("Hello World! test", Main.myPrint("test"));
+            }
+            
+            @Test
+            void testFunction2() {
+                assertEquals("Hello World! test", Main.myPrint("test"));
+            }
         """.trimIndent()
     private val code =
         """
-            public static String myPrint(String s) {
+            static String myPrint(String s) {
                 return "Hello World! " + s;
             }
         """.trimIndent()
@@ -195,8 +203,10 @@ class SolutionServiceTest : DescribeSpec() {
             val fakeId = SolutionId.generate()
             val newLanguage = Language("Scala", ".scala")
             val newTestCode = """
-                        String test1 = "test";
-                        System.out.println(print(test));
+                        @Test
+                        void testFunction1() {
+                            assertEquals("Hello World! new test", Main.myPrint("new test"));
+                        }
                     """.trimIndent()
             val newCode = """
                         private String print(String s) {
@@ -267,23 +277,23 @@ class SolutionServiceTest : DescribeSpec() {
 
         context("Compile and execute solution code") {
             val nonCompilingCode = """
-                public static String myPrint(String s) {
+                static String myPrint(String s) {
                     return s;
                 
             """.trimIndent()
 
             val loop = """
-                public static Void myPrint(String s) {
+                static Void myPrint(String s) {
                     while(true) {}
                 }
                 """.trimIndent()
 
             val failingTestCode =
                 """
-                String input1 = null;
-                String input2 = "test2";
-                System.out.println(myPrint(input1));
-                System.out.println(myPrint(input2));
+                @Test
+                void testFunction1() {
+                    assertEquals("test", Main.myPrint(null));
+                }
             """.trimIndent()
 
             beforeTest {
@@ -292,7 +302,7 @@ class SolutionServiceTest : DescribeSpec() {
 
             it("should return the correct result") {
                 val solution = service.executeSolution(id1)
-                val output = "Hello World! test1\nHello World! test2"
+                val output = listOf("testFunction1() [OK]", "testFunction2() [OK]")
 
                 solution.result shouldBe ExecutionResult.Accepted(output, 0)
             }
@@ -310,20 +320,21 @@ class SolutionServiceTest : DescribeSpec() {
                 repository.addNewSolution(failingSolution).awaitSingleOrNull()
                 val solution = service.executeSolution(newId)
 
-                solution.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
-                    "Main.java:12: error: reached end of file while parsing\n" +
-                            "}\n" +
-                            " ^\n" +
-                            "1 error",
-                    exitCode = 1)
+                println(solution.result.toString())
+                solution.result.shouldBeTypeOf<ExecutionResult.Failed>().also {
+                    it.error shouldBe "Non-zero exit code"
+                    it.exitCode shouldBe 1
+                    it.stderr shouldContain "error: reached end of file while parsing"
+                    it.stderr shouldContain "Main.java"
+                }
             }
 
             it("should fail if there is a runtime exception") {
                 val newId = SolutionId.generate()
                 val newCode =
                     """
-                    public static Integer myPrint(String s) {
-                        return s.length();
+                    static String myPrint(String input) {
+                        return input.toUpperCase();
                     }
                 """.trimIndent()
 
@@ -338,12 +349,12 @@ class SolutionServiceTest : DescribeSpec() {
                 repository.addNewSolution(failingSolution).awaitSingleOrNull()
                 val solution = service.executeSolution(newId)
 
-                solution.result shouldBe ExecutionResult.Failed(error = "Non-zero exit code",
-                    "Exception in thread \"main\" java.lang.NullPointerException: " +
-                            "Cannot invoke \"String.length()\" because \"<parameter1>\" is null\n" +
-                            "\tat Main.myPrint(Main.java:10)\n" +
-                            "\tat Main.main(Main.java:5)",
-                    exitCode = 1)
+                solution.result.shouldBeTypeOf<ExecutionResult.Failed>().also {
+                    it.error shouldBe "Non-zero exit code"
+                    it.exitCode shouldBe 1
+                    it.stderr shouldContain "NullPointerException"
+                    it.stderr shouldContain "Main.myPrint"
+                }
             }
 
             it("should exceed timeout if computation is too heavy") {
