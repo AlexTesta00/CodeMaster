@@ -4,7 +4,7 @@ sealed class ExecutionResult {
     data object Pending : ExecutionResult()
 
     data class Accepted(
-        val output: String,
+        val output: List<String>,
         val exitCode: Int
     ) : ExecutionResult()
 

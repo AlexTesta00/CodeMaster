@@ -1,5 +1,9 @@
-fun main() {
-    // TEST_CODE_HERE
-}
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
-// USER_CODE_HERE
+class Main {
+
+    // TEST_CODE_HERE
+
+    // USER_CODE_HERE
+}

@@ -98,32 +98,17 @@ class SolutionService(
             Files.writeString(sourceFile, generateCode(solution.code, solution.testCode, solution.language))
         }
 
-        val command = getCommandForLanguage(solution.language)
-        val result = getResult(codeDir, command, solution.id)
-        val updatedSolution = repository.updateResult(id, result).awaitSingleOrNull()
-        return updatedSolution ?: throw NoSuchElementException("No solution to update found in DB")
-    }
+        val commands = LanguageCommandProvider.getCommandsFor(solution.language)
 
-    private fun toDockerPath(path: Path): String {
-        val fullPath = path.toAbsolutePath().toString()
-        return if (System.getProperty("os.name").lowercase().contains("win")) {
-            fullPath
-                .replace("\\", "/")
-                .let {
-                    Regex("^([A-Za-z]):").replace(it) { match ->
-                        "/${match.groupValues[1].lowercase()}"
-                    }
-                }
-        } else {
-            fullPath
+        val compileResult = getResult(codeDir, commands.compileCommand, solution.id)
+        if (compileResult !is ExecutionResult.Accepted) {
+            return repository.updateResult(id, compileResult).awaitSingleOrNull()
+                ?: throw NoSuchElementException("No solution to update found in DB")
         }
-    }
 
-    private fun getCommandForLanguage(language: Language): String = when (language.name) {
-        "Java" -> "cd /code && javac Main.java && java Main"
-        "Scala" -> "cd /code && scalac Main.scala && scala Main"
-        "Kotlin" -> "cd /code && kotlinc Main.kt -include-runtime -d main.jar && java -jar main.jar"
-        else -> throw IllegalArgumentException("Unsupported language: $language")
+        val runResult = getResult(codeDir, commands.runCommand, solution.id)
+        val updatedSolution = repository.updateResult(id, runResult).awaitSingleOrNull()
+        return updatedSolution ?: throw NoSuchElementException("No solution to update found in DB")
     }
 
     private suspend fun getResult(codeDir: Path, command: String, id: SolutionId): ExecutionResult {
@@ -156,14 +141,15 @@ class SolutionService(
 
             val stdout = process.inputStream.bufferedReader().readText().trim()
             val stderr = process.errorStream.bufferedReader().readText().trim()
+            val parsedOutput = parseJUnitConsoleOutput(stdout)
             val exitCode = process.exitValue()
 
             result = if (exitCode == 0) {
-                ExecutionResult.Accepted(output = stdout, exitCode = 0)
+                ExecutionResult.Accepted(parsedOutput, exitCode = 0)
             } else {
                 ExecutionResult.Failed(
                     error = "Non-zero exit code",
-                    stderr = stderr.ifBlank { "No error output" },
+                    stderr = stderr.ifBlank { stdout },
                     exitCode = exitCode
                 )
             }
@@ -177,6 +163,21 @@ class SolutionService(
         return result
     }
 
+    private fun toDockerPath(path: Path): String {
+        val fullPath = path.toAbsolutePath().toString()
+        return if (System.getProperty("os.name").lowercase().contains("win")) {
+            fullPath
+                .replace("\\", "/")
+                .let {
+                    Regex("^([A-Za-z]):").replace(it) { match ->
+                        "/${match.groupValues[1].lowercase()}"
+                    }
+                }
+        } else {
+            fullPath
+        }
+    }
+
     private fun resolveRunnerPath(): Path {
         val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
         val runnerPath = envPath ?: injectedRunnerPath.takeIf { it.isNotBlank() }
@@ -188,5 +189,13 @@ class SolutionService(
         val main = Files.readString(Paths.get(System.getProperty("user.dir"),"templates", language.name+"MainTemplate"))
             .replace("// TEST_CODE_HERE", testCode)
         return main.replace("// USER_CODE_HERE", code)
+    }
+
+    private fun parseJUnitConsoleOutput(output: String): List<String> {
+        return output.lines()
+            .map {  it.replace(Regex("\u001B\\[[;\\d]*m"), "") }
+            .map { it.replace(Regex("""^[|+\-'\s]+"""), "").trim() }
+            .filter { it.matches(Regex("""testFunction\d+\(\) \[.*]""")) }
+            .map { "$it" }
     }
 }

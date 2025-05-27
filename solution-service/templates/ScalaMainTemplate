@@ -1,8 +1,10 @@
-object Main {
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+
+class Main {
 
   // USER_CODE_HERE
 
-  def main(args: Array[String]): Unit = {
-    // TEST_CODE_HERE
-  }
+  // TEST_CODE_HERE
+
 }

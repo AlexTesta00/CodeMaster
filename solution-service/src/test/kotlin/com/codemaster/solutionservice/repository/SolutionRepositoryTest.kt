@@ -40,13 +40,18 @@ class SolutionRepositoryTest : DescribeSpec() {
     private val questId = "test"
     private val language = Language("Java", ".java")
     private val testCode = """
-            String test1 = "test1";
-            System.out.println(print(test1));
-            String test2 = "test2";
-            System.out.println(print(test2));
+            @Test
+            void testFunction1() {
+                assertEquals("Hello World! test", Main.myPrint("test"));
+            }
+            
+            @Test
+            void testFunction2() {
+                assertEquals("Hello World! test", Main.myPrint("test"));
+            }
         """.trimIndent()
     private val code = """
-            private String print(String s) {
+            static String myPrint(String s) {
                 return "Hello World! " + s;
             }
         """.trimIndent()
@@ -229,7 +234,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 }
 
                 it("should update the result correctly") {
-                    val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
+                    val newResult = ExecutionResult.Accepted(listOf("1","2","3","4"), 0)
 
                     val modified = repository.updateResult(id1, newResult).awaitSingleOrNull()
 
@@ -240,7 +245,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                 it("should fail if the solution with given id does not exist in the database") {
                     val fakeId = SolutionId.generate()
                     val newLanguage = Language("Scala", ".scala")
-                    val newResult = ExecutionResult.Accepted("[1,2,3,4]", 0)
+                    val newResult = ExecutionResult.Accepted(listOf("1","2","3","4"), 0)
                     val newTestCode = """
                         String test1 = "test";
                         System.out.println(print(test));
