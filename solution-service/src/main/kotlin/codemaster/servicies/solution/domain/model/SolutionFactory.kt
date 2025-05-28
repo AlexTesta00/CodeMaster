@@ -6,6 +6,8 @@ interface SolutionFactory {
         user: String,
         questId: String,
         language: Language,
+        difficulty: Difficulty,
+        solved: Boolean,
         code: String,
         testCode: String
     ): Solution
