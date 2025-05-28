@@ -10,7 +10,9 @@ data class Solution(
     val code: String,
     val questId: String,
     val user: String,
+    val difficulty: Difficulty,
     val language: Language,
     val result: ExecutionResult = ExecutionResult.Pending,
+    val solved: Boolean,
     val testCode: String
 )
