@@ -26,13 +26,15 @@ object LanguageCommandProvider {
         "Kotlin" -> LanguageCommands(
             compileCommand = """
                 cd /code && \
-                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d .
+                mkdir -p ./out && \
+                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out && \
+                chmod -R u+w ./out
             """.trimIndent(),
             runCommand = """
                 cd /code && \
                 java -jar /usr/share/java/junit-platform-console-standalone.jar \
                     execute \
-                    --class-path .:/opt/kotlinc/lib/kotlin-stdlib.jar \
+                    --class-path ./out:/opt/kotlinc/lib/kotlin-stdlib.jar \
                     --select-class Main \
                     --details=tree \
                     --details-theme=ascii
