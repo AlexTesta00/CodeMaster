@@ -11,6 +11,7 @@ import {
 import dotenv from 'dotenv'
 import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/db-connection'
 import { UserManager } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-manager'
+import { connectToRabbit } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/publisher'
 
 describe('Test API', () => {
   const request = supertest(app)
@@ -23,6 +24,13 @@ describe('Test API', () => {
 
   beforeAll(async () => {
     dotenv.config()
+    try {
+      await connectToRabbit()
+      console.log('RabbitMQ connected successfully')
+    } catch (error) {
+      console.error('Connection to RabbitMQ unsuccessfully: ', error)
+      process.exit(1)
+    }
     await connectToDatabase()
   })
 
