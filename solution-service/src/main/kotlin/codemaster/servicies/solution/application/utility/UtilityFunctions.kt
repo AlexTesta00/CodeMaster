@@ -84,12 +84,14 @@ object UtilityFunctions {
         val containerName = "runner-${id.value}-$phase"
         return try {
             val process = withContext(Dispatchers.IO) {
+                val userAndGroup = getCurrentUserAndGroup()
                 ProcessBuilder(
                     "docker", "run", "--rm",
                     "--name", containerName,
+                    "--user", userAndGroup,
                     "-v", "${toDockerPath(codeDir)}:/code",
                     "multi-lang-runner:latest",
-                    "bash", "-c", "chmod -R +x /code && $command"
+                    "bash", "-c", command
                 ).apply {
                     if (phase == "test") redirectErrorStream(true)
                 }.start()
@@ -127,6 +129,17 @@ object UtilityFunctions {
                 "test" -> ExecutionResult.RuntimeError("Unexpected runtime error", e.message, -1)
                 else -> ExecutionResult.RuntimeError("Unknown error", e.message, -1)
             }
+        }
+    }
+
+    private fun getCurrentUserAndGroup(): String {
+        val osName = System.getProperty("os.name").lowercase()
+        return if (osName.contains("win")) {
+            "1000:1000"
+        } else {
+            val uid = ProcessBuilder("id", "-u").start().inputStream.bufferedReader().readText().trim()
+            val gid = ProcessBuilder("id", "-g").start().inputStream.bufferedReader().readText().trim()
+            "$uid:$gid"
         }
     }
 }

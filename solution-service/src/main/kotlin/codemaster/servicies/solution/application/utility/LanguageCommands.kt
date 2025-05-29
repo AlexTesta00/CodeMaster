@@ -27,8 +27,7 @@ object LanguageCommandProvider {
             compileCommand = """
                 cd /code && \
                 mkdir -p ./out && \
-                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out && \
-                chmod -R u+w ./out
+                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out
             """.trimIndent(),
             runCommand = """
                 cd /code && \
