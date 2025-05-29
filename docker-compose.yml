@@ -1,4 +1,17 @@
 services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: always
+
   mongo-user:
     image: mongo
     command: ['mongod', '--quiet', '--logpath', '/dev/null']
@@ -26,8 +39,11 @@ services:
       - '4005:4005'
     depends_on:
       - mongo-user
+      - rabbitmq
     env_file:
       - ./user-service/.env
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-authentication:
     image: mongo
@@ -56,8 +72,11 @@ services:
       - '4004:4004'
     depends_on:
       - mongo-authentication
+      - rabbitmq
     env_file:
       - ./authentication-service/.env
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-codequest:
     image: mongo
@@ -104,3 +123,4 @@ volumes:
   mongo_data_user:
   mongo_data_authentication:
   mongo_data_codequest:
+  rabbitmq_data:
