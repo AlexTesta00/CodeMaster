@@ -43,6 +43,8 @@ jobs:
         run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
       - name: Pull RabbitMQ image
         run: docker pull rabbitmq:3-management
+      - name: Set RABBITMQ_URL env variable
+        run: echo "RABBITMQ_URL=amqp://guest:guest@localhost" >> $GITHUB_ENV
       - name: Build with Gradle
         env:
           MONGO_URI: ${{ env.MONGO_URI }}
