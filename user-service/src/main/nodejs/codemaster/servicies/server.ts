@@ -3,6 +3,7 @@ import { app } from './app'
 import { tryCatch, chain } from 'fp-ts/TaskEither'
 import { pipe } from 'fp-ts/function'
 import dotenv from 'dotenv'
+import { startConsumer } from './user/infrastructure/consumer'
 
 dotenv.config()
 const port = process.env.PORT! || 3000
@@ -25,6 +26,7 @@ const startApp = tryCatch(
 
 const startServer = pipe(
   connectToDB,
+  chain(() => startConsumer),
   chain(() => startApp)
 )
 
