@@ -8,9 +8,21 @@ sealed class ExecutionResult {
         val exitCode: Int
     ) : ExecutionResult()
 
-    data class Failed(
+    data class TestsFailed(
+        val error: String,
+        val output: List<String>,
+        val exitCode: Int
+    ) : ExecutionResult()
+
+    data class CompileFailed(
         val error: String,
         val stderr: String,
+        val exitCode: Int
+    ) : ExecutionResult()
+
+    data class RuntimeError(
+        val error: String,
+        val stderr: String?,
         val exitCode: Int
     ) : ExecutionResult()
 
