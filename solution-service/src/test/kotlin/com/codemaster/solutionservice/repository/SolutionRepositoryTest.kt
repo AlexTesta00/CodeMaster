@@ -58,9 +58,12 @@ class SolutionRepositoryTest : DescribeSpec() {
             }
         """.trimIndent()
 
-    private val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, language, difficulty, solved, code, testCode)
-    private val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, language, difficulty, solved, code, testCode)
-    private val solvedSolution = SolutionFactoryImpl().create(id3, user, questId, language, difficulty, true, code, testCode)
+    private val newSolution1 = SolutionFactoryImpl()
+        .create(id1, user, questId, language, difficulty, solved, code, testCode)
+    private val newSolution2 = SolutionFactoryImpl()
+        .create(id2, user, questId, language, difficulty, solved, code, testCode)
+    private val solvedSolution = SolutionFactoryImpl()
+        .create(id3, user, questId, language, difficulty, true, code, testCode)
 
 
     init {

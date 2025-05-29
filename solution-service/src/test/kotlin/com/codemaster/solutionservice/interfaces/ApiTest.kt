@@ -6,16 +6,12 @@ import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.interfaces.SolutionController
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -37,6 +33,8 @@ class ApiTest(
     val user = "user"
     val questId = "test"
     val language = Language("Java", ".java")
+    val difficulty = Difficulty.Medium
+    val notSolved = false
     val testCode =
         """
             @Test
@@ -50,7 +48,19 @@ class ApiTest(
                 return "Hello World! " + s;
             }
         """.trimIndent()
-    val solutionDTORequest = SolutionController.SolutionDTORequest(user, questId, language, code, testCode)
+    val solutionDTORequest = SolutionController.SolutionDTORequest(
+        user,
+        questId,
+        language,
+        difficulty.name,
+        notSolved,
+        code,
+        testCode
+    )
+
+    val customWebTestClient = webTestClient.mutate()
+        .responseTimeout(Duration.ofSeconds(50))
+        .build()
 
     afterEach {
         runBlocking {
@@ -62,14 +72,15 @@ class ApiTest(
 
         it("should add new solution correctly") {
 
-            webTestClient.post()
+            val bodyContent = customWebTestClient.post()
                 .uri("/solutions/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(solutionDTORequest)
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
-                .jsonPath("$.user").isEqualTo(user)
+
+            bodyContent.jsonPath("$.user").isEqualTo(user)
                 .jsonPath("$.questId").isEqualTo(questId)
                 .jsonPath("$.language.name").isEqualTo(language.name)
                 .jsonPath("$.code").isEqualTo(code)
@@ -77,9 +88,17 @@ class ApiTest(
         }
 
         it("should return 400 if request params are empty") {
-            val invalidRequest = SolutionController.SolutionDTORequest("", "", language, "", "")
+            val invalidRequest = SolutionController.SolutionDTORequest(
+                "",
+                "",
+                language,
+                difficulty.name,
+                notSolved,
+                "",
+                ""
+            )
 
-            webTestClient.post()
+            customWebTestClient.post()
                 .uri("/solutions/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(invalidRequest)
@@ -89,9 +108,17 @@ class ApiTest(
 
         it("should return 400 if language params are empty") {
             val invalidLanguage = Language("", "")
-            val invalidRequest = SolutionController.SolutionDTORequest(user, questId, invalidLanguage, code, testCode)
+            val invalidRequest = SolutionController.SolutionDTORequest(
+                user,
+                questId,
+                invalidLanguage,
+                difficulty.name,
+                notSolved,
+                code,
+                testCode
+            )
 
-            webTestClient.post()
+            customWebTestClient.post()
                 .uri("/solutions/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(invalidRequest)
@@ -104,13 +131,13 @@ class ApiTest(
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should return a solution by id") {
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri("/solutions/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -125,7 +152,7 @@ class ApiTest(
         it("should return 404 if not found") {
             val fakeId = SolutionId.generate()
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri("/solutions/id=$fakeId")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -137,13 +164,13 @@ class ApiTest(
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should return all solutions for the given codequest id") {
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri("/solutions/questId=$questId")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -157,19 +184,117 @@ class ApiTest(
         }
     }
 
-    describe("GET /solutions/language") {
+    describe("GET /solutions/solved/user={user}") {
+
+        beforeTest {
+            val solved = true
+            val id2 = SolutionId.generate()
+            runBlocking {
+                service.addSolution(id, user, questId, language, difficulty, solved, code, testCode)
+                service.addSolution(id2, user, questId, language, difficulty, notSolved, code, testCode)
+            }
+        }
+
+        it("should find all solved solutions by a user") {
+
+            customWebTestClient.get()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/solved/user=$user")
+                        .build()
+                }
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.size()").isEqualTo(1)
+                .jsonPath("$[0].user").isEqualTo(user)
+                .jsonPath("$[0].solved").isEqualTo(true)
+        }
+    }
+
+    describe("GET /solutions/difficulty/user={user}") {
+
+        beforeTest {
+            val easy = Difficulty.Easy
+            val solved = true
+            val id2 = SolutionId.generate()
+            runBlocking {
+                service.addSolution(id, user, questId, language, difficulty, solved, code, testCode)
+                service.addSolution(id2, user, questId, language, easy, notSolved, code, testCode)
+            }
+        }
+
+        it("should find all solved solutions by user and difficulty") {
+            customWebTestClient.get()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/difficulty/user=$user")
+                        .queryParam("difficulty", difficulty.name)
+                        .build()
+                }
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.size()").isEqualTo(1)
+                .jsonPath("$[0].user").isEqualTo(user)
+                .jsonPath("$[0].solved").isEqualTo(true)
+                .jsonPath("$[0].difficulty").isEqualTo(difficulty)
+        }
+
+        it("should return 500 internal server error if difficulty is null") {
+            customWebTestClient.get()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/difficulty/user=$user")
+                        .queryParam("difficulty", null)
+                        .build()
+                }
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest
+        }
+    }
+
+    describe("GET /solutions/user={user}") {
+
+        beforeTest {
+            val user2 = "otherUser"
+            val id2 = SolutionId.generate()
+            runBlocking {
+                service.addSolution(id, user2, questId, language, difficulty, notSolved, code, testCode)
+                service.addSolution(id2, user, questId, language, difficulty, notSolved, code, testCode)
+            }
+        }
+
+        it("should find all submitted by a user") {
+            customWebTestClient.get()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/user=$user")
+                        .build()
+                }
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.size()").isEqualTo(1)
+                .jsonPath("$[0].user").isEqualTo(user)
+                .jsonPath("$[0].solved").isEqualTo(false)
+                .jsonPath("$[0].difficulty").isEqualTo(difficulty)
+        }
+    }
+
+    describe("GET /solutions/language/questId={questId}") {
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should find all solutions with given language") {
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri { uriBuilder ->
-                    uriBuilder.path("/solutions/language/")
+                    uriBuilder.path("/solutions/language/questId=$questId")
                         .queryParam("name", language.name)
                         .queryParam("extension", language.fileExtension)
                         .build()
@@ -187,9 +312,9 @@ class ApiTest(
 
         it("should return 400 bad request if language name and extension are null") {
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri { uriBuilder ->
-                    uriBuilder.path("/solutions/language/")
+                    uriBuilder.path("/solutions/language/questId=$questId")
                         .queryParam("name", null)
                         .queryParam("extension", null)
                         .build()
@@ -201,9 +326,9 @@ class ApiTest(
 
         it("should return 400 bad request if language name and extension are blank") {
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri { uriBuilder ->
-                    uriBuilder.path("/solutions/language/")
+                    uriBuilder.path("/solutions/language/questId=$questId")
                         .queryParam("name", "")
                         .queryParam("extension", "")
                         .build()
@@ -214,11 +339,62 @@ class ApiTest(
         }
     }
 
+    describe("PUT /solutions/difficulty/id={id}") {
+
+        beforeTest {
+            runBlocking {
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
+            }
+        }
+
+        it("should change difficulty of solution correctly") {
+            val newDifficulty = Difficulty.Easy
+
+            customWebTestClient.put()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/difficulty/id=$id")
+                        .queryParam("difficulty", newDifficulty.name)
+                        .build()
+                }
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(id)
+                .jsonPath("$.difficulty.name").isEqualTo(newDifficulty.name)
+        }
+
+        it("should return 500 if difficulty is null") {
+
+            customWebTestClient.put()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/difficulty/id=$id")
+                        .queryParam("difficulty", null)
+                        .build()
+                }
+                .exchange()
+                .expectStatus().isBadRequest
+        }
+
+        it("should return 404 if id is not found") {
+            val fakeId = SolutionId.generate()
+
+            customWebTestClient.put()
+                .uri { uriBuilder ->
+                    uriBuilder.path("/solutions/difficulty/id=$fakeId")
+                        .queryParam("difficulty", difficulty)
+                        .build()
+                }
+                .exchange()
+                .expectStatus().isNotFound
+        }
+
+    }
+
     describe("PUT /solutions/language/id={id}") {
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
@@ -226,7 +402,7 @@ class ApiTest(
             val newLanguage = Language("Scala", ".scala")
             val request = SolutionController.LanguageDTORequest(newLanguage)
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/language/id=$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
@@ -242,7 +418,7 @@ class ApiTest(
             val fakeId = SolutionId.generate()
             val newLanguage = Language("Scala", ".scala")
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/language/id=$fakeId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(mapOf("language" to newLanguage))
@@ -254,7 +430,7 @@ class ApiTest(
             val invalidId = null
             val newLanguage = Language("Scala", ".scala")
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/language/id=$invalidId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(mapOf("language" to newLanguage))
@@ -266,7 +442,7 @@ class ApiTest(
             val invalidId = null
             val newLanguage = Language("", "")
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/language/id=$invalidId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(mapOf("language" to newLanguage))
@@ -279,14 +455,14 @@ class ApiTest(
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should update the code of solution correctly") {
             val newCode = "new code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/code/id=$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newCode)
@@ -301,7 +477,7 @@ class ApiTest(
             val fakeId = SolutionId.generate()
             val newCode = "new code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/code/id=$fakeId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newCode)
@@ -313,7 +489,7 @@ class ApiTest(
             val invalidId = null
             val newCode = "new code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/code/id=$invalidId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newCode)
@@ -324,7 +500,7 @@ class ApiTest(
         it("should return 400 if the code is blank") {
             val newCode = ""
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/code/id=$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newCode)
@@ -337,14 +513,14 @@ class ApiTest(
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should update the code of solution correctly") {
             val newTestCode = "new test code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/test-code/id=$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newTestCode)
@@ -359,7 +535,7 @@ class ApiTest(
             val fakeId = SolutionId.generate()
             val newTestCode = "new test code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/test-code/id=$fakeId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newTestCode)
@@ -371,7 +547,7 @@ class ApiTest(
             val invalidId = null
             val newTestCode = "new test code"
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/test-code/id=$invalidId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newTestCode)
@@ -382,7 +558,7 @@ class ApiTest(
         it("should return 400 if the test code is blank") {
             val newTestCode = ""
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/test-code/id=$id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(newTestCode)
@@ -393,16 +569,56 @@ class ApiTest(
 
     describe("PUT /solutions/execute/id={id}") {
 
+        val loop = """
+                static Void myPrint(String s) {
+                    while(true) {}
+                }
+                """.trimIndent()
+
+        val failingTests = """
+                @Test
+                void testFunction1() {
+                    assertEquals("Hello World! test", Main.myPrint("test"));
+                }
+    
+                @Test
+                void testFunction2() {
+                    assertEquals("Hello World! test", Main.myPrint(""));
+                }
+            """.trimIndent()
+
+        val runtimeException =
+            """
+                @Test
+                void testFunction1() {
+                    assertEquals("test", Main.myPrint(null));
+                }
+            """.trimIndent()
+
+        val failSolutionId = SolutionId.generate()
+        val exceptionSolutionId = SolutionId.generate()
+
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
+                service.addSolution(failSolutionId, user, questId, language, difficulty, notSolved, code, failingTests)
+                service.addSolution(
+                    exceptionSolutionId,
+                    user,
+                    questId,
+                    language,
+                    difficulty,
+                    notSolved,
+                    code,
+                    runtimeException
+                )
             }
         }
 
         it("should execute the code correctly") {
             val expectedResult = ExecutionResult.Accepted(listOf("testFunction1() [OK]"), 0)
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/execute/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(code)
@@ -413,48 +629,67 @@ class ApiTest(
                 .jsonPath("$.result").isEqualTo(expectedResult)
         }
 
-        it("should fail the execution if the code can't compile") {
-            val nonCompilingCode = """
-                static String myPrint(String s) {
-                    return s;
-                
-            """.trimIndent()
+        it("should fail one test") {
+            val expectedResult = ExecutionResult.Accepted(
+                listOf(
+                    "testFunction1() [OK]",
+                    "testFunction2() [X] expected: <Hello World! test> but was: <Hello World! >"
+                ), 1)
 
-            webTestClient.put()
-                .uri("/solutions/execute/id=$id")
+            customWebTestClient.put()
+                .uri("/solutions/execute/id=$failSolutionId")
                 .accept(MediaType.APPLICATION_JSON)
-                .bodyValue(nonCompilingCode)
+                .bodyValue(code)
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
-                .jsonPath("$.id").isEqualTo(id)
-                .jsonPath("$.result.error").isEqualTo("Non-zero exit code")
-                .jsonPath("$.result.exitCode").isEqualTo(1)
+                .jsonPath("$.solved").isEqualTo(false)
+                .jsonPath("$.id").isEqualTo(failSolutionId)
+                .jsonPath("$.result").isEqualTo(expectedResult)
+        }
+
+        it("should fail due to a runtime exception") {
+            val newCode =
+                """
+                    static String myPrint(String input) {
+                        return input.toUpperCase();
+                    }
+                """.trimIndent()
+            val expectedResult = ExecutionResult.TestsFailed(
+                "Tests failed",
+                listOf("testFunction1() [X] Cannot invoke \"String.toUpperCase()\" because \"<parameter1>\" is null"),
+                1
+            )
+
+            customWebTestClient.put()
+                .uri("/solutions/execute/id=$exceptionSolutionId")
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(newCode)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(exceptionSolutionId)
+                .jsonPath("$.result").isEqualTo(expectedResult)
         }
 
         it("should exceed the timeout") {
-            val loop = """
-                 static Void myPrint(String s) {
-                    while(true) {}
-                }
-            """.trimIndent()
 
-            val customClient = webTestClient.mutate()
-                .responseTimeout(Duration.ofSeconds(25))
-                .build()
+            val expectedResult = ExecutionResult.TimeLimitExceeded(20_000)
 
-            customClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/execute/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(loop)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.REQUEST_TIMEOUT)
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.result").isEqualTo(expectedResult)
         }
 
         it("should return 404 if no solution match the id") {
             val fakeId = SolutionId.generate()
 
-            webTestClient.put()
+            customWebTestClient.put()
                 .uri("/solutions/execute/id=$fakeId")
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(code)
@@ -463,17 +698,61 @@ class ApiTest(
         }
     }
 
+    describe("PUT /solutions/compile/id={id}") {
+
+        val nonCompilingCode = """
+                static String myPrint(String s) {
+                    return s;
+                
+            """.trimIndent()
+
+        beforeTest {
+            runBlocking {
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
+            }
+        }
+
+        it("should compile the code correctly") {
+            val output = emptyList<String>()
+
+            customWebTestClient.put()
+                .uri("/solutions/compile/id=$id")
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(code)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$").isEqualTo(ExecutionResult.Accepted(output, 0))
+        }
+
+        it("should fail the execution if the code can't compile") {
+
+            customWebTestClient.put()
+                .uri("/solutions/compile/id=$id")
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(nonCompilingCode)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.error").isEqualTo("Compilation failed")
+                .jsonPath("$.stderr").isEqualTo("Main.java:14: error: reached end of file while parsing\n" +
+                        "}\n" +
+                        " ^\n" +
+                        "1 error")
+        }
+    }
+
     describe("DELETE /solutions/id={id}") {
 
         beforeTest {
             runBlocking {
-                service.addSolution(id, user, questId, language, code, testCode)
+                service.addSolution(id, user, questId, language, difficulty, notSolved, code, testCode)
             }
         }
 
         it("should delete the solution correctly") {
 
-            webTestClient.delete()
+            customWebTestClient.delete()
                 .uri("/solutions/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -481,7 +760,7 @@ class ApiTest(
                 .expectBody()
                 .jsonPath("$.id").isEqualTo(id)
 
-            webTestClient.get()
+            customWebTestClient.get()
                 .uri("/solutions/id=$id")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
@@ -491,7 +770,7 @@ class ApiTest(
         it("should return 404 if there is no solution with given id") {
             val fakeId = SolutionId.generate()
 
-            webTestClient.delete()
+            customWebTestClient.delete()
                 .uri("/solutions/id=$fakeId")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()

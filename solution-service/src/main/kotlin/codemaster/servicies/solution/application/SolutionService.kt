@@ -3,18 +3,16 @@ package codemaster.servicies.solution.application
 import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
 import codemaster.servicies.solution.application.errors.EmptyTestCodeException
+import codemaster.servicies.solution.application.utility.LanguageCommandProvider
+import codemaster.servicies.solution.application.utility.UtilityFunctions.parseJUnitConsoleOutput
+import codemaster.servicies.solution.application.utility.UtilityFunctions.prepareCodeDir
+import codemaster.servicies.solution.application.utility.UtilityFunctions.runDockerCommand
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.domain.repository.SolutionRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 
 @Service
 class SolutionService(
@@ -31,29 +29,51 @@ class SolutionService(
         user: String,
         questId: String,
         language: Language,
+        difficulty: Difficulty,
+        solved: Boolean,
         code: String,
         testCode: String
     ): Solution {
-        val newSolution = SolutionFactoryImpl().create(id, user, questId, language, code, testCode)
+        val newSolution = SolutionFactoryImpl().create(id, user, questId, language, difficulty, solved, code, testCode)
         val solution = repository.addNewSolution(newSolution).awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("Error while inserting new solution")
     }
 
     suspend fun getSolution(id: SolutionId): Solution {
         val solution = repository.findSolutionById(id).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB with id = \"$id\"")
     }
 
     suspend fun getSolutionsByQuestId(questId: String): List<Solution> {
         val solution = repository.findSolutionsByQuestId(questId).collectList().awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB with questId = \"$questId\"")
     }
 
-    suspend fun getSolutionsByLanguage(language: Language): List<Solution> {
+    suspend fun getSolvedSolutionsByUser(user: String): List<Solution> {
+        val solution = repository.findSolvedSolutionsByUser(user).collectList().awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB created by \"$user\"")
+    }
+
+    suspend fun getSolutionsByUserAndDifficulty(user: String, difficulty: Difficulty): List<Solution> {
+        val solution = repository
+            .findSolutionsByUserAndDifficulty(user, difficulty)
+            .collectList()
+            .awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException(
+            "No solved solution found in DB created by $user or with difficulty \"${difficulty.name}\""
+        )
+    }
+
+    suspend fun getSolutionsByUser(user: String): List<Solution> {
+        val solution = repository.findSolutionsByUser(user).collectList().awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB submitted by \"$user\"")
+    }
+
+    suspend fun getSolutionsByLanguage(language: Language, questId: String): List<Solution> {
         if (language.name.isBlank() || language.fileExtension.isBlank()) {
             throw EmptyLanguageException()
         }
-        val solution = repository.findSolutionsByLanguage(language).collectList().awaitSingleOrNull()
+        val solution = repository.findSolutionsByLanguage(language, questId).collectList().awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("No solution found in DB")
     }
 
@@ -62,7 +82,7 @@ class SolutionService(
             throw EmptyCodeException()
         }
         val solution = repository.updateCode(id, code).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
     }
 
     suspend fun modifySolutionLanguage(id: SolutionId, language: Language): Solution {
@@ -70,7 +90,7 @@ class SolutionService(
             throw EmptyLanguageException()
         }
         val solution = repository.updateLanguage(id, language).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
     }
 
     suspend fun modifySolutionTestCode(id: SolutionId, testCode: String): Solution {
@@ -78,124 +98,75 @@ class SolutionService(
             throw EmptyTestCodeException()
         }
         val solution = repository.updateTestCode(id, testCode).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
+    }
+
+    suspend fun modifySolutionDifficulty(id: SolutionId, difficulty: Difficulty): Solution {
+        val solution = repository.updateDifficulty(id, difficulty).awaitSingleOrNull()
+        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
     }
 
     suspend fun deleteSolution(id: SolutionId): Solution {
         val solution = repository.removeSolutionById(id).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
+        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
     }
 
-    suspend fun executeSolution(id: SolutionId): Solution {
-        val solution = repository
-            .findSolutionById(id)
-            .awaitSingleOrNull() ?: throw NoSuchElementException("No solution found in DB")
-        val codeDir = resolveRunnerPath()
-        val sourceFile = codeDir.resolve("Main${solution.language.fileExtension}")
+    suspend fun compileSolution(id: SolutionId, newCode: String): ExecutionResult {
+        val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
+            ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
-        withContext(Dispatchers.IO) {
-            Files.createDirectories(codeDir)
-            Files.writeString(sourceFile, generateCode(solution.code, solution.testCode, solution.language))
-        }
-
+        val codeDir = prepareCodeDir(solution, injectedRunnerPath)
         val commands = LanguageCommandProvider.getCommandsFor(solution.language)
 
-        val compileResult = getResult(codeDir, commands.compileCommand, solution.id)
+        return runDockerCommand(
+            id,
+            codeDir,
+            commands.compileCommand,
+            "compile"
+        ) { exitCode, output ->
+            if (exitCode == 0) ExecutionResult.Accepted(emptyList(), exitCode)
+            else ExecutionResult.CompileFailed("Compilation failed", output, exitCode)
+        }
+    }
+
+    suspend fun executeSolution(id: SolutionId, newCode: String): Solution {
+        val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
+            ?: throw NoSuchElementException("No solution found in DB for id = $id")
+
+        val codeDir = prepareCodeDir(solution, injectedRunnerPath)
+        val commands = LanguageCommandProvider.getCommandsFor(solution.language)
+
+        val compileResult = runDockerCommand(
+            id,
+            codeDir,
+            commands.compileCommand,
+            "compile"
+        ) { exitCode, output ->
+            if (exitCode == 0) ExecutionResult.Accepted(emptyList(), exitCode)
+            else ExecutionResult.CompileFailed("Compilation failed", output, exitCode)
+        }
+
         if (compileResult !is ExecutionResult.Accepted) {
-            return repository.updateResult(id, compileResult).awaitSingleOrNull()
-                ?: throw NoSuchElementException("No solution to update found in DB")
+            return repository.updateResult(id, compileResult).awaitSingle()
         }
 
-        val runResult = getResult(codeDir, commands.runCommand, solution.id)
-        val updatedSolution = repository.updateResult(id, runResult).awaitSingleOrNull()
-        return updatedSolution ?: throw NoSuchElementException("No solution to update found in DB")
-    }
-
-    private suspend fun getResult(codeDir: Path, command: String, id: SolutionId): ExecutionResult {
-        lateinit var result: ExecutionResult
-        val containerName = "runner-${id.value}"
-        try {
-            val process = withContext(Dispatchers.IO) {
-                ProcessBuilder(
-                    "docker", "run", "--rm",
-                    "--name", containerName,
-                    "-v", "${toDockerPath(codeDir)}:/code",
-                    "multi-lang-runner:latest",
-                    "bash", "-c", command
-                ).redirectErrorStream(false)
-                    .start()
-            }
-
-            val finished = withContext(Dispatchers.IO) {
-                process.waitFor(TIMEOUT, TimeUnit.MILLISECONDS)
-            }
-            if (!finished) {
-                process.destroyForcibly()
-
-                withContext(Dispatchers.IO) {
-                    ProcessBuilder("docker", "rm", "-f", containerName).start().waitFor()
-                }
-
-                return ExecutionResult.TimeLimitExceeded(TIMEOUT)
-            }
-
-            val stdout = process.inputStream.bufferedReader().readText().trim()
-            val stderr = process.errorStream.bufferedReader().readText().trim()
-            val parsedOutput = parseJUnitConsoleOutput(stdout)
-            val exitCode = process.exitValue()
-
-            result = if (exitCode == 0) {
-                ExecutionResult.Accepted(parsedOutput, exitCode = 0)
-            } else {
-                ExecutionResult.Failed(
-                    error = "Non-zero exit code",
-                    stderr = stderr.ifBlank { stdout },
-                    exitCode = exitCode
-                )
-            }
-        } catch (e: ExecutionException) {
-            result = ExecutionResult.Failed(
-                error = e.message ?: "Unexpected execution error",
-                stderr = "",
-                exitCode = -1
-            )
+        val runResult = runDockerCommand(
+            id,
+            codeDir,
+            commands.runCommand,
+            "test"
+        ) { exitCode, output ->
+            val parsedOutput = parseJUnitConsoleOutput(output)
+            if (exitCode == 0) ExecutionResult.Accepted(parsedOutput, exitCode)
+            else ExecutionResult.TestsFailed("Tests failed", parsedOutput, exitCode)
         }
-        return result
-    }
 
-    private fun toDockerPath(path: Path): String {
-        val fullPath = path.toAbsolutePath().toString()
-        return if (System.getProperty("os.name").lowercase().contains("win")) {
-            fullPath
-                .replace("\\", "/")
-                .let {
-                    Regex("^([A-Za-z]):").replace(it) { match ->
-                        "/${match.groupValues[1].lowercase()}"
-                    }
-                }
-        } else {
-            fullPath
-        }
-    }
+        val wasSuccessful = runResult is ExecutionResult.Accepted &&
+                runResult.output.all { "[OK]" in it }
 
-    private fun resolveRunnerPath(): Path {
-        val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
-        val runnerPath = envPath ?: injectedRunnerPath.takeIf { it.isNotBlank() }
-        ?: Paths.get(System.getProperty("user.dir"), "build", "tmp", "code-run").toString()
-        return Paths.get(runnerPath).toAbsolutePath().normalize()
-    }
+        repository.updateSolved(id, wasSuccessful).awaitSingle()
+        val updatedSolution = repository.updateResult(id, runResult).awaitSingle()
 
-    private fun generateCode(code: String, testCode: String, language: Language): String {
-        val main = Files.readString(Paths.get(System.getProperty("user.dir"),"templates", language.name+"MainTemplate"))
-            .replace("// TEST_CODE_HERE", testCode)
-        return main.replace("// USER_CODE_HERE", code)
-    }
-
-    private fun parseJUnitConsoleOutput(output: String): List<String> {
-        return output.lines()
-            .map {  it.replace(Regex("\u001B\\[[;\\d]*m"), "") }
-            .map { it.replace(Regex("""^[|+\-'\s]+"""), "").trim() }
-            .filter { it.matches(Regex("""testFunction\d+\(\) \[.*]""")) }
-            .map { "$it" }
+        return updatedSolution
     }
 }
