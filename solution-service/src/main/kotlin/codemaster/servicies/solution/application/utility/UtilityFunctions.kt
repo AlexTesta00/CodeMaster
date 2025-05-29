@@ -89,7 +89,7 @@ object UtilityFunctions {
                     "--name", containerName,
                     "-v", "${toDockerPath(codeDir)}:/code",
                     "multi-lang-runner:latest",
-                    "bash", "-c", command
+                    "bash", "-c", "chmod -R +x /code && $command"
                 ).apply {
                     if (phase == "test") redirectErrorStream(true)
                 }.start()
