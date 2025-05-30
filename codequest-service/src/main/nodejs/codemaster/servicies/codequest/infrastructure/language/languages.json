@@ -1,14 +1,17 @@
 [
   {
     "name": "Java",
-    "versions": ["8", "11", "17", "21"]
+    "version": "17",
+    "fileExtension": ".java"
   },
   {
-    "name": "JavaScript",
-    "versions": ["ES10", "ES11", "ES12", "ES13", "ES14"]
+    "name": "Kotlin",
+    "version": "1.9.22",
+    "fileExtension": ".kt"
   },
   {
     "name": "Scala",
-    "versions": ["3.0", "3.3", "3.4", "3.5", "3.6"]
+    "version": "2.11.12",
+    "fileExtension": ".scala"
   }
 ]

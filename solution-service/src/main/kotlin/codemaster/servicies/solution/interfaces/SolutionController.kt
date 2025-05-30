@@ -4,11 +4,7 @@ import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
 import codemaster.servicies.solution.domain.errors.DomainException
-import codemaster.servicies.solution.domain.model.ExecutionResult
-import codemaster.servicies.solution.domain.model.Language
-import codemaster.servicies.solution.domain.model.Solution
-import codemaster.servicies.solution.domain.model.SolutionId
-import org.springframework.http.HttpStatus
+import codemaster.servicies.solution.domain.model.*
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -26,6 +22,8 @@ class SolutionController(private val service: SolutionService) {
                 request.user,
                 request.questId,
                 request.language,
+                Difficulty.from(request.difficulty),
+                request.solved,
                 request.code,
                 request.testCode
             )
@@ -63,10 +61,54 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
     }
 
-    @GetMapping("/language/", produces = ["application/json"])
+    @GetMapping("/solved/user={user}")
+    suspend fun getSolvedSolutionsByUser(
+        @PathVariable user: String
+    ): ResponseEntity<List<Solution>?> {
+        val solutions : List<Solution>
+
+        try {
+            solutions = service.getSolvedSolutionsByUser(user)
+        } catch(ex: NoSuchElementException) {
+            return ResponseEntity.internalServerError().build()
+        }
+
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
+    }
+
+    @GetMapping("/difficulty/user={user}")
+    suspend fun getSolutionsByUserAndDifficulty(
+        @PathVariable user: String,
+        @RequestParam difficulty: String
+    ): ResponseEntity<List<Solution>> {
+        return try {
+            val solutions = service.getSolutionsByUserAndDifficulty(user, Difficulty.from(difficulty))
+            ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
+        } catch (ex: NoSuchElementException) {
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @GetMapping("/user={user}")
+    suspend fun getSolutionsByUser(
+        @PathVariable user: String
+    ): ResponseEntity<List<Solution>?> {
+        val solutions : List<Solution>
+
+        try {
+            solutions = service.getSolutionsByUser(user)
+        } catch(ex: NoSuchElementException) {
+            return ResponseEntity.internalServerError().build()
+        }
+
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
+    }
+
+    @GetMapping("/language/questId={questId}", produces = ["application/json"])
     suspend fun getSolutionsByLanguage(
         @RequestParam name : String?,
-        @RequestParam extension : String?
+        @RequestParam extension : String?,
+        @PathVariable questId: String
     ): ResponseEntity<List<Solution>?> {
         val solutions : List<Solution>
 
@@ -76,12 +118,29 @@ class SolutionController(private val service: SolutionService) {
 
         val language = Language(name, extension)
         try {
-            solutions = service.getSolutionsByLanguage(language)
+            solutions = service.getSolutionsByLanguage(language, questId)
         } catch (ex: EmptyLanguageException) {
             return ResponseEntity.badRequest().build()
         }
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
+    }
+
+    @PutMapping("/difficulty/id={id}", produces = ["application/json"])
+    suspend fun changeSolutionDifficulty(
+        @PathVariable id : SolutionId,
+        @RequestParam difficulty: String
+    ): ResponseEntity<Solution?> {
+        val solution : Solution
+        try {
+            solution = service.modifySolutionDifficulty(id, Difficulty.from(difficulty))
+        } catch (ex: Exception) {
+            return when(ex) {
+                is NoSuchElementException -> ResponseEntity.notFound().build()
+                else -> throw ex
+            }
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
     @PutMapping("/language/id={id}", produces = ["application/json"])
@@ -139,21 +198,40 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @GetMapping("/execute/id={id}", produces = ["application/json"])
-    suspend fun executeSolutionCode(@PathVariable id : SolutionId): ResponseEntity<Solution?> {
+    @PutMapping("/execute/id={id}", produces = ["application/json"])
+    suspend fun executeSolutionCode(
+        @PathVariable id : SolutionId,
+        @RequestBody newCode: String
+    ): ResponseEntity<Solution?> {
         val solution : Solution
         try {
-            solution = service.executeSolution(id)
+            solution = service.executeSolution(id, newCode)
         } catch (ex: Exception) {
             return when(ex) {
                 is NoSuchElementException -> ResponseEntity.notFound().build()
+                is EmptyCodeException -> ResponseEntity.badRequest().build()
                 else -> ResponseEntity.internalServerError().build()
             }
         }
-        if (solution.result is ExecutionResult.TimeLimitExceeded) {
-            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(solution)
-        }
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
+    }
+
+    @PutMapping("/compile/id={id}", produces = ["application/json"])
+    suspend fun compileSolutionCode(
+        @PathVariable id : SolutionId,
+        @RequestBody newCode: String
+    ): ResponseEntity<ExecutionResult?> {
+        val result : ExecutionResult
+        try {
+            result = service.compileSolution(id, newCode)
+        } catch (ex: Exception) {
+            return when(ex) {
+                is NoSuchElementException -> ResponseEntity.notFound().build()
+                is EmptyCodeException -> ResponseEntity.badRequest().build()
+                else -> ResponseEntity.internalServerError().build()
+            }
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(result)
     }
 
     @DeleteMapping("/id={id}", produces = ["application/json"])
@@ -174,6 +252,8 @@ class SolutionController(private val service: SolutionService) {
         val user: String,
         val questId: String,
         val language: Language,
+        val difficulty: String,
+        val solved: Boolean,
         val code: String,
         val testCode: String
     )

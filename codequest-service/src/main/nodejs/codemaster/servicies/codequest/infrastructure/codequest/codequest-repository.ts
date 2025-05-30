@@ -1,6 +1,7 @@
 import { CodeQuest } from '../../domain/codequest/codequest'
 import { Problem } from '../../domain/codequest/problem'
 import { Language } from '../../domain/language/language'
+import { Difficulty } from '../../domain/codequest/difficulty'
 
 export interface CodeQuestRepository {
   save(codequest: CodeQuest): Promise<CodeQuest>
@@ -8,8 +9,10 @@ export interface CodeQuestRepository {
   findCodeQuestById(questId: string): Promise<CodeQuest>
   findCodeQuestsByAuthor(author: string): Promise<CodeQuest[]>
   findCodeQuestsByLanguage(languageName: string): Promise<CodeQuest[]>
-  updateProblem(questId: string, newProblem: Problem): Promise<void>
-  updateTitle(questId: string, newTitle: string): Promise<void>
-  updateLanguages(questId: string, newLanguages: Language[]): Promise<void>
-  delete(questId: string): Promise<void>
+  findCodeQuestsByDifficulty(difficulty: string): Promise<CodeQuest[]>
+  updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest>
+  updateTitle(questId: string, newTitle: string): Promise<CodeQuest>
+  updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest>
+  updateDifficulty(questId: string, difficulty: Difficulty): Promise<CodeQuest>
+  delete(questId: string): Promise<CodeQuest>
 }

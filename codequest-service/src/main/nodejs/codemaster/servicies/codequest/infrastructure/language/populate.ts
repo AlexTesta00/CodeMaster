@@ -6,7 +6,8 @@ export const populateLanguages = async () => {
     const language = languages[i]
     await new LanguageModel({
       name: language.name,
-      versions: language.versions,
+      version: language.version,
+      fileExtension: language.fileExtension,
     }).save()
   }
 }

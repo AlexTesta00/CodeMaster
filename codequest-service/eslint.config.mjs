@@ -8,7 +8,7 @@ import prettierConfig from 'eslint-config-prettier'
 export default [
   {
     files: ['**/*.{js,mjs,cjs,ts}'],
-    ignores: ['tests/**', '__tests__/*', 'dist/**'],
+    ignores: ['tests/**', '__tests__/**', 'dist/**'],
     languageOptions: {
       globals: {
         ...globals.browser,
