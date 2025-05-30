@@ -1,16 +1,16 @@
 import { Language } from './language'
 
 export class LanguageFactory {
-  static newLanguage(name: string, versions: string[]): Language {
+  static newLanguage(name: string, version: string, fileExtension: string): Language {
     if (!name || name == '') {
       throw new LanguageError.InvalidName('Invalid code language name')
     }
 
-    if (!versions || versions.length == 0) {
+    if (!version || version == '') {
       throw new LanguageError.InvalidVersion('Invalid version of language')
     }
 
-    return new Language(name, versions)
+    return new Language(name, version, fileExtension)
   }
 }
 

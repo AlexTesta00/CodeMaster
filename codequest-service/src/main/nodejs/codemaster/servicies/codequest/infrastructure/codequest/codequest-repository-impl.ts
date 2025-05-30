@@ -1,6 +1,6 @@
 import { CodeQuest } from '../../domain/codequest/codequest'
 import { CodeQuestFactory } from '../../domain/codequest/codequest-factory'
-import { CodeQuestModel } from './codequest-model'
+import { CodeQuestDoc, CodeQuestModel } from './codequest-model'
 import { Example } from '../../domain/codequest/example'
 import { Problem } from '../../domain/codequest/problem'
 import { Language } from '../../domain/language/language'
@@ -9,21 +9,20 @@ import { CodeQuestRepository } from './codequest-repository'
 import { Difficulty } from '../../domain/codequest/difficulty'
 
 export class CodeQuestRepositoryImpl implements CodeQuestRepository {
-
-  private buildCodeQuest(codequestDoc: any): CodeQuest {
-    const examples = codequestDoc.problem.examples.map(
-      (ex: Example) => new Example(ex.input, ex.output, ex.explanation!)
-    )
-
+  private buildCodeQuest(codequestDoc: CodeQuestDoc): CodeQuest {
     const problem = new Problem(
       codequestDoc.problem.description,
-      examples,
+      codequestDoc.problem.examples.map(
+        (ex) => new Example(ex.input, ex.output, ex.explanation!)
+      ),
       codequestDoc.problem.constraints
     )
 
-    const languages = codequestDoc.languages.map((lang: Language) =>
-      LanguageFactory.newLanguage(lang.name, lang.version)
+    const languages = codequestDoc.languages.map((lang) =>
+      LanguageFactory.newLanguage(lang.name, lang.version, lang.fileExtension)
     )
+
+    const difficulty = Difficulty.from(codequestDoc.difficulty.name)
 
     return CodeQuestFactory.newCodeQuest(
       codequestDoc.questId,
@@ -32,7 +31,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
       problem,
       codequestDoc.timestamp,
       languages,
-      Difficulty.from(codequestDoc.difficulty.name)
+      difficulty
     )
   }
 
@@ -44,7 +43,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
       title: codequest.title,
       timestamp: codequest.timestamp,
       languages: codequest.languages,
-      difficulty: codequest.difficulty
+      difficulty: codequest.difficulty,
     }).save()
 
     return this.buildCodeQuest(codequestDoc)
@@ -58,15 +57,6 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
 
   async findCodeQuestById(questId: string): Promise<CodeQuest> {
     const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
-
-    const examples = codequestDoc.problem.examples.map(
-      (ex) => new Example(ex.input, ex.output, ex.explanation!)
-    )
-    const problem = new Problem(
-      codequestDoc.problem.description,
-      examples,
-      codequestDoc.problem.constraints
-    )
 
     return this.buildCodeQuest(codequestDoc)
   }
@@ -94,19 +84,13 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
   }
 
   async updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest> {
-    await CodeQuestModel.findOneAndUpdate(
-      { questId },
-      { problem: newProblem }
-    ).orFail()
+    await CodeQuestModel.findOneAndUpdate({ questId }, { problem: newProblem }).orFail()
     const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
     return this.buildCodeQuest(codequestDoc)
   }
 
   async updateTitle(questId: string, newTitle: string): Promise<CodeQuest> {
-    await CodeQuestModel.findOneAndUpdate(
-      { questId },
-      { title: newTitle }
-    ).orFail()
+    await CodeQuestModel.findOneAndUpdate({ questId }, { title: newTitle }).orFail()
     const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
     return this.buildCodeQuest(codequestDoc)
   }
@@ -130,9 +114,7 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
   }
 
   async delete(questId: string): Promise<CodeQuest> {
-    const codequestDoc = await CodeQuestModel.findOneAndDelete(
-      { questId }
-    ).orFail()
+    const codequestDoc = await CodeQuestModel.findOneAndDelete({ questId }).orFail()
     return this.buildCodeQuest(codequestDoc)
   }
 }

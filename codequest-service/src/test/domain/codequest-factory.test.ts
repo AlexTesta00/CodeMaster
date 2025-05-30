@@ -20,8 +20,8 @@ describe('TestCodeQuestFactory', () => {
   const id = new mongoose.Types.ObjectId().toString()
   const timestamp = new Date(Date.now())
   const languages = [
-    LanguageFactory.newLanguage('Java', '17'),
-    LanguageFactory.newLanguage('Scala', '2.11.12'),
+    LanguageFactory.newLanguage('Java', '17', '.java'),
+    LanguageFactory.newLanguage('Scala', '2.11.12', '.scala'),
   ]
   const difficulty = Difficulty.Medium
 
@@ -79,7 +79,15 @@ describe('TestCodeQuestFactory', () => {
         []
       )
       expect(() => {
-        CodeQuestFactory.newCodeQuest(id, title, author, noExamples, timestamp, languages, difficulty)
+        CodeQuestFactory.newCodeQuest(
+          id,
+          title,
+          author,
+          noExamples,
+          timestamp,
+          languages,
+          difficulty
+        )
       }).toThrow(CodeQuestError.InvalidProblem)
     },
     timeout
@@ -89,7 +97,15 @@ describe('TestCodeQuestFactory', () => {
     "should throw error when create codequest if author's nickname is empty",
     async () => {
       expect(() => {
-        CodeQuestFactory.newCodeQuest(id, title, '', problem, timestamp, languages, difficulty)
+        CodeQuestFactory.newCodeQuest(
+          id,
+          title,
+          '',
+          problem,
+          timestamp,
+          languages,
+          difficulty
+        )
       }).toThrow(CodeQuestError.InvalidAuthor)
     },
     timeout
@@ -99,7 +115,15 @@ describe('TestCodeQuestFactory', () => {
     'should throw error when create codequest if title is empty',
     async () => {
       expect(() => {
-        CodeQuestFactory.newCodeQuest(id, '', author, problem, timestamp, languages, difficulty)
+        CodeQuestFactory.newCodeQuest(
+          id,
+          '',
+          author,
+          problem,
+          timestamp,
+          languages,
+          difficulty
+        )
       }).toThrow(CodeQuestError.InvalidTitle)
     },
     timeout

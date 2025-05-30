@@ -9,7 +9,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(helmet())
 
-app.use('/codequests', router)
+app.use('/api/v1/codequests', router)
 app.use(errorHandler)
 
 export { app }

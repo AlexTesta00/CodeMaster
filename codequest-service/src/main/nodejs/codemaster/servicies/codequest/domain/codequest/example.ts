@@ -6,8 +6,10 @@ export class Example {
   ) {}
 
   equals(other: Example) {
-    return  this.input == other.input &&
-            this.output == other.output &&
-            this.explanation == other.explanation
+    return (
+      this.input == other.input &&
+      this.output == other.output &&
+      this.explanation == other.explanation
+    )
   }
 }
