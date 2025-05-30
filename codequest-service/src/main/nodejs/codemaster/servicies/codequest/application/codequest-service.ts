@@ -1,6 +1,7 @@
 import { CodeQuest } from '../domain/codequest/codequest'
 import { Problem } from '../domain/codequest/problem'
 import { Language } from '../domain/language/language'
+import { Difficulty } from '../domain/codequest/difficulty'
 
 export interface CodeQuestService {
   addCodeQuest(
@@ -8,16 +9,19 @@ export interface CodeQuestService {
     author: string,
     problem: Problem,
     timestamp: Date | null,
-    languages: Language[]
+    languages: Language[],
+    difficulty: Difficulty
   ): Promise<CodeQuest>
   getCodeQuests(): Promise<CodeQuest[]>
   getCodeQuestById(questId: string): Promise<CodeQuest>
   getCodeQuestsByAuthor(author: string): Promise<CodeQuest[]>
-  getCodeQuestsByLanguage(languageName: string, versions: string[]): Promise<CodeQuest[]>
-  updateProblem(questId: string, newProblem: Problem): Promise<void>
-  updateTitle(questId: string, newTitle: string): Promise<void>
-  updateLanguages(questId: string, newLanguages: Language[]): Promise<void>
-  delete(questId: string): Promise<void>
+  getCodeQuestsByLanguage(languageName: string, version: string): Promise<CodeQuest[]>
+  getCodeQuestsByDifficulty(difficulty: string): Promise<CodeQuest[]>
+  updateDifficulty(questId: string, difficulty: Difficulty): Promise<CodeQuest>
+  updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest>
+  updateTitle(questId: string, newTitle: string): Promise<CodeQuest>
+  updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest>
+  delete(questId: string): Promise<CodeQuest>
 }
 
 export class CodeQuestServiceError {
