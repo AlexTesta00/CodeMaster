@@ -77,7 +77,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo-codequest
 
-  codequest-service:
+  codemaster-codequest-service:
     build:
       context: ./codequest-service
       dockerfile: Dockerfile
@@ -88,6 +88,34 @@ services:
       - mongo-codequest
     env_file:
       - ./codequest-service/.env
+
+  mongo-solution:
+    image: mongo
+    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
+    ports:
+      - '27020:27017'
+    volumes:
+      - mongo_data_solution:/codemaster/solution/db
+
+  mongo-express-solution:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8084:8081'
+    depends_on:
+      - mongo-solution
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-solution
+
+  codemaster-solution-service:
+    build:
+      context: ./solution-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4006:4006'
+    depends_on:
+      - mongo-solution
 
 volumes:
   mongo_data_user:
