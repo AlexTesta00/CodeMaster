@@ -17,6 +17,7 @@ import { CodeQuestModel } from '../../main/nodejs/codemaster/servicies/codequest
 import { Language } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language'
 import { CodeQuest } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
+import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
 
 dotenv.config()
 
@@ -33,14 +34,17 @@ describe('Test API', () => {
   )
   const title = 'Title example'
   const languages = [
-    LanguageFactory.newLanguage('Java', ['17', '21']),
-    LanguageFactory.newLanguage('Scala', ['3.3', '3.4']),
+    LanguageFactory.newLanguage('Java', '17'),
+    LanguageFactory.newLanguage('Scala', '2.11.12'),
   ]
+  const difficulty = Difficulty.Medium
+
   const codeQuest = {
     title: title,
     author: author,
     problem: problem,
     languages: languages,
+    difficulty: difficulty
   }
 
   const codeQuest2 = {
@@ -48,6 +52,7 @@ describe('Test API', () => {
     author: author + '2',
     problem: problem,
     languages: languages,
+    difficulty: difficulty
   }
 
   beforeAll(async () => {
@@ -68,9 +73,10 @@ describe('Test API', () => {
     expect(codequest).toHaveProperty('problem', problem)
     expect(
       codequest.languages.map((langDoc: Language) =>
-        LanguageFactory.newLanguage(langDoc.name, langDoc.versions)
+        LanguageFactory.newLanguage(langDoc.name, langDoc.version)
       )
     ).toEqual(languages)
+    expect(codequest).toHaveProperty('difficulty.name', difficulty.name)
   }
 
   describe('Test POST new codequest', () => {
@@ -210,7 +216,7 @@ describe('Test API', () => {
     it(
       'should return 404 and cannot POST codequest because languages version is empty',
       async () => {
-        const invalidLanguage = [LanguageFactory.newLanguage('Java', ['1'])]
+        const invalidLanguage = [LanguageFactory.newLanguage('Java', '1')]
         const invalidCodequest = {
           title: title,
           author: author,
@@ -232,7 +238,7 @@ describe('Test API', () => {
     it(
       'should return 404 and cannot POST codequest because languages are available',
       async () => {
-        const invalidLanguage = [LanguageFactory.newLanguage('C', ['C99'])]
+        const invalidLanguage = [LanguageFactory.newLanguage('C', 'C99')]
         const invalidCodequest = {
           title: title,
           author: author,
@@ -276,7 +282,7 @@ describe('Test API', () => {
         expect(response.body.codequests[1]).toHaveProperty('problem', problem)
         expect(
           response.body.codequests[1].languages.map((langDoc: Language) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.versions)
+            LanguageFactory.newLanguage(langDoc.name, langDoc.version)
           )
         ).toEqual(languages)
         checkCodequest(response.body.codequests[0])
@@ -322,11 +328,31 @@ describe('Test API', () => {
       async () => {
         const language = {
           name: languages[0].name,
-          versions: languages[0].versions,
+          versions: languages[0].version,
         }
         const response = await request
           .get('/codequests/languages/')
           .send(language)
+          .set('Accept', 'application/json')
+
+        expect(response.status).toBe(OK)
+        expect(response.body.message).toBe('Codequests get')
+        expect(response.body.success).toBe(true)
+        expect(response.body.codequests.length).toBe(2)
+        checkCodequest(response.body.codequests[0])
+      },
+      timeout
+    )
+
+    it(
+      'should return 200 and GET codequests by difficulty',
+      async () => {
+        const difficulty = {
+          name: Difficulty.Medium.name
+        }
+        const response = await request
+          .get('/codequests/difficulty/')
+          .send(difficulty)
           .set('Accept', 'application/json')
 
         expect(response.status).toBe(OK)
@@ -360,6 +386,24 @@ describe('Test API', () => {
 
         expect(response.status).toBe(INTERNAL_ERROR)
         expect(response.body.message).toBe('No codequest found with id: ' + fakeId)
+        expect(response.body.success).toBe(false)
+      },
+      timeout
+    )
+
+    it(
+      "should return 404 if the codequest id doesn't exist",
+      async () => {
+        const fakeDifficulty = {
+          name: Difficulty.Hard
+        }
+        const response = await request
+          .get('/codequests/difficulty')
+          .send(fakeDifficulty)
+          .set('Accept', 'application/json')
+
+        expect(response.status).toBe(NOT_FOUND)
+        expect(response.body.message).toBe('CodeQuests with difficulty \"' + fakeDifficulty.name + '\" does not exist')
         expect(response.body.success).toBe(false)
       },
       timeout
@@ -471,7 +515,7 @@ describe('Test API', () => {
           .send(codeQuest)
           .set('Accept', 'application/json')
         const id = postResponse.body.codequest.id
-        const newLanguages = [LanguageFactory.newLanguage('JavaScript', ['ES10', 'ES11'])]
+        const newLanguages = [LanguageFactory.newLanguage('Scala', '2.11.12')]
         const putResponse = await request
           .put('/codequests/codequest-languages/' + id)
           .send({ languages: newLanguages })

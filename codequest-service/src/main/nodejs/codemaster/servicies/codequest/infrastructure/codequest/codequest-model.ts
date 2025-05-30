@@ -1,6 +1,10 @@
 import mongoose, { Schema } from 'mongoose'
 import { languageSchema } from '../language/language-model'
 
+const DifficultySchema = new Schema({
+  name: { type: 'string', required: true }
+})
+
 const ExampleSchema = new Schema({
   input: { type: 'string', required: true },
   output: { type: 'string', required: true },
@@ -8,7 +12,7 @@ const ExampleSchema = new Schema({
 })
 
 const ProblemSchema = new Schema({
-  body: { type: 'string', required: true },
+  description: { type: 'string', required: true },
   examples: { type: [ExampleSchema], required: true },
   constraints: ['string'],
 })
@@ -19,7 +23,8 @@ export const CodequestSchema = new Schema({
   problem: { type: ProblemSchema, required: true },
   timestamp: { type: Date, default: Date.now() },
   title: { type: 'string', required: true },
-  languages: [languageSchema],
+  languages: { type: [languageSchema], required: true },
+  difficulty: {type: DifficultySchema, required: true }
 })
 
 export const CodeQuestModel = mongoose.model('Codequest', CodequestSchema)

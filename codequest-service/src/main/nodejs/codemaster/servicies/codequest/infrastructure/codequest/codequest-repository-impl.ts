@@ -6,8 +6,36 @@ import { Problem } from '../../domain/codequest/problem'
 import { Language } from '../../domain/language/language'
 import { LanguageFactory } from '../../domain/language/language-factory'
 import { CodeQuestRepository } from './codequest-repository'
+import { Difficulty } from '../../domain/codequest/difficulty'
 
 export class CodeQuestRepositoryImpl implements CodeQuestRepository {
+
+  private buildCodeQuest(codequestDoc: any): CodeQuest {
+    const examples = codequestDoc.problem.examples.map(
+      (ex: Example) => new Example(ex.input, ex.output, ex.explanation!)
+    )
+
+    const problem = new Problem(
+      codequestDoc.problem.description,
+      examples,
+      codequestDoc.problem.constraints
+    )
+
+    const languages = codequestDoc.languages.map((lang: Language) =>
+      LanguageFactory.newLanguage(lang.name, lang.version)
+    )
+
+    return CodeQuestFactory.newCodeQuest(
+      codequestDoc.questId,
+      codequestDoc.title,
+      codequestDoc.author,
+      problem,
+      codequestDoc.timestamp,
+      languages,
+      Difficulty.from(codequestDoc.difficulty.name)
+    )
+  }
+
   async save(codequest: CodeQuest): Promise<CodeQuest> {
     const codequestDoc = await new CodeQuestModel({
       questId: codequest.id,
@@ -16,48 +44,18 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
       title: codequest.title,
       timestamp: codequest.timestamp,
       languages: codequest.languages,
+      difficulty: codequest.difficulty
     }).save()
 
-    const examples = codequestDoc.problem.examples.map(
-      (ex) => new Example(ex.input, ex.output, ex.explanation!)
-    )
-    const problem = new Problem(
-      codequestDoc.problem.body,
-      examples,
-      codequestDoc.problem.constraints
-    )
-
-    return CodeQuestFactory.newCodeQuest(
-      codequestDoc.questId,
-      codequestDoc.title,
-      codequestDoc.author,
-      problem,
-      codequestDoc.timestamp,
-      codequestDoc.languages
-    )
+    return this.buildCodeQuest(codequestDoc)
   }
+
   async getAllCodeQuests(): Promise<CodeQuest[]> {
     const codequestDocs = await CodeQuestModel.find({})
 
-    return codequestDocs.map((codequestDoc) =>
-      CodeQuestFactory.newCodeQuest(
-        codequestDoc.questId,
-        codequestDoc.title,
-        codequestDoc.author,
-        new Problem(
-          codequestDoc.problem.body,
-          codequestDoc.problem.examples.map(
-            (ex) => new Example(ex.input, ex.output, ex.explanation!)
-          ),
-          codequestDoc.problem.constraints
-        ),
-        codequestDoc.timestamp,
-        codequestDoc.languages.map((lang) =>
-          LanguageFactory.newLanguage(lang.name, lang.versions)
-        )
-      )
-    )
+    return codequestDocs.map((codequestDoc) => this.buildCodeQuest(codequestDoc))
   }
+
   async findCodeQuestById(questId: string): Promise<CodeQuest> {
     const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
 
@@ -65,81 +63,76 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
       (ex) => new Example(ex.input, ex.output, ex.explanation!)
     )
     const problem = new Problem(
-      codequestDoc.problem.body,
+      codequestDoc.problem.description,
       examples,
       codequestDoc.problem.constraints
     )
 
-    return CodeQuestFactory.newCodeQuest(
-      codequestDoc.questId,
-      codequestDoc.title,
-      codequestDoc.author,
-      problem,
-      codequestDoc.timestamp,
-      codequestDoc.languages.map((lang) =>
-        LanguageFactory.newLanguage(lang.name, lang.versions)
-      )
-    )
+    return this.buildCodeQuest(codequestDoc)
   }
+
   async findCodeQuestsByAuthor(authorName: string): Promise<CodeQuest[]> {
     const codequestDocs = await CodeQuestModel.find({ author: authorName })
 
-    return codequestDocs.map((codequestDoc) =>
-      CodeQuestFactory.newCodeQuest(
-        codequestDoc.questId,
-        codequestDoc.title,
-        codequestDoc.author,
-        new Problem(
-          codequestDoc.problem.body,
-          codequestDoc.problem.examples.map(
-            (ex) => new Example(ex.input, ex.output, ex.explanation!)
-          ),
-          codequestDoc.problem.constraints
-        ),
-        codequestDoc.timestamp,
-        codequestDoc.languages.map((lang) =>
-          LanguageFactory.newLanguage(lang.name, lang.versions)
-        )
-      )
-    )
+    return codequestDocs.map((codequestDoc) => this.buildCodeQuest(codequestDoc))
   }
+
   async findCodeQuestsByLanguage(languageName: string): Promise<CodeQuest[]> {
     const codequestDocs = await CodeQuestModel.find({
       languages: { $elemMatch: { name: languageName } },
     })
 
-    return codequestDocs.map((codequestDoc) =>
-      CodeQuestFactory.newCodeQuest(
-        codequestDoc.questId,
-        codequestDoc.title,
-        codequestDoc.author,
-        new Problem(
-          codequestDoc.problem.body,
-          codequestDoc.problem.examples.map(
-            (ex) => new Example(ex.input, ex.output, ex.explanation!)
-          ),
-          codequestDoc.problem.constraints
-        ),
-        codequestDoc.timestamp,
-        codequestDoc.languages.map((lang) =>
-          LanguageFactory.newLanguage(lang.name, lang.versions)
-        )
-      )
-    )
+    return codequestDocs.map((codequestDoc) => this.buildCodeQuest(codequestDoc))
   }
-  async updateProblem(questId: string, newProblem: Problem): Promise<void> {
-    await CodeQuestModel.findOneAndUpdate({ questId }, { problem: newProblem }).orFail()
+
+  async findCodeQuestsByDifficulty(difficulty: string): Promise<CodeQuest[]> {
+    const codequestDocs = await CodeQuestModel.find({
+      'difficulty.name': difficulty,
+    })
+
+    return codequestDocs.map((codequestDoc) => this.buildCodeQuest(codequestDoc))
   }
-  async updateTitle(questId: string, newTitle: string): Promise<void> {
-    await CodeQuestModel.findOneAndUpdate({ questId }, { title: newTitle }).orFail()
+
+  async updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest> {
+    await CodeQuestModel.findOneAndUpdate(
+      { questId },
+      { problem: newProblem }
+    ).orFail()
+    const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
+    return this.buildCodeQuest(codequestDoc)
   }
-  async updateLanguages(questId: string, newLanguages: Language[]): Promise<void> {
+
+  async updateTitle(questId: string, newTitle: string): Promise<CodeQuest> {
+    await CodeQuestModel.findOneAndUpdate(
+      { questId },
+      { title: newTitle }
+    ).orFail()
+    const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
+    return this.buildCodeQuest(codequestDoc)
+  }
+
+  async updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest> {
     await CodeQuestModel.findOneAndUpdate(
       { questId },
       { languages: newLanguages }
     ).orFail()
+    const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
+    return this.buildCodeQuest(codequestDoc)
   }
-  async delete(questId: string): Promise<void> {
-    await CodeQuestModel.findOneAndDelete({ questId }).orFail()
+
+  async updateDifficulty(questId: string, newDifficulty: Difficulty): Promise<CodeQuest> {
+    await CodeQuestModel.findOneAndUpdate(
+      { questId },
+      { difficulty: newDifficulty }
+    ).orFail()
+    const codequestDoc = await CodeQuestModel.findOne({ questId }).orFail()
+    return this.buildCodeQuest(codequestDoc)
+  }
+
+  async delete(questId: string): Promise<CodeQuest> {
+    const codequestDoc = await CodeQuestModel.findOneAndDelete(
+      { questId }
+    ).orFail()
+    return this.buildCodeQuest(codequestDoc)
   }
 }

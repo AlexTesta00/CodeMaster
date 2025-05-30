@@ -1,6 +1,7 @@
 import { CodeQuest } from './codequest'
 import { Language } from '../language/language'
 import { Problem } from './problem'
+import { Difficulty } from './difficulty'
 
 export class CodeQuestFactory {
   static newCodeQuest(
@@ -9,13 +10,14 @@ export class CodeQuestFactory {
     author: string,
     problem: Problem,
     timestamp: Date | null,
-    languages: Language[]
+    languages: Language[],
+    difficulty: Difficulty
   ): CodeQuest {
     if (!author) {
       throw new CodeQuestError.InvalidAuthor("Invalid nickname: this user doesn't exist")
     }
 
-    if (!problem || problem.body == '') {
+    if (!problem || problem.description == '') {
       throw new CodeQuestError.InvalidProblem(
         "Invalid problem: problem's body cannot be empty"
       )
@@ -43,7 +45,7 @@ export class CodeQuestFactory {
       )
     }
 
-    return new CodeQuest(id, title, author, problem, timestamp, languages)
+    return new CodeQuest(id, title, author, problem, timestamp, languages, difficulty)
   }
 }
 

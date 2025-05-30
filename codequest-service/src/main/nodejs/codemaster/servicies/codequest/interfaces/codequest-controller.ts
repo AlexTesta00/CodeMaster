@@ -21,7 +21,8 @@ class Controller {
         req.body.author,
         req.body.problem,
         null,
-        req.body.languages
+        req.body.languages,
+        req.body.difficulty
       )
       res.status(CREATED).json({ message: 'Codequests add', success: true, codequest })
     } catch (error) {
@@ -59,6 +60,15 @@ class Controller {
     }
   }
 
+  getCodeQuestsByDifficulty =  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const codequests = await this.service.getCodeQuestsByDifficulty(req.body.name)
+      res.status(OK).json({ message: 'Codequests get', success: true, codequests })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   updateProblem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.service.updateProblem(req.params.id, req.body.problem)
@@ -80,6 +90,15 @@ class Controller {
   updateLanguages = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.service.updateLanguages(req.params.id, req.body.languages)
+      res.status(OK).json({ message: 'Codequest put', success: true })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  updateDifficulty = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.service.updateDifficulty(req.params.id, req.body.difficulty)
       res.status(OK).json({ message: 'Codequest put', success: true })
     } catch (error) {
       next(error)
