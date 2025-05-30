@@ -1,3 +1,92 @@
+## [1.6.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.1...v1.6.2) (2025-05-23)
+
+### Bug Fixes
+
+* **docker:** fix docker jar path ([b69a465](https://github.com/AlexTesta00/CodeMaster/commit/b69a465ae7623e3307b3c218378f75ad3a46eb71))
+* **docker:** fix dockerfile ([7da1277](https://github.com/AlexTesta00/CodeMaster/commit/7da1277d895e456446d22fe3ab4b91528adc4933))
+* **gradle:** add task to build multi-lang-runner docker image ([ffa7499](https://github.com/AlexTesta00/CodeMaster/commit/ffa749989939e69bc55ef417af5b01194e2b6f2d))
+* **gradle:** fix task to build multi lang runner ([4232006](https://github.com/AlexTesta00/CodeMaster/commit/42320069fced15549510b608f66a1dec89ee0074))
+* **service:** change javascript support to kotlin support ([a69e80e](https://github.com/AlexTesta00/CodeMaster/commit/a69e80e0105b43c94e14d81390929313e9dc3a30))
+* **service:** change javascript support to kotlin support ([79453e3](https://github.com/AlexTesta00/CodeMaster/commit/79453e305fada153180ce06642e8c41612e858df))
+* **solution:** change container name to multi-lang-runner:latest ([fb01528](https://github.com/AlexTesta00/CodeMaster/commit/fb01528b6e33ae9d74c9fbd6a6016c915c645761))
+
+## [1.6.1](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.0...v1.6.1) (2025-05-23)
+
+### Bug Fixes
+
+* **docker:** fix docker jar path ([1450a9c](https://github.com/AlexTesta00/CodeMaster/commit/1450a9c64d1ef21908d312c80a12784221842d36))
+
+## [1.6.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.5.0...v1.6.0) (2025-05-23)
+
+### Features
+
+* **build:** add uuid dependency ([24ad266](https://github.com/AlexTesta00/CodeMaster/commit/24ad2661cd31e6b4896b575cfa3ec17258121f6c))
+* **codemaster:** add solution-service service ([abf3d8a](https://github.com/AlexTesta00/CodeMaster/commit/abf3d8aa92e96c3eb4f6e85a573130b310c824c2))
+* **docker:** change dockerfile to run code in a container ([d93817c](https://github.com/AlexTesta00/CodeMaster/commit/d93817caafea8728fad6d763e762921e1cb5bd1e))
+* **multi-lang-runner:** add dockerfile with a script for executing solution code and update CI-CD ([48ccab5](https://github.com/AlexTesta00/CodeMaster/commit/48ccab59e5632a4561db1ef0edc949e05ed780d5))
+* **solution-repository:** add solution repository and test ([0c18d61](https://github.com/AlexTesta00/CodeMaster/commit/0c18d61e9f2f99b4bb2222766e5461b0b8ca6bcf))
+* **solution-service:** add controller and Application with tests ([b5d30c9](https://github.com/AlexTesta00/CodeMaster/commit/b5d30c920601bfa4dc76234b01b8a07e5859ba33))
+* **solution-service:** add execution service ([ce22ab7](https://github.com/AlexTesta00/CodeMaster/commit/ce22ab7fafd5d4adeb24f4a79cb9263f38e382bc))
+* **solution-service:** add new repository functionalities ([f553051](https://github.com/AlexTesta00/CodeMaster/commit/f55305119b1db4939f172df733d90ac08ec4996e))
+* **solution-service:** add new service solution-service ([6744ff8](https://github.com/AlexTesta00/CodeMaster/commit/6744ff8f168695a3f9f6f10c72eb189bb6f1a5a6))
+* **solution-service:** add solution factory and test ([2c47d8d](https://github.com/AlexTesta00/CodeMaster/commit/2c47d8d753a346370e24380ee8018de6e3aa05c0))
+* **solution-service:** add solution model and tests ([620412f](https://github.com/AlexTesta00/CodeMaster/commit/620412f41211fd35b34281b4ebe32feb59f037fd))
+* **solution-service:** add solution repository ([79976c3](https://github.com/AlexTesta00/CodeMaster/commit/79976c3807cec24da53c3d743e1708fb1a9aef0d))
+* **solution-service:** add solution service ([47e4106](https://github.com/AlexTesta00/CodeMaster/commit/47e41061d971a45d8f56147848420922642596f0))
+* **solution-service:** add solution service dockerfile and update ci-cd ([4e8d34b](https://github.com/AlexTesta00/CodeMaster/commit/4e8d34b589bd2ff78570cd02a4ac4a7267478ff4))
+* **solution-service:** add solution-service service with tests ([8a3db19](https://github.com/AlexTesta00/CodeMaster/commit/8a3db19dc3ead29fb353bf21a5b321a6d0fc32e3))
+* **solution-service:** add templates to assemble main file to execute ([a7296d5](https://github.com/AlexTesta00/CodeMaster/commit/a7296d56ed4b7eddd66eb11bf3435bb327753965))
+* **solution-service:** add testCode field to generate file to execute ([7eddb7e](https://github.com/AlexTesta00/CodeMaster/commit/7eddb7ea29d330a96a4930a66713b0fc1d3462ad))
+
+### Bug Fixes
+
+* **git:** resolve merge conflict ([358ddcd](https://github.com/AlexTesta00/CodeMaster/commit/358ddcd933feda875ae0e8ca6e6f1d0e36545e7a))
+* **gradle:** fix gradle test plugins issue ([8a364a9](https://github.com/AlexTesta00/CodeMaster/commit/8a364a90b556178f43b167c20445f283333cab77))
+* **solution-repository:** fix tests to pass CI-CD ([b4665b8](https://github.com/AlexTesta00/CodeMaster/commit/b4665b8210ba7bc75dc3f23bce08ab8e5fcf7366))
+
+## [1.5.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.4.0...v1.5.0) (2025-05-22)
+
+### Features
+
+* **authentication:** add possibility to ban and unban user from only admin account ([6c9bc7b](https://github.com/AlexTesta00/CodeMaster/commit/6c9bc7bf67895a1c20e2ac594fb60693734cadc2))
+* **authentication:** now it's possible to get all users ([729067b](https://github.com/AlexTesta00/CodeMaster/commit/729067b44c433e1b108c6324378922dd5efdf56f))
+
+### Bug Fixes
+
+* **authentication:** for update, change put with patch ([0725942](https://github.com/AlexTesta00/CodeMaster/commit/072594282b4bcc20798d48dbd01167bb1306c7b6))
+* **deps:** update dependency fp-ts to v2.16.10 ([4848095](https://github.com/AlexTesta00/CodeMaster/commit/4848095ea10c8a5eae42d65cc80424bea8bf0130))
+
+## [1.4.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.2...v1.4.0) (2025-05-22)
+
+### Features
+
+* **authentication:** add findAllUsers and possibility to ban and unban user ([4ad2808](https://github.com/AlexTesta00/CodeMaster/commit/4ad2808b31d0bfd67628038b662c46c725615011))
+* **authentication:** in authentication service, delete jwt-service and bycript-service and rewrite all function in functional programming style in particular function return Either<Error, Somethings>, this makes system more robust ([5ad322c](https://github.com/AlexTesta00/CodeMaster/commit/5ad322cd359d93cc96a58c7b27a68c3651d7acdd))
+* **authentication:** now user have role. Role can be type of 'admin' or 'user' ([bf0eb24](https://github.com/AlexTesta00/CodeMaster/commit/bf0eb2430308fc5fe2765b0a5b7e8e879e3b9db0))
+* **authentication:** now user-factory and user-repository look like more functional, delete getUserRefreshToken from user-repository because UserManager aggragate contains refresh token ([e39d599](https://github.com/AlexTesta00/CodeMaster/commit/e39d5992c5305f0d266c9e20a2035774dbce30c6))
+* **authentication:** remove error-handler middelwere, adapt api controller to current business logic, and adapt test to the current controller ([2cf8207](https://github.com/AlexTesta00/CodeMaster/commit/2cf8207014110d2199052f88814995cdb0855902))
+* **authentication:** remove error-handler middelwere, adapt api controller to current business logic, and adapt test to the current controller ([1e70952](https://github.com/AlexTesta00/CodeMaster/commit/1e709528e24b7febe009e8a16194dfcf71a56007))
+* **frontend:** in authentication service, delete jwt-service and bycript-service and rewrite all function in functional programming style in particular function return Either<Error, Somethings>, this makes system more robust ([accecaf](https://github.com/AlexTesta00/CodeMaster/commit/accecaf386e62a78f826521385f62d1f6077224f))
+
+### Bug Fixes
+
+* **authentication:** change password regex ([f9a69ba](https://github.com/AlexTesta00/CodeMaster/commit/f9a69ba2a1532fa8fa07a140806156554576b6ec))
+* **authentication:** change password regex ([d575231](https://github.com/AlexTesta00/CodeMaster/commit/d5752319965f2fccba20702c2227343a320d5141))
+* **authentication:** fix bug that was causing tests fail ([6b9f3e2](https://github.com/AlexTesta00/CodeMaster/commit/6b9f3e2250ebb0ccb035396eee1e48c27a2e4f08))
+* **authentication:** fix merge ([7b3e0f6](https://github.com/AlexTesta00/CodeMaster/commit/7b3e0f69830ed1580978a750628f4e02d7bc3599))
+* **authentication:** fix port listen into server.ts ([f2c03bd](https://github.com/AlexTesta00/CodeMaster/commit/f2c03bd187cc547ad796ac46599b8880a99573a6))
+* **authentication:** fix port listen into server.ts ([95e82be](https://github.com/AlexTesta00/CodeMaster/commit/95e82bec88caa4b0ec4445dd7bc63deade0ec18e))
+* **authentication:** integrate latest fix from develop ([30875f0](https://github.com/AlexTesta00/CodeMaster/commit/30875f096582f3bd8fc23ef57e7f934f9498d681))
+* **authentication:** launch server.ts and not app.ts ([2b6199a](https://github.com/AlexTesta00/CodeMaster/commit/2b6199a1c433fd8f50a2ed12ac9cffced5aaa62f))
+* **authentication:** launch server.ts and not app.ts ([b2244fa](https://github.com/AlexTesta00/CodeMaster/commit/b2244fa9cb821d03304ce58c5c1041c4fcf7f57e))
+* **authentication:** merge update from main ([10ed4d3](https://github.com/AlexTesta00/CodeMaster/commit/10ed4d37aea43c3064f6881f25a695af3dc9f61c))
+* **deps:** update dependency mongoose to v8.14.3 ([93408f1](https://github.com/AlexTesta00/CodeMaster/commit/93408f169d2473d585d0f76f4914b717660aff8c))
+* **deps:** update node.js dependencies ([5cb01a8](https://github.com/AlexTesta00/CodeMaster/commit/5cb01a860727ce9eee0e36121929c5c9b7f73bc0))
+* **deps:** update node.js dependencies ([41d01f8](https://github.com/AlexTesta00/CodeMaster/commit/41d01f8d456ca91ffc204e2e5b545beaa180db2b))
+* **deps:** update node.js dependencies ([90ef2f1](https://github.com/AlexTesta00/CodeMaster/commit/90ef2f1fd0f6a6fbe6a45c06f3423ada3e589db8))
+* **deps:** update node.js dependencies ([4dcdcdb](https://github.com/AlexTesta00/CodeMaster/commit/4dcdcdbe70ee80e528ccf941df4ea5626407feb8))
+* **deps:** update node.js dependencies ([50eb3b7](https://github.com/AlexTesta00/CodeMaster/commit/50eb3b759f0de0b68879bad682ee2b9d8dd5c0e8))
+
 ## [1.3.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.3.1...v1.3.2) (2025-05-14)
 
 ### Bug Fixes

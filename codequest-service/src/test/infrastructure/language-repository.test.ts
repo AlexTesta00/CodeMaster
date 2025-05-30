@@ -11,8 +11,8 @@ describe('TestLanguageRepository', () => {
   let languageRepo: LanguageRepository
 
   const timeout = 10000
-  const exampleLanguage = LanguageFactory.newLanguage('Java', ['11', '17', '21'])
-  const javaVersions = ['8', '11', '17', '21']
+  const exampleLanguage = LanguageFactory.newLanguage('Java', '17', '.java')
+  const javaVersion = '17'
   const allLanguages = Array.from(Array(languages.length).keys()).map((i) => languages[i])
 
   beforeAll(async () => {
@@ -45,7 +45,7 @@ describe('TestLanguageRepository', () => {
       async () => {
         const languageDoc = await languageRepo.findLanguage(exampleLanguage.name)
         expect(languageDoc.name).toBe(exampleLanguage.name)
-        expect(languageDoc.versions).toEqual(javaVersions)
+        expect(languageDoc.version).toEqual(javaVersion)
       },
       timeout
     )

@@ -1,9 +1,10 @@
-import org.junit.jupiter.api.Assertions._
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class Main {
 
+    // USER_CODE_HERE
+
     // TEST_CODE_HERE
 
-    // USER_CODE_HERE
 }
