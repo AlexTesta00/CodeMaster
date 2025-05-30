@@ -1,8 +1,9 @@
-object Main {
+import org.junit.jupiter.api.Assertions._
+import org.junit.jupiter.api.Test
 
-  // USER_CODE_HERE
+class Main {
 
-  def main(args: Array[String]): Unit = {
     // TEST_CODE_HERE
-  }
+
+    // USER_CODE_HERE
 }

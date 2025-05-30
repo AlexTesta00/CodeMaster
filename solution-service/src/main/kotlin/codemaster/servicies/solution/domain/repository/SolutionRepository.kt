@@ -1,20 +1,24 @@
 package codemaster.servicies.solution.domain.repository
 
-import codemaster.servicies.solution.domain.model.ExecutionResult
-import codemaster.servicies.solution.domain.model.Language
-import codemaster.servicies.solution.domain.model.Solution
-import codemaster.servicies.solution.domain.model.SolutionId
+import codemaster.servicies.solution.domain.model.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface SolutionRepository {
+
     fun addNewSolution(solution: Solution): Mono<Solution>
 
     fun findSolutionById(id: SolutionId): Mono<Solution>
 
     fun findSolutionsByQuestId(questId: String): Flux<Solution>
 
-    fun findSolutionsByLanguage(language: Language): Flux<Solution>
+    fun findSolutionsByLanguage(language: Language, questId: String): Flux<Solution>
+
+    fun findSolvedSolutionsByUser(user: String): Flux<Solution>
+
+    fun findSolutionsByUserAndDifficulty(user: String, difficulty: Difficulty): Flux<Solution>
+
+    fun findSolutionsByUser(user: String): Flux<Solution>
 
     fun updateLanguage(
         id: SolutionId,
@@ -34,6 +38,16 @@ interface SolutionRepository {
     fun updateTestCode(
         id: SolutionId,
         testCode: String
+    ): Mono<Solution>
+
+    fun updateDifficulty(
+        id: SolutionId,
+        difficulty: Difficulty
+    ): Mono<Solution>
+
+    fun updateSolved(
+        id: SolutionId,
+        solved: Boolean
     ): Mono<Solution>
 
     fun removeSolutionById(id: SolutionId): Mono<Solution>
