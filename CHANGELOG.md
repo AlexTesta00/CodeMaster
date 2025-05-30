@@ -1,3 +1,13 @@
+## [1.6.3](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.2...v1.6.3) (2025-05-30)
+
+### Bug Fixes
+
+* **ci:** change command to execute and compile kotlin code ([b513b22](https://github.com/AlexTesta00/CodeMaster/commit/b513b222348edd244263825a46623ab2e8c0fe8c))
+* **ci:** set permission for directory /build/tmp/code-run/out ([eb1320d](https://github.com/AlexTesta00/CodeMaster/commit/eb1320db6f56c25d3003f7b7cea5b456880f27aa))
+* **solution-service:** set permission directory /out to execute kotlin code ([269cd27](https://github.com/AlexTesta00/CodeMaster/commit/269cd27efb51eb1f6ff5258ec8257b976f3315b4))
+* **solution-service:** set permission of /code directory in docker command ([e3f007f](https://github.com/AlexTesta00/CodeMaster/commit/e3f007ff6b0a35f9cf94b78c54459f0fe0c006bb))
+* **solution-service:** set permissions when launching docker command ([d6a2a6f](https://github.com/AlexTesta00/CodeMaster/commit/d6a2a6fe43903dd71f26282eee07850585b68576))
+
 ## [1.6.2](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.1...v1.6.2) (2025-05-23)
 
 ### Bug Fixes
