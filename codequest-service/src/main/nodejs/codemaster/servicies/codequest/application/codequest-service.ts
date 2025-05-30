@@ -15,7 +15,11 @@ export interface CodeQuestService {
   getCodeQuests(): Promise<CodeQuest[]>
   getCodeQuestById(questId: string): Promise<CodeQuest>
   getCodeQuestsByAuthor(author: string): Promise<CodeQuest[]>
-  getCodeQuestsByLanguage(languageName: string, version: string): Promise<CodeQuest[]>
+  getCodeQuestsByLanguage(
+    languageName: string,
+    version: string,
+    fileExtension: string
+  ): Promise<CodeQuest[]>
   getCodeQuestsByDifficulty(difficulty: string): Promise<CodeQuest[]>
   updateDifficulty(questId: string, difficulty: Difficulty): Promise<CodeQuest>
   updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest>

@@ -26,8 +26,8 @@ describe('TestCodequestService', () => {
   )
   const title = 'Title example'
   const languages = [
-    LanguageFactory.newLanguage('Java', '17'),
-    LanguageFactory.newLanguage('Scala', '2.11.12'),
+    LanguageFactory.newLanguage('Java', '17', '.java'),
+    LanguageFactory.newLanguage('Scala', '2.11.12', '.scala'),
   ]
   const difficulty = Difficulty.Medium
 
@@ -43,7 +43,6 @@ describe('TestCodequestService', () => {
     await mongoose.disconnect()
     await mongoServer.stop()
   }, timeout)
-
 
   afterEach(async () => {
     await CodeQuestModel.deleteMany({})
@@ -70,7 +69,11 @@ describe('TestCodequestService', () => {
         expect(codequest.author).toBe(author)
         expect(
           codequest.languages.map((langDoc) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+            LanguageFactory.newLanguage(
+              langDoc.name,
+              langDoc.version,
+              langDoc.fileExtension
+            )
           )
         ).toEqual(languages)
         expect(codequest.difficulty).toBe(difficulty)
@@ -81,39 +84,47 @@ describe('TestCodequestService', () => {
     it(
       'should throw error if languages does not exist in the database',
       async () => {
-        const invalidLanguage = LanguageFactory.newLanguage('C', 'C99')
+        const invalidLanguage = LanguageFactory.newLanguage('C', 'C99', '.c')
 
         await expect(() =>
-          service.addCodeQuest(title, author, problem, null, [invalidLanguage], difficulty)
+          service.addCodeQuest(
+            title,
+            author,
+            problem,
+            null,
+            [invalidLanguage],
+            difficulty
+          )
         ).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
-      },
-      timeout
-    )
-
-    it(
-      'should throw error if language version does not exist in the database',
-      async () => {
-        const invalidLanguage = LanguageFactory.newLanguage('Java', '1')
-
-        await expect(() =>
-          service.addCodeQuest(title, author, problem, null, [invalidLanguage], difficulty)
-        ).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
       },
       timeout
     )
   })
 
   describe('TEST get codequests', () => {
-
     it(
       'should retrieve all codequests',
       async () => {
         const codequests = []
         codequests.push(
-          await service.addCodeQuest('Code quest 1', author, problem, null, languages, difficulty)
+          await service.addCodeQuest(
+            'Code quest 1',
+            author,
+            problem,
+            null,
+            languages,
+            difficulty
+          )
         )
         codequests.push(
-          await service.addCodeQuest('Code quest 2', author, problem, null, languages, difficulty)
+          await service.addCodeQuest(
+            'Code quest 2',
+            author,
+            problem,
+            null,
+            languages,
+            difficulty
+          )
         )
 
         expect((await service.getCodeQuests()).length).toBe(codequests.length)
@@ -156,7 +167,11 @@ describe('TestCodequestService', () => {
         expect(foundCodequest.author).toBe(newCodequest.author)
         expect(
           foundCodequest.languages.map((langDoc) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+            LanguageFactory.newLanguage(
+              langDoc.name,
+              langDoc.version,
+              langDoc.fileExtension
+            )
           )
         ).toEqual(languages)
         expect(foundCodequest.difficulty).toBe(difficulty)
@@ -203,7 +218,11 @@ describe('TestCodequestService', () => {
           expect(codequest.author).toBe(newCodequest.author)
           expect(
             codequest.languages.map((langDoc) =>
-              LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+              LanguageFactory.newLanguage(
+                langDoc.name,
+                langDoc.version,
+                langDoc.fileExtension
+              )
             )
           ).toEqual(languages)
           expect(codequest.difficulty).toBe(difficulty)
@@ -223,7 +242,9 @@ describe('TestCodequestService', () => {
           languages,
           difficulty
         )
-        const foundCodequests = await service.getCodeQuestsByDifficulty(newCodequest.difficulty.name)
+        const foundCodequests = await service.getCodeQuestsByDifficulty(
+          newCodequest.difficulty.name
+        )
 
         foundCodequests.forEach((codequest) => {
           expect(codequest).not.toBeNull()
@@ -238,7 +259,11 @@ describe('TestCodequestService', () => {
           expect(codequest.author).toBe(newCodequest.author)
           expect(
             codequest.languages.map((langDoc) =>
-              LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+              LanguageFactory.newLanguage(
+                langDoc.name,
+                langDoc.version,
+                langDoc.fileExtension
+              )
             )
           ).toEqual(languages)
           expect(codequest.difficulty).toBe(difficulty)
@@ -260,11 +285,13 @@ describe('TestCodequestService', () => {
         )
         const language = LanguageFactory.newLanguage(
           languages[0].name,
-          languages[0].version
+          languages[0].version,
+          languages[0].fileExtension
         )
         const foundCodequests = await service.getCodeQuestsByLanguage(
           language.name,
-          language.version
+          language.version,
+          language.fileExtension
         )
 
         foundCodequests.forEach((codequest) => {
@@ -280,7 +307,11 @@ describe('TestCodequestService', () => {
           expect(codequest.author).toBe(newCodequest.author)
           expect(
             codequest.languages.map((langDoc) =>
-              LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+              LanguageFactory.newLanguage(
+                langDoc.name,
+                langDoc.version,
+                langDoc.fileExtension
+              )
             )
           ).toContainEqual(language)
           expect(codequest.difficulty).toBe(difficulty)
@@ -292,38 +323,29 @@ describe('TestCodequestService', () => {
     it(
       'should throw error if languages does not exist in the database',
       async () => {
-        const invalidLanguage = LanguageFactory.newLanguage('C', 'C99')
+        const invalidLanguage = LanguageFactory.newLanguage('C', 'C99', '.c')
 
         await expect(() =>
-          service.getCodeQuestsByLanguage(invalidLanguage.name, invalidLanguage.version)
+          service.getCodeQuestsByLanguage(
+            invalidLanguage.name,
+            invalidLanguage.version,
+            invalidLanguage.fileExtension
+          )
         ).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
-      },
-      timeout
-    )
-
-    it(
-      'should throw error if language version does not exist in the database',
-      async () => {
-        const invalidLanguage = LanguageFactory.newLanguage('Java', '1')
-
-        await expect(() =>
-          service.getCodeQuestsByLanguage(invalidLanguage.name, invalidLanguage.version)
-        ).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
       },
       timeout
     )
   })
 
   describe('TEST update codequests', () => {
-
-    var codequest: CodeQuest
+    let codequest: CodeQuest
     const newProblem = new Problem(
       'New Problem',
       [new Example('input', 'output', 'explanation')],
       []
     )
     const newId = new mongoose.Types.ObjectId().toString()
-    const newLanguages = [LanguageFactory.newLanguage('Java', '17')]
+    const newLanguages = [LanguageFactory.newLanguage('Java', '17', '.java')]
     const newTitle = 'New Title'
     const newDifficulty = Difficulty.Easy
 
@@ -345,7 +367,6 @@ describe('TestCodequestService', () => {
     it(
       "should update a codequest' problem correctly",
       async () => {
-
         const updatedCodequest = await service.updateProblem(codequest.id, newProblem)
         expect(updatedCodequest.problem.description).toBe(newProblem.description)
         expect(
@@ -361,7 +382,6 @@ describe('TestCodequestService', () => {
     it(
       "should update a codequest's title correctly",
       async () => {
-
         const updatedCodequest = await service.updateTitle(codequest.id, newTitle)
         expect(updatedCodequest.title).toBe(newTitle)
       },
@@ -371,11 +391,14 @@ describe('TestCodequestService', () => {
     it(
       "should update a codequest's Languages correctly",
       async () => {
-
         const updatedCodequest = await service.updateLanguages(codequest.id, newLanguages)
         expect(
           updatedCodequest.languages.map((langDoc) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+            LanguageFactory.newLanguage(
+              langDoc.name,
+              langDoc.version,
+              langDoc.fileExtension
+            )
           )
         ).toEqual(newLanguages)
       },
@@ -385,11 +408,11 @@ describe('TestCodequestService', () => {
     it(
       "should update a codequest's difficulty correctly",
       async () => {
-
-        const updatedCodequest = await service.updateDifficulty(codequest.id, newDifficulty)
-        expect(
-          updatedCodequest.difficulty
-        ).toEqual(newDifficulty)
+        const updatedCodequest = await service.updateDifficulty(
+          codequest.id,
+          newDifficulty
+        )
+        expect(updatedCodequest.difficulty).toEqual(newDifficulty)
       },
       timeout
     )
@@ -397,7 +420,7 @@ describe('TestCodequestService', () => {
     it(
       'should throw error if the given new languages are not available',
       async () => {
-        const newLanguages = [LanguageFactory.newLanguage('C', 'C99')]
+        const newLanguages = [LanguageFactory.newLanguage('C', 'C99', '.c')]
 
         await expect(() =>
           service.updateLanguages(codequest.id, newLanguages)
@@ -407,24 +430,11 @@ describe('TestCodequestService', () => {
     )
 
     it(
-      'should throw error if the given new languages versions are not available',
-      async () => {
-        const newLanguages = [LanguageFactory.newLanguage('Java', '1')]
-
-        await expect(() =>
-          service.updateLanguages(codequest.id, newLanguages)
-        ).rejects.toThrow(CodeQuestServiceError.LanguageVersionNotFound)
-      },
-      timeout
-    )
-
-    it(
       'should throw error if there are no codequest to update with given id',
       async () => {
-
-        await expect(() => service.updateDifficulty(newId, newDifficulty)).rejects.toThrow(
-          CodeQuestServiceError.CodeQuestNotFound
-        )
+        await expect(() =>
+          service.updateDifficulty(newId, newDifficulty)
+        ).rejects.toThrow(CodeQuestServiceError.CodeQuestNotFound)
         await expect(() => service.updateProblem(newId, newProblem)).rejects.toThrow(
           CodeQuestServiceError.CodeQuestNotFound
         )

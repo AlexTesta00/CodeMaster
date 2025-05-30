@@ -41,10 +41,7 @@ class Controller {
 
   getCodeQuestsByLanguage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const codequests = await this.service.getCodeQuestsByLanguage(
-        req.body.name,
-        req.body.versions
-      )
+      const codequests = await this.service.getCodeQuestsByLanguage(req.body.name)
       res.status(OK).json({ message: 'Codequests get', success: true, codequests })
     } catch (error) {
       next(error)
@@ -60,7 +57,7 @@ class Controller {
     }
   }
 
-  getCodeQuestsByDifficulty =  async (req: Request, res: Response, next: NextFunction) => {
+  getCodeQuestsByDifficulty = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const codequests = await this.service.getCodeQuestsByDifficulty(req.body.name)
       res.status(OK).json({ message: 'Codequests get', success: true, codequests })

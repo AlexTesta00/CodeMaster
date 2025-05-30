@@ -4,15 +4,16 @@ import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codeques
 describe('TestCodeQuestFactory', () => {
   const timeout = 10000
   const name = 'Java'
-  const versions = ['17', '21']
+  const version = '17'
+  const fileExtension = '.java'
 
   it(
     'should create language with correct values',
     async () => {
-      const language = LanguageFactory.newLanguage(name, versions)
+      const language = LanguageFactory.newLanguage(name, version, fileExtension)
       expect(language).not.toBeNull()
       expect(language.name).toBe(name)
-      expect(language.versions).toBe(versions)
+      expect(language.version).toBe(version)
     },
     timeout
   )
@@ -21,7 +22,7 @@ describe('TestCodeQuestFactory', () => {
     'should throw error when create codequest if language name is invalid',
     async () => {
       expect(() => {
-        LanguageFactory.newLanguage('', versions)
+        LanguageFactory.newLanguage('', version, fileExtension)
       }).toThrow(LanguageError.InvalidName)
     },
     timeout
@@ -31,7 +32,7 @@ describe('TestCodeQuestFactory', () => {
     'should throw error when create codequest if language versions is empty',
     async () => {
       expect(() => {
-        LanguageFactory.newLanguage(name, [])
+        LanguageFactory.newLanguage(name, '', fileExtension)
       }).toThrow(LanguageError.InvalidVersion)
     },
     timeout

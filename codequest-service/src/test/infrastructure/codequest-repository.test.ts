@@ -22,8 +22,8 @@ describe('TestCodeQuestRepository', () => {
   )
   const title = 'Sum of numbers in a list'
   const languages = [
-    LanguageFactory.newLanguage('Java', '17'),
-    LanguageFactory.newLanguage('Scala', '2.11.12'),
+    LanguageFactory.newLanguage('Java', '17', '.java'),
+    LanguageFactory.newLanguage('Scala', '2.11.12', '.scala'),
   ]
   const difficulty = Difficulty.Medium
   const firstCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(
@@ -83,7 +83,11 @@ describe('TestCodeQuestRepository', () => {
         expect(foundCodeQuest?.author).toBe(author)
         expect(
           foundCodeQuest?.languages.map((langDoc) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.version)
+            LanguageFactory.newLanguage(
+              langDoc.name,
+              langDoc.version,
+              langDoc.fileExtension
+            )
           )
         ).toEqual(languages)
         expect(foundCodeQuest?.difficulty.name).toBe(difficulty.name)
@@ -144,7 +148,10 @@ describe('TestCodeQuestRepository', () => {
           []
         )
         newCodequest.problem = newProblem
-        const updatedCodequest = await codequestRepo.updateProblem(firstCodequest.id, newProblem)
+        const updatedCodequest = await codequestRepo.updateProblem(
+          firstCodequest.id,
+          newProblem
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -155,7 +162,10 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const newCodequest = firstCodequest
         newCodequest.title = 'New Title'
-        const updatedCodequest = await codequestRepo.updateTitle(firstCodequest.id, 'New Title')
+        const updatedCodequest = await codequestRepo.updateTitle(
+          firstCodequest.id,
+          'New Title'
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -166,7 +176,9 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const newCodequest = firstCodequest
         newCodequest.languages = [languages[0]]
-        const updatedCodequest = await codequestRepo.updateLanguages(firstCodequest.id, [languages[0]])
+        const updatedCodequest = await codequestRepo.updateLanguages(firstCodequest.id, [
+          languages[0],
+        ])
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -177,7 +189,10 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const newCodequest = firstCodequest
         newCodequest.difficulty = Difficulty.Easy
-        const updatedCodequest = await codequestRepo.updateDifficulty(firstCodequest.id, Difficulty.Easy)
+        const updatedCodequest = await codequestRepo.updateDifficulty(
+          firstCodequest.id,
+          Difficulty.Easy
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
