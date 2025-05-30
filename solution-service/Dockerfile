@@ -1,6 +1,7 @@
 FROM eclipse-temurin:21.0.7_6-jdk AS builder
 WORKDIR /app
 COPY . .
+RUN chmod +x ./gradlew
 RUN ./gradlew clean build --no-daemon
 
 FROM eclipse-temurin:21.0.7_6-jre
