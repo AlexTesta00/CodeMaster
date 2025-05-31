@@ -11,6 +11,11 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo-user:
     image: mongo
@@ -26,7 +31,8 @@ services:
     ports:
       - '8081:8081'
     depends_on:
-      - mongo-user
+      mongo-user:
+        condition: service_started
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo-user
 
@@ -38,8 +44,10 @@ services:
     ports:
       - '4005:4005'
     depends_on:
-      - mongo-user
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      mongo-user:
+        condition: service_started
     env_file:
       - ./user-service/.env
     environment:
@@ -59,7 +67,8 @@ services:
     ports:
       - '8082:8081'
     depends_on:
-      - mongo-authentication
+      mongo-authentication:
+        condition: service_started
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo-authentication
 
@@ -71,8 +80,10 @@ services:
     ports:
       - '4004:4004'
     depends_on:
-      - mongo-authentication
-      - rabbitmq
+      mongo-authentication:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     env_file:
       - ./authentication-service/.env
     environment:
@@ -92,7 +103,8 @@ services:
     ports:
       - '8083:8081'
     depends_on:
-      - mongo-codequest
+      mongo-codequest:
+        condition: service_started
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo-codequest
 
@@ -104,7 +116,8 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - mongo-codequest
+      mongo-codequest:
+        condition: service_started
     env_file:
       - ./codequest-service/.env
 
@@ -115,9 +128,12 @@ services:
     ports:
       - '80:80'
     depends_on:
-      - codemaster-user-service
-      - codemaster-authentication-service
-      - codequest-service
+      codemaster-user-service:
+        condition: service_started
+      codemaster-authentication-service:
+        condition: service_started
+      codequest-service:
+        condition: service_started
 
 volumes:
   mongo_data_user:
