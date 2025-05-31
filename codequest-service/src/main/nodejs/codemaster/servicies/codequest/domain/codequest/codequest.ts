@@ -1,5 +1,6 @@
 import { Language } from '../language/language'
 import { Problem } from './problem'
+import { Difficulty } from './difficulty'
 
 export class CodeQuest {
   constructor(
@@ -8,6 +9,7 @@ export class CodeQuest {
     public author: string,
     public problem: Problem,
     public timestamp: Date | null,
-    public languages: Language[]
+    public languages: Language[],
+    public difficulty: Difficulty
   ) {}
 }

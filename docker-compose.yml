@@ -108,6 +108,17 @@ services:
     env_file:
       - ./codequest-service/.env
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    depends_on:
+      - codemaster-user-service
+      - codemaster-authentication-service
+      - codequest-service
+
 volumes:
   mongo_data_user:
   mongo_data_authentication:

@@ -8,6 +8,7 @@ import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codeques
 import { Problem } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem'
 import { Example } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example'
 import { MongoMemoryServer } from 'mongodb-memory-server'
+import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
 
 describe('TestCodeQuestRepository', () => {
   const timeout = 10000
@@ -17,20 +18,22 @@ describe('TestCodeQuestRepository', () => {
   const problem = new Problem(
     'Given two lists, sum all elements in a new list',
     [new Example('l1 = [2,4,3], l2 = [5,6,4]', '[7,0,8]', '342 + 465 = 807')],
-    null
+    []
   )
   const title = 'Sum of numbers in a list'
   const languages = [
-    LanguageFactory.newLanguage('Java', ['17', '21']),
-    LanguageFactory.newLanguage('Scala', ['3.3', '3.4']),
+    LanguageFactory.newLanguage('Java', '17', '.java'),
+    LanguageFactory.newLanguage('Scala', '2.11.12', '.scala'),
   ]
+  const difficulty = Difficulty.Medium
   const firstCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(
     new mongoose.Types.ObjectId().toString(),
     title,
     author,
     problem,
     null,
-    languages
+    languages,
+    difficulty
   )
   const secondCodequest: CodeQuest = CodeQuestFactory.newCodeQuest(
     new mongoose.Types.ObjectId().toString(),
@@ -38,7 +41,8 @@ describe('TestCodeQuestRepository', () => {
     author,
     problem,
     null,
-    languages
+    languages,
+    difficulty
   )
 
   beforeAll(async () => {
@@ -68,7 +72,7 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const foundCodeQuest = await codequestRepo.findCodeQuestById(firstCodequest.id)
         expect(foundCodeQuest).not.toBeNull()
-        expect(foundCodeQuest?.problem.body).toBe(problem.body)
+        expect(foundCodeQuest?.problem.description).toBe(problem.description)
         expect(
           foundCodeQuest?.problem.examples.map(
             (ex) => new Example(ex.input, ex.output, ex.explanation!)
@@ -79,9 +83,14 @@ describe('TestCodeQuestRepository', () => {
         expect(foundCodeQuest?.author).toBe(author)
         expect(
           foundCodeQuest?.languages.map((langDoc) =>
-            LanguageFactory.newLanguage(langDoc.name, langDoc.versions)
+            LanguageFactory.newLanguage(
+              langDoc.name,
+              langDoc.version,
+              langDoc.fileExtension
+            )
           )
         ).toEqual(languages)
+        expect(foundCodeQuest?.difficulty.name).toBe(difficulty.name)
       },
       timeout
     )
@@ -100,6 +109,15 @@ describe('TestCodeQuestRepository', () => {
       'should return all codequests created',
       async () => {
         const codequests = await codequestRepo.getAllCodeQuests()
+        expect(codequests.length).toBe(2)
+      },
+      timeout
+    )
+
+    it(
+      'should return all codequests by given difficulty',
+      async () => {
+        const codequests = await codequestRepo.findCodeQuestsByDifficulty(difficulty.name)
         expect(codequests.length).toBe(2)
       },
       timeout
@@ -127,11 +145,13 @@ describe('TestCodeQuestRepository', () => {
               '342 + 465 + 123 = 930'
             ),
           ],
-          null
+          []
         )
         newCodequest.problem = newProblem
-        await codequestRepo.updateProblem(firstCodequest.id, newProblem)
-        const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id)
+        const updatedCodequest = await codequestRepo.updateProblem(
+          firstCodequest.id,
+          newProblem
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -142,8 +162,10 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const newCodequest = firstCodequest
         newCodequest.title = 'New Title'
-        await codequestRepo.updateTitle(firstCodequest.id, 'New Title')
-        const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id)
+        const updatedCodequest = await codequestRepo.updateTitle(
+          firstCodequest.id,
+          'New Title'
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -154,8 +176,23 @@ describe('TestCodeQuestRepository', () => {
       async () => {
         const newCodequest = firstCodequest
         newCodequest.languages = [languages[0]]
-        await codequestRepo.updateLanguages(firstCodequest.id, [languages[0]])
-        const updatedCodequest = await codequestRepo.findCodeQuestById(firstCodequest.id)
+        const updatedCodequest = await codequestRepo.updateLanguages(firstCodequest.id, [
+          languages[0],
+        ])
+        expect(updatedCodequest).toStrictEqual(newCodequest)
+      },
+      timeout
+    )
+
+    it(
+      'should update the difficulty of the codequest as expected',
+      async () => {
+        const newCodequest = firstCodequest
+        newCodequest.difficulty = Difficulty.Easy
+        const updatedCodequest = await codequestRepo.updateDifficulty(
+          firstCodequest.id,
+          Difficulty.Easy
+        )
         expect(updatedCodequest).toStrictEqual(newCodequest)
       },
       timeout
@@ -166,9 +203,9 @@ describe('TestCodeQuestRepository', () => {
     it(
       'should delete the codequest succesfully',
       async () => {
-        await codequestRepo.delete(firstCodequest.id)
+        const updatedCodequest = await codequestRepo.delete(firstCodequest.id)
         expect(
-          await CodeQuestModel.findOne({ questId: firstCodequest.id }).exec()
+          await CodeQuestModel.findOne({ questId: updatedCodequest.id }).exec()
         ).toBeNull()
       },
       timeout

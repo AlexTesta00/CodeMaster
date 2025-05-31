@@ -6,12 +6,16 @@ import { LanguageRepository } from './language-repository'
 export class LanguageRepositoryImpl implements LanguageRepository {
   async findLanguage(languageName: string): Promise<Language> {
     const languageDoc = await LanguageModel.findOne({ name: languageName }).orFail()
-    return LanguageFactory.newLanguage(languageDoc.name, languageDoc.versions)
+    return LanguageFactory.newLanguage(
+      languageDoc.name,
+      languageDoc.version,
+      languageDoc.fileExtension
+    )
   }
   async getAllLanguages(): Promise<Language[]> {
     const languageDocs = await LanguageModel.find({}).orFail()
     return languageDocs.map((lang) =>
-      LanguageFactory.newLanguage(lang.name, lang.versions)
+      LanguageFactory.newLanguage(lang.name, lang.version, lang.fileExtension)
     )
   }
 }
