@@ -81,7 +81,7 @@ class ScalaExecutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository, System.getProperty("user.home") + "/code-run")
+            service = SolutionService(repository)
         }
 
         afterSpec {
@@ -96,7 +96,7 @@ class ScalaExecutionServiceTest : DescribeSpec() {
             }
         }
 
-        describe("JavaExecutionServiceTest") {
+        describe("ScalaExecutionServiceTest") {
 
             context("Compile and execute solution code") {
                 val loop = """

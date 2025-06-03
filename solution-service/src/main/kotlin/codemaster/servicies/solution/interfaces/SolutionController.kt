@@ -5,6 +5,7 @@ import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
 import codemaster.servicies.solution.domain.errors.DomainException
 import codemaster.servicies.solution.domain.model.*
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,7 +22,7 @@ class SolutionController(private val service: SolutionService) {
                 SolutionId.generate(),
                 request.user,
                 request.questId,
-                request.language,
+                Language(request.language.name, request.language.fileExtension),
                 Difficulty.from(request.difficulty),
                 request.solved,
                 request.code,
@@ -148,7 +149,7 @@ class SolutionController(private val service: SolutionService) {
         @PathVariable id : SolutionId,
         @RequestBody newLanguage: LanguageDTORequest
     ): ResponseEntity<Solution?> {
-        val language = newLanguage.language
+        val language = Language(newLanguage.name, newLanguage.fileExtension)
         val solution : Solution
         try {
             solution = service.modifySolutionLanguage(id, language)
@@ -218,21 +219,25 @@ class SolutionController(private val service: SolutionService) {
 
     @PutMapping("/compile/{id}", produces = ["application/json"])
     suspend fun compileSolutionCode(
-        @PathVariable id : SolutionId,
+        @PathVariable id: SolutionId,
         @RequestBody newCode: String
-    ): ResponseEntity<ExecutionResult?> {
-        val result : ExecutionResult
-        try {
-            result = service.compileSolution(id, newCode)
+    ): ResponseEntity<ExecutionResult> {
+        val logger = LoggerFactory.getLogger(this::class.java)
+        return try {
+            val result = service.compileSolution(id, newCode)
+            ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result)
         } catch (ex: Exception) {
-            return when(ex) {
+            logger.error("Error compiling solution with id=$id", ex)
+            when (ex) {
                 is NoSuchElementException -> ResponseEntity.notFound().build()
                 is EmptyCodeException -> ResponseEntity.badRequest().build()
                 else -> ResponseEntity.internalServerError().build()
             }
         }
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(result)
     }
+
 
     @DeleteMapping("/{id}", produces = ["application/json"])
     suspend fun deleteSolution(@PathVariable id: SolutionId): ResponseEntity<Solution?> {
@@ -251,7 +256,7 @@ class SolutionController(private val service: SolutionService) {
     data class SolutionDTORequest(
         val user: String,
         val questId: String,
-        val language: Language,
+        val language: LanguageDTORequest,
         val difficulty: String,
         val solved: Boolean,
         val code: String,
@@ -259,6 +264,7 @@ class SolutionController(private val service: SolutionService) {
     )
 
     data class LanguageDTORequest(
-        val language: Language
+        val name: String,
+        val fileExtension: String
     )
 }

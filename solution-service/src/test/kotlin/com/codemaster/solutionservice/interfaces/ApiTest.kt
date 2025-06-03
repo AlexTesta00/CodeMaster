@@ -10,10 +10,13 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Duration
 
@@ -33,6 +36,7 @@ class ApiTest(
     val user = "user"
     val questId = "test"
     val language = Language("Java", ".java")
+    val languageDTO = SolutionController.LanguageDTORequest(language.name, language.fileExtension)
     val difficulty = Difficulty.Medium
     val notSolved = false
     val testCode =
@@ -51,7 +55,7 @@ class ApiTest(
     val solutionDTORequest = SolutionController.SolutionDTORequest(
         user,
         questId,
-        language,
+        languageDTO,
         difficulty.name,
         notSolved,
         code,
@@ -93,7 +97,7 @@ class ApiTest(
             val invalidRequest = SolutionController.SolutionDTORequest(
                 "",
                 "",
-                language,
+                languageDTO,
                 difficulty.name,
                 notSolved,
                 "",
@@ -109,7 +113,7 @@ class ApiTest(
         }
 
         it("should return 400 if language params are empty") {
-            val invalidLanguage = Language("", "")
+            val invalidLanguage = SolutionController.LanguageDTORequest("", "")
             val invalidRequest = SolutionController.SolutionDTORequest(
                 user,
                 questId,
@@ -402,7 +406,7 @@ class ApiTest(
 
         it("should update the language of solution correctly") {
             val newLanguage = Language("Scala", ".scala")
-            val request = SolutionController.LanguageDTORequest(newLanguage)
+            val request = SolutionController.LanguageDTORequest(newLanguage.name, newLanguage.fileExtension)
 
             customWebTestClient.put()
                 .uri("$baseUrl/language/$id")
@@ -418,12 +422,12 @@ class ApiTest(
 
         it("should return 404 if the solution is not found") {
             val fakeId = SolutionId.generate()
-            val newLanguage = Language("Scala", ".scala")
+            val newLanguage = SolutionController.LanguageDTORequest("Scala", ".scala")
 
             customWebTestClient.put()
                 .uri("$baseUrl/language/$fakeId")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(mapOf("language" to newLanguage))
+                .bodyValue(newLanguage)
                 .exchange()
                 .expectStatus().isNotFound
         }
@@ -435,7 +439,7 @@ class ApiTest(
             customWebTestClient.put()
                 .uri("$baseUrl/language/$invalidId")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(mapOf("language" to newLanguage))
+                .bodyValue(newLanguage)
                 .exchange()
                 .expectStatus().isNotFound
         }
@@ -632,7 +636,8 @@ class ApiTest(
         }
 
         it("should fail one test") {
-            val expectedResult = ExecutionResult.Accepted(
+            val expectedResult = ExecutionResult.TestsFailed(
+                "Tests failed",
                 listOf(
                     "testFunction1() [OK]",
                     "testFunction2() [X] expected: <Hello World! test> but was: <Hello World! >"
@@ -737,7 +742,7 @@ class ApiTest(
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.error").isEqualTo("Compilation failed")
-                .jsonPath("$.stderr").isEqualTo("Main.java:14: error: reached end of file while parsing\n" +
+                .jsonPath("$.stderr").isEqualTo("Main.java:8: error: reached end of file while parsing\n" +
                         "}\n" +
                         " ^\n" +
                         "1 error")
@@ -779,4 +784,12 @@ class ApiTest(
                 .expectStatus().isNotFound
         }
     }
-})
+}) {
+    companion object {
+        @JvmStatic
+        @DynamicPropertySource
+        fun configureMongoUri(registry: DynamicPropertyRegistry) {
+            registry.add("spring.data.mongodb.uri") { "mongodb://localhost:27017/codemaster" }
+        }
+    }
+}

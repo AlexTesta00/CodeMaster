@@ -7,26 +7,19 @@ import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
+import kotlin.Comparator
 
 object UtilityFunctions {
 
-    private fun resolveRunnerPath(injectedRunnerPath: String): Path {
+    private fun resolveRunnerPath(): Path {
         val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
-        val runnerPath = envPath ?: injectedRunnerPath.takeIf { it.isNotBlank() }
-        ?: Paths.get(System.getProperty("user.dir"), "build", "tmp", "code-run").toString()
+        val runnerPath = envPath ?: Paths.get(".", "runner-cache").toString()
         return Paths.get(runnerPath).toAbsolutePath().normalize()
-    }
-
-    private fun generateCode(code: String, testCode: String, language: Language): String {
-        val main = Files.readString(
-            Paths.get(System.getProperty("user.dir"), "templates", "${language.name}MainTemplate")
-        ).replace("// TEST_CODE_HERE", testCode)
-
-        return main.replace("// USER_CODE_HERE", code)
     }
 
     fun parseJUnitConsoleOutput(output: String): List<String> {
@@ -42,104 +35,93 @@ object UtilityFunctions {
         }
     }
 
-     private fun toDockerPath(path: Path): String {
-        val fullPath = path.toAbsolutePath().toString()
-        return if (System.getProperty("os.name").lowercase().contains("win")) {
-            fullPath
-                .replace("\\", "/")
-                .let {
-                    Regex("^([A-Za-z]):").replace(it) { match ->
-                        "/${match.groupValues[1].lowercase()}"
-                    }
-                }
-        } else {
-            fullPath
-        }
+    private fun generateSource(code: String, testCode: String, language: Language, type: String): String {
+        val templatePath = "/templates/${type}/${language.name}Template"
+        val resource = javaClass.getResource(templatePath)
+            ?: error("Template not found: $templatePath")
+
+        return resource.readText()
+            .replace("// TEST_CODE_HERE", testCode)
+            .replace("// USER_CODE_HERE", code)
     }
 
-    suspend fun prepareCodeDir(solution: Solution, injectedRunnerPath: String): Path {
-        val codeDir = resolveRunnerPath(injectedRunnerPath)
-        val sourceFile = codeDir.resolve("Main${solution.language.fileExtension}")
+    suspend fun prepareCodeDir(solution: Solution): Path {
+        val codeDir = resolveRunnerPath()
+        val sourceMainFile = codeDir.resolve("Main${solution.language.fileExtension}")
+        val sourceTestFile = codeDir.resolve("MainTest${solution.language.fileExtension}")
 
         withContext(Dispatchers.IO) {
             if (Files.exists(codeDir)) {
                 Files.walk(codeDir)
                     .sorted(Comparator.reverseOrder())
+                    .filter { it != codeDir }
                     .forEach(Files::deleteIfExists)
+            } else {
+                Files.createDirectories(codeDir)
             }
-            Files.createDirectories(codeDir)
-            Files.writeString(sourceFile, generateCode(solution.code, solution.testCode, solution.language))
+
+            Files.writeString(
+                sourceMainFile,
+                generateSource(solution.code, solution.testCode, solution.language, "main")
+            )
+            Files.writeString(
+                sourceTestFile,
+                generateSource(solution.code, solution.testCode, solution.language, "test")
+            )
         }
 
         return codeDir
     }
 
-     suspend fun runDockerCommand(
+    suspend fun runDocker(
         id: SolutionId,
         codeDir: Path,
         command: String,
         phase: String,
-        onComplete: (exitCode: Int, output: String) -> ExecutionResult
-    ): ExecutionResult {
+        onComplete: (exitCode: Int, output: String, errors: String) -> ExecutionResult
+    ): ExecutionResult = withContext(Dispatchers.IO) {
         val containerName = "runner-${id.value}-$phase"
-        return try {
-            val process = withContext(Dispatchers.IO) {
-                val userAndGroup = getCurrentUserAndGroup()
-                ProcessBuilder(
-                    "docker", "run", "--rm",
-                    "--name", containerName,
-                    "--user", userAndGroup,
-                    "-v", "${toDockerPath(codeDir)}:/code",
-                    "multi-lang-runner:latest",
-                    "bash", "-c", command
-                ).apply {
-                    if (phase == "test") redirectErrorStream(true)
-                }.start()
-            }
 
-            val finished = withContext(Dispatchers.IO) {
-                process.waitFor(TIMEOUT, TimeUnit.MILLISECONDS)
-            }
+        val tarProcess = ProcessBuilder("tar", "-C", codeDir.toString(), "-cf", "-", ".").start()
 
-            val stdout: String
-            val stderr: String
+        val wrappedCommand = """
+            mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command
+        """.trimIndent()
 
+        try {
+            val process = ProcessBuilder(
+                "docker", "run", "--rm",
+                "--name", containerName,
+                "-i", "multi-lang-runner:latest",
+                "sh", "-c", wrappedCommand
+            ).apply {
+                if (phase == "run") redirectErrorStream(true)
+            }.start()
+
+            tarProcess.inputStream.copyTo(process.outputStream)
+            process.outputStream.close()
+
+            val finished = process.waitFor(TIMEOUT, TimeUnit.MILLISECONDS)
             if (!finished) {
                 process.destroyForcibly()
-
-                withContext(Dispatchers.IO) {
-                    ProcessBuilder("docker", "rm", "-f", containerName).start().waitFor()
-                }
-
-                ExecutionResult.TimeLimitExceeded(TIMEOUT)
-            } else {
-                stdout = process.inputStream.bufferedReader().readText().trim()
-                stderr = process.errorStream.bufferedReader().readText().trim()
-                val exitCode = process.exitValue()
-
-                if (phase == "test") {
-                    onComplete(exitCode, stdout)
-                } else {
-                    onComplete(exitCode, stderr)
-                }
+                return@withContext ExecutionResult.TimeLimitExceeded(TIMEOUT)
             }
+
+            val output = process.inputStream.readAll()
+            val errors = process.errorStream.readAll()
+            val exitCode = process.exitValue()
+
+            onComplete(exitCode, output, errors)
+
         } catch (e: Exception) {
             when (phase) {
                 "compile" -> ExecutionResult.CompileFailed("Unexpected compile error: ${e.message}", "", -1)
-                "test" -> ExecutionResult.RuntimeError("Unexpected runtime error", e.message, -1)
+                "run" -> ExecutionResult.RuntimeError("Unexpected runtime error", e.message, -1)
                 else -> ExecutionResult.RuntimeError("Unknown error", e.message, -1)
             }
         }
     }
 
-    private fun getCurrentUserAndGroup(): String {
-        val osName = System.getProperty("os.name").lowercase()
-        return if (osName.contains("win")) {
-            "1000:1000"
-        } else {
-            val uid = ProcessBuilder("id", "-u").start().inputStream.bufferedReader().readText().trim()
-            val gid = ProcessBuilder("id", "-g").start().inputStream.bufferedReader().readText().trim()
-            "$uid:$gid"
-        }
-    }
+    private fun InputStream.readAll(): String =
+        bufferedReader().use { it.readText().trim() }
 }
