@@ -84,13 +84,14 @@ object UtilityFunctions {
 
         val tarProcess = ProcessBuilder("tar", "-C", codeDir.toString(), "-cf", "-", ".").start()
 
+        val timeoutSeconds = (TIMEOUT + 5_000) / 1_000
         val wrappedCommand = """
-            mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command
+            timeout ${timeoutSeconds}s sh -c 'mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command'
         """.trimIndent()
 
         try {
             val process = ProcessBuilder(
-                "docker", "run", "--rm",
+                "docker", "run", "--rm", "--init",
                 "--name", containerName,
                 "-i", "multi-lang-runner:latest",
                 "sh", "-c", wrappedCommand
@@ -100,10 +101,16 @@ object UtilityFunctions {
 
             tarProcess.inputStream.copyTo(process.outputStream)
             process.outputStream.close()
+            tarProcess.inputStream.close()
 
             val finished = process.waitFor(TIMEOUT, TimeUnit.MILLISECONDS)
             if (!finished) {
                 process.destroyForcibly()
+                ProcessBuilder("docker", "rm", "-f", containerName)
+                    .inheritIO()
+                    .start()
+                    .waitFor(2, TimeUnit.SECONDS)
+
                 return@withContext ExecutionResult.TimeLimitExceeded(TIMEOUT)
             }
 
