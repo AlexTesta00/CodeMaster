@@ -1,3 +1,31 @@
+## [1.7.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.3...v1.7.0) (2025-06-03)
+
+### Features
+
+* **authentication:** add publisher, when user call register or delete API, the events are publish in exchange ([168f94d](https://github.com/AlexTesta00/CodeMaster/commit/168f94dede197a87301497728ff30b206dccb996))
+* **authentication:** add publisher, when user call register or delete API, the events are publish in exchange ([0031870](https://github.com/AlexTesta00/CodeMaster/commit/0031870b156e694176af055a5b9b4339ba98cd52))
+* **authentication:** add publisher, when user call register or delete API, the events are publish in exchange ([c6a777b](https://github.com/AlexTesta00/CodeMaster/commit/c6a777b0f1df134d1c6e2b1c8dcdb26422a625e7))
+* **authentication:** add RabbitMQ dependency ([035e155](https://github.com/AlexTesta00/CodeMaster/commit/035e1550bda23017b5ad89892e7271075db5102f))
+* **authentication:** add RabbitMQ dependency ([21586b9](https://github.com/AlexTesta00/CodeMaster/commit/21586b9d1e299a2ab69b812fab2352942b4cbf17))
+* **authentication:** add RabbitMQ dependency ([0c58e3a](https://github.com/AlexTesta00/CodeMaster/commit/0c58e3afe19bc927e963ca0cabaa83f2229408df))
+* **docker:** now rabbitMq have a healt_check and all depends_on have a condition ([843f4d5](https://github.com/AlexTesta00/CodeMaster/commit/843f4d5d0f2b5367da3dbc0720694d0d004a2063))
+* **docker:** now rabbitMq have a healt_check and all depends_on have a condition ([1179077](https://github.com/AlexTesta00/CodeMaster/commit/11790774a55278be64185c485a0847fce21ebe3c))
+* **gateway:** add gateway service ([2126f78](https://github.com/AlexTesta00/CodeMaster/commit/2126f782f5bdbba5eef05f77198eb69274f00fe0))
+* **user:** add rabbit consumer, when user call register or deleting API, user-service record or delete the user ([fb35db9](https://github.com/AlexTesta00/CodeMaster/commit/fb35db9b288e31838e8c1dd7e5b430085998bc8b))
+* **user:** add rabbit consumer, when user call register or deleting API, user-service record or delete the user ([ee6f25e](https://github.com/AlexTesta00/CodeMaster/commit/ee6f25ed48df671b82131ac25d88cc8d4415a879))
+* **user:** add rabbit consumer, when user call register or deleting API, user-service record or delete the user ([789ea65](https://github.com/AlexTesta00/CodeMaster/commit/789ea65b1b96fe2a2240b266483bdd3346f26796))
+* **user:** add RabbitMQ dependency ([8c07553](https://github.com/AlexTesta00/CodeMaster/commit/8c075533f5b4e5424e15a02aafdc2d581a174592))
+* **user:** add RabbitMQ dependency ([5aa4fb7](https://github.com/AlexTesta00/CodeMaster/commit/5aa4fb7568be42c870a44d43149b62fccb73fefe))
+* **user:** add RabbitMQ dependency ([3ec400f](https://github.com/AlexTesta00/CodeMaster/commit/3ec400f5164ac786db25b96d82bc6cb1aa8adbf1))
+
+### Bug Fixes
+
+* **ci:** add env variable for rabbitMQ ([2adcdf2](https://github.com/AlexTesta00/CodeMaster/commit/2adcdf276e456a5c2f2ac732a428e2c28d1cea66))
+* **ci:** add env variable for rabbitMQ ([8ebc037](https://github.com/AlexTesta00/CodeMaster/commit/8ebc037ab015754b453813afae6eaabed17815a1))
+* **ci:** add env variable for rabbitMQ ([bce8340](https://github.com/AlexTesta00/CodeMaster/commit/bce8340f6713e60cca6b8cf2d6cb6ed09c853c34))
+* **deps:** update node.js dependencies ([5e8466e](https://github.com/AlexTesta00/CodeMaster/commit/5e8466e75fef204f0b0f5f2c5d295837966cc972))
+* **gateway:** remove build task from gradle ([97d91e1](https://github.com/AlexTesta00/CodeMaster/commit/97d91e1943a815ee28fa13dc5dae0176058653ea))
+
 ## [1.6.3](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.2...v1.6.3) (2025-05-30)
 
 ### Bug Fixes
