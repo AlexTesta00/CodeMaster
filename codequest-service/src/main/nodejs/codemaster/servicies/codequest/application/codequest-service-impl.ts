@@ -8,7 +8,7 @@ import { CodeQuestRepositoryImpl } from '../infrastructure/codequest/codequest-r
 import { LanguageRepository } from '../infrastructure/language/language-repository'
 import { LanguageRepositoryImpl } from '../infrastructure/language/language-repository-impl'
 import { CodeQuestService, CodeQuestServiceError } from './codequest-service'
-import { LanguageFactory } from '../domain/language/language-factory'
+import { Difficulty } from '../domain/codequest/difficulty'
 
 export class CodeQuestServiceImpl implements CodeQuestService {
   private languageRepo: LanguageRepository = new LanguageRepositoryImpl()
@@ -19,11 +19,12 @@ export class CodeQuestServiceImpl implements CodeQuestService {
     author: 'string',
     problem: Problem,
     timestamp: Date | null,
-    languages: Language[]
+    languages: Language[],
+    difficulty: Difficulty
   ): Promise<CodeQuest> {
     if (languages != null) {
       for (const lang of languages) {
-        await this.#languageAvailable(lang)
+        await this.#languageAvailable(lang.name)
       }
     }
     const newCodequest = CodeQuestFactory.newCodeQuest(
@@ -32,10 +33,12 @@ export class CodeQuestServiceImpl implements CodeQuestService {
       author,
       problem,
       timestamp,
-      languages
+      languages,
+      difficulty
     )
     return await this.codequestRepo.save(newCodequest)
   }
+
   async getCodeQuests(): Promise<CodeQuest[]> {
     try {
       return await this.codequestRepo.getAllCodeQuests()
@@ -43,6 +46,7 @@ export class CodeQuestServiceImpl implements CodeQuestService {
       throw new CodeQuestServiceError.CodeQuestNotFound('No codequests found in database')
     }
   }
+
   async getCodeQuestById(questId: string): Promise<CodeQuest> {
     try {
       return await this.codequestRepo.findCodeQuestById(questId)
@@ -52,6 +56,7 @@ export class CodeQuestServiceImpl implements CodeQuestService {
       )
     }
   }
+
   async getCodeQuestsByAuthor(author: string): Promise<CodeQuest[]> {
     try {
       return await this.codequestRepo.findCodeQuestsByAuthor(author)
@@ -61,12 +66,19 @@ export class CodeQuestServiceImpl implements CodeQuestService {
       )
     }
   }
-  async getCodeQuestsByLanguage(
-    languageName: string,
-    versions: string[]
-  ): Promise<CodeQuest[]> {
-    const language = LanguageFactory.newLanguage(languageName, versions)
-    await this.#languageAvailable(language)
+
+  async getCodeQuestsByDifficulty(difficulty: string): Promise<CodeQuest[]> {
+    try {
+      return await this.codequestRepo.findCodeQuestsByDifficulty(difficulty)
+    } catch {
+      throw new CodeQuestServiceError.CodeQuestNotFound(
+        'CodeQuests with difficulty "' + difficulty + '" does not exist'
+      )
+    }
+  }
+
+  async getCodeQuestsByLanguage(languageName: string): Promise<CodeQuest[]> {
+    const language = await this.#languageAvailable(languageName)
     try {
       return await this.codequestRepo.findCodeQuestsByLanguage(language.name)
     } catch {
@@ -75,58 +87,63 @@ export class CodeQuestServiceImpl implements CodeQuestService {
       )
     }
   }
-  async updateProblem(questId: string, newProblem: Problem): Promise<void> {
+
+  async updateDifficulty(questId: string, newDifficulty: Difficulty): Promise<CodeQuest> {
     try {
-      await this.codequestRepo.updateProblem(questId, newProblem)
+      return await this.codequestRepo.updateDifficulty(questId, newDifficulty)
     } catch {
       throw new CodeQuestServiceError.CodeQuestNotFound(
         'No codequest found with given id'
       )
     }
   }
-  async updateTitle(questId: string, newTitle: string): Promise<void> {
+
+  async updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest> {
     try {
-      await this.codequestRepo.updateTitle(questId, newTitle)
+      return await this.codequestRepo.updateProblem(questId, newProblem)
     } catch {
       throw new CodeQuestServiceError.CodeQuestNotFound(
         'No codequest found with given id'
       )
     }
   }
-  async updateLanguages(questId: string, newLanguages: Language[]): Promise<void> {
+
+  async updateTitle(questId: string, newTitle: string): Promise<CodeQuest> {
+    try {
+      return await this.codequestRepo.updateTitle(questId, newTitle)
+    } catch {
+      throw new CodeQuestServiceError.CodeQuestNotFound(
+        'No codequest found with given id'
+      )
+    }
+  }
+
+  async updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest> {
     for (const lang of newLanguages) {
-      await this.#languageAvailable(lang)
+      await this.#languageAvailable(lang.name)
     }
     try {
-      await this.codequestRepo.updateLanguages(questId, newLanguages)
+      return await this.codequestRepo.updateLanguages(questId, newLanguages)
     } catch {
       throw new CodeQuestServiceError.CodeQuestNotFound(
         'No codequest found with given id'
       )
     }
   }
-  async delete(questId: string): Promise<void> {
+
+  async delete(questId: string): Promise<CodeQuest> {
     try {
-      await this.codequestRepo.delete(questId)
+      return await this.codequestRepo.delete(questId)
     } catch {
       throw new CodeQuestServiceError.CodeQuestNotFound(
         'No codequest found with given id'
       )
     }
   }
-  #languageAvailable = async (language: Language): Promise<void> => {
-    const foundLanguage = await this.languageRepo
-      .findLanguage(language.name)
-      .catch(() => {
-        throw new CodeQuestServiceError.LanguageNotFound('This language is not available')
-      })
-    if (
-      foundLanguage == null ||
-      language.versions.every((v) => !foundLanguage.versions.includes(v))
-    ) {
-      throw new CodeQuestServiceError.LanguageVersionNotFound(
-        'This language version is not available'
-      )
-    }
+
+  #languageAvailable = async (language: string): Promise<Language> => {
+    return await this.languageRepo.findLanguage(language).catch(() => {
+      throw new CodeQuestServiceError.LanguageNotFound('This language is not available')
+    })
   }
 }

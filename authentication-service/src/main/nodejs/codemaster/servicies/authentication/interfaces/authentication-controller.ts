@@ -8,18 +8,19 @@ import {
   UNAUTHORIZED,
 } from './status'
 import {
-  registerUser,
+  banUser as banUserFromService,
+  deleteUser as deleteUserFromService,
+  findAllUsers as getAllUsersFromService,
   loginUser as login,
   logoutUser as logout,
   refreshAccessUserToken,
+  registerUser,
+  unbanUser as unbanUserFromService,
   updateUserEmail,
   updateUserPassword,
-  deleteUser as deleteUserFromService,
-  banUser as banUserFromService,
-  unbanUser as unbanUserFromService,
-  findAllUsers as getAllUsersFromService,
 } from '../application/authentication-service'
 import { isRight } from 'fp-ts/Either'
+import { publishUserDeleted, publishUserRegistered } from '../infrastructure/publisher'
 
 export const registerNewUser = async (req: Request, res: Response): Promise<void> => {
   const { nickname, email, password, role } = req.body
@@ -30,6 +31,7 @@ export const registerNewUser = async (req: Request, res: Response): Promise<void
 
   if (isRight(register)) {
     const newUser = register.right
+    await publishUserRegistered(newUser.info.nickname)
     res.status(CREATED).json({ message: 'User registered', success: true, user: newUser })
   } else {
     const error = register.left
@@ -125,7 +127,7 @@ export const updatePassword = async (req: Request, res: Response): Promise<void>
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   const nickname: string = req.params.id
-
+  await publishUserDeleted({ value: nickname })
   const result = await deleteUserFromService({ value: nickname })
   if (isRight(result)) {
     res.status(OK).json({ message: 'User deleted', success: true }).end()
