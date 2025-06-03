@@ -15,7 +15,7 @@ services:
     depends_on:
       - mongo-user
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-user
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-user:27017/codemaster-user-db"
 
   codemaster-user-service:
     build:
@@ -45,7 +45,7 @@ services:
     depends_on:
       - mongo-authentication
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-authentication
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-authentication:27017/codemaster-authentication-db"
 
   codemaster-authentication-service:
     build:
@@ -75,7 +75,7 @@ services:
     depends_on:
       - mongo-codequest
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-codequest
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-codequest:27017/codemaster-codequest-db"
 
   codemaster-codequest-service:
     build:
@@ -105,7 +105,7 @@ services:
     depends_on:
       - mongo-solution
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-solution
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-solution:27017/codemaster-solution-db"
 
   codemaster-solution-service:
     build:
@@ -114,10 +114,19 @@ services:
     restart: always
     ports:
       - '4006:4006'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-cache:/app/build/tmp/code-run
     depends_on:
       - mongo-solution
+    env_file:
+      - ./solution-service/.env
+    environment:
+      - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
 
 volumes:
   mongo_data_user:
   mongo_data_authentication:
   mongo_data_codequest:
+  mongo_data_solution:
+  runner-cache:
