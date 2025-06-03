@@ -5,6 +5,7 @@ import { userIsAlreadyAuthenticated } from './cookie-handler'
 const router: Router = Router()
 
 router.get('/', AuthenticationController.findAllUsers)
+router.get('/status', AuthenticationController.healthCheck)
 router.post('/register', AuthenticationController.registerNewUser)
 router.post('/login', userIsAlreadyAuthenticated, AuthenticationController.loginUser)
 router.post('/logout', AuthenticationController.logoutUser)

@@ -20,7 +20,12 @@ import {
   updateUserPassword,
 } from '../application/authentication-service'
 import { isRight } from 'fp-ts/Either'
-import { publishUserDeleted, publishUserRegistered } from '../infrastructure/publisher'
+import {
+  isRabbitConnected,
+  publishUserDeleted,
+  publishUserRegistered,
+} from '../infrastructure/publisher'
+import { isDatabaseConnected } from '../infrastructure/db-connection'
 
 export const registerNewUser = async (req: Request, res: Response): Promise<void> => {
   const { nickname, email, password, role } = req.body
@@ -179,5 +184,20 @@ export const findAllUsers = async (req: Request, res: Response): Promise<void> =
   } else {
     const error = result.left
     res.status(INTERNAL_ERROR).json({ message: error.message, success: false })
+  }
+}
+
+export const healthCheck = async (req: Request, res: Response): Promise<void> => {
+  const mongoReady = isDatabaseConnected()
+  const rabbitReady = isRabbitConnected()
+  if (mongoReady && rabbitReady) {
+    res.status(OK).json({ status: 'OK', success: true })
+  } else {
+    res.status(INTERNAL_ERROR).json({
+      status: 'Service Unavailable',
+      success: false,
+      mongo: mongoReady,
+      rabbitReady: rabbitReady,
+    })
   }
 }
