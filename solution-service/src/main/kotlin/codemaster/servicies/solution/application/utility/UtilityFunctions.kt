@@ -1,6 +1,7 @@
 package codemaster.servicies.solution.application.utility
 
-import codemaster.servicies.solution.application.SolutionService.Companion.TIMEOUT
+import codemaster.servicies.solution.application.SolutionService.Companion.CONTAINER_TIMEOUT
+import codemaster.servicies.solution.application.SolutionService.Companion.PROCESS_TIMEOUT
 import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
@@ -84,9 +85,8 @@ object UtilityFunctions {
 
         val tarProcess = ProcessBuilder("tar", "-C", codeDir.toString(), "-cf", "-", ".").start()
 
-        val timeoutSeconds = (TIMEOUT + 5_000) / 1_000
         val wrappedCommand = """
-            timeout ${timeoutSeconds}s sh -c 'mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command'
+            timeout ${CONTAINER_TIMEOUT}s sh -c 'mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command'
         """.trimIndent()
 
         try {
@@ -103,7 +103,7 @@ object UtilityFunctions {
             process.outputStream.close()
             tarProcess.inputStream.close()
 
-            val finished = process.waitFor(TIMEOUT, TimeUnit.MILLISECONDS)
+            val finished = process.waitFor(PROCESS_TIMEOUT, TimeUnit.MILLISECONDS)
             if (!finished) {
                 process.destroyForcibly()
                 ProcessBuilder("docker", "rm", "-f", containerName)
@@ -111,7 +111,7 @@ object UtilityFunctions {
                     .start()
                     .waitFor(2, TimeUnit.SECONDS)
 
-                return@withContext ExecutionResult.TimeLimitExceeded(TIMEOUT)
+                return@withContext ExecutionResult.TimeLimitExceeded(PROCESS_TIMEOUT)
             }
 
             val output = process.inputStream.readAll()

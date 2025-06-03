@@ -19,7 +19,8 @@ class SolutionService(
 ) {
 
     companion object {
-        const val TIMEOUT: Long = 20_000
+        const val CONTAINER_TIMEOUT: Long = 30
+        const val PROCESS_TIMEOUT: Long = 20_000
     }
 
     suspend fun addSolution(
