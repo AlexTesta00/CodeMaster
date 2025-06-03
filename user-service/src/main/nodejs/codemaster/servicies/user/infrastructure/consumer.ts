@@ -6,6 +6,7 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq'
 const QUEUE_NAME = 'user-service-queue'
 const EXCHANGE = 'authentication'
 const MODE = 'topic'
+let connected = false
 
 export const startConsumer: TaskEither<Error, void> = tryCatch(
   async () => {
@@ -40,12 +41,15 @@ export const startConsumer: TaskEither<Error, void> = tryCatch(
           channel.ack(message)
         }
       })
-
       console.log('[👂] Waiting for messages...')
+      connected = true
     } catch (err) {
       console.error('[❌] Error during RabbitMQ consumer setup:', err)
+      connected = false
       throw err
     }
   },
   (reason) => (reason instanceof Error ? reason : new Error(String(reason)))
 )
+
+export const isRabbitConnected = (): boolean => connected
