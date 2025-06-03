@@ -41,6 +41,10 @@ jobs:
         run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
       - name: Set SOLUTION_RUNNER_PATH environment variable
         run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
+      - name: Pull RabbitMQ image
+        run: docker pull rabbitmq:3-management
+      - name: Set RABBITMQ_URL env variable
+        run: echo "RABBITMQ_URL=amqp://guest:guest@localhost" >> $GITHUB_ENV
       - name: Build with Gradle
         env:
           MONGO_URI: ${{ env.MONGO_URI }}
@@ -125,10 +129,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4.4.0
-      - name: Add Permission To Gradle
-        run: chmod +x ./gradlew
       - name: Build Docker image
         run: |
           IMAGE_NAME="${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
