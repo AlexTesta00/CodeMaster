@@ -7,8 +7,10 @@ import prettierConfig from 'eslint-config-prettier'
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
-    files: ['**/*.{js,mjs,cjs,ts}'],
     ignores: ['tests/**', '__tests__/**', 'dist/**'],
+  },
+  {
+    files: ['**/*.{js,mjs,cjs,ts}'],
     languageOptions: {
       globals: {
         ...globals.browser,

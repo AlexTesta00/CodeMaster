@@ -17,4 +17,6 @@ export const connectToDatabase = tryCatch(
   (error) => new ConnectionError('Failed to connect to database: ' + error)
 )
 
+export const isDatabaseConnected = (): boolean => mongoose.connection.readyState === 1
+
 export const ConnectionError = class extends Error {}
