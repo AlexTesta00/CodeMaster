@@ -25,6 +25,7 @@ RUN mkdir -p /usr/share/java && \
 
 # Set the working directory
 WORKDIR /code
+RUN chmod 777 /code
 
 # Default command
 CMD ["bash"]
