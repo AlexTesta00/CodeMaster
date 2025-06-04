@@ -5,12 +5,13 @@ import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
 import codemaster.servicies.solution.domain.errors.DomainException
 import codemaster.servicies.solution.domain.model.*
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/solutions")
+@RequestMapping("/api/v1/solutions")
 class SolutionController(private val service: SolutionService) {
 
     @PostMapping("/", produces = ["application/json"])
@@ -21,7 +22,7 @@ class SolutionController(private val service: SolutionService) {
                 SolutionId.generate(),
                 request.user,
                 request.questId,
-                request.language,
+                Language(request.language.name, request.language.fileExtension),
                 Difficulty.from(request.difficulty),
                 request.solved,
                 request.code,
@@ -34,7 +35,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @GetMapping("/id={id}", produces = ["application/json"])
+    @GetMapping("/{id}", produces = ["application/json"])
     suspend fun getSolution(@PathVariable id: SolutionId): ResponseEntity<Solution?> {
         val solution: Solution
         try {
@@ -48,7 +49,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @GetMapping("/questId={questId}", produces = ["application/json"])
+    @GetMapping("codequests/{questId}", produces = ["application/json"])
     suspend fun getSolutionsByCodeQuest(@PathVariable questId: String): ResponseEntity<List<Solution>?> {
         val solutions : List<Solution>
 
@@ -61,7 +62,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
     }
 
-    @GetMapping("/solved/user={user}")
+    @GetMapping("/solved/{user}")
     suspend fun getSolvedSolutionsByUser(
         @PathVariable user: String
     ): ResponseEntity<List<Solution>?> {
@@ -76,7 +77,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
     }
 
-    @GetMapping("/difficulty/user={user}")
+    @GetMapping("/difficulty/{user}")
     suspend fun getSolutionsByUserAndDifficulty(
         @PathVariable user: String,
         @RequestParam difficulty: String
@@ -89,7 +90,7 @@ class SolutionController(private val service: SolutionService) {
         }
     }
 
-    @GetMapping("/user={user}")
+    @GetMapping("users/{user}")
     suspend fun getSolutionsByUser(
         @PathVariable user: String
     ): ResponseEntity<List<Solution>?> {
@@ -104,7 +105,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
     }
 
-    @GetMapping("/language/questId={questId}", produces = ["application/json"])
+    @GetMapping("/language/{questId}", produces = ["application/json"])
     suspend fun getSolutionsByLanguage(
         @RequestParam name : String?,
         @RequestParam extension : String?,
@@ -126,7 +127,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solutions)
     }
 
-    @PutMapping("/difficulty/id={id}", produces = ["application/json"])
+    @PutMapping("/difficulty/{id}", produces = ["application/json"])
     suspend fun changeSolutionDifficulty(
         @PathVariable id : SolutionId,
         @RequestParam difficulty: String
@@ -143,12 +144,12 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @PutMapping("/language/id={id}", produces = ["application/json"])
+    @PutMapping("/language/{id}", produces = ["application/json"])
     suspend fun changeSolutionLanguage(
         @PathVariable id : SolutionId,
         @RequestBody newLanguage: LanguageDTORequest
     ): ResponseEntity<Solution?> {
-        val language = newLanguage.language
+        val language = Language(newLanguage.name, newLanguage.fileExtension)
         val solution : Solution
         try {
             solution = service.modifySolutionLanguage(id, language)
@@ -162,7 +163,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @PutMapping("/code/id={id}", produces = ["application/json"])
+    @PutMapping("/code/{id}", produces = ["application/json"])
     suspend fun changeSolutionCode(
         @PathVariable id: SolutionId,
         @RequestBody newCode: String
@@ -180,7 +181,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @PutMapping("/test-code/id={id}", produces = ["application/json"])
+    @PutMapping("/test-code/{id}", produces = ["application/json"])
     suspend fun changeSolutionTestCode(
         @PathVariable id: SolutionId,
         @RequestBody newTestCode: String
@@ -198,7 +199,7 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @PutMapping("/execute/id={id}", produces = ["application/json"])
+    @PutMapping("/execute/{id}", produces = ["application/json"])
     suspend fun executeSolutionCode(
         @PathVariable id : SolutionId,
         @RequestBody newCode: String
@@ -216,25 +217,29 @@ class SolutionController(private val service: SolutionService) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(solution)
     }
 
-    @PutMapping("/compile/id={id}", produces = ["application/json"])
+    @PutMapping("/compile/{id}", produces = ["application/json"])
     suspend fun compileSolutionCode(
-        @PathVariable id : SolutionId,
+        @PathVariable id: SolutionId,
         @RequestBody newCode: String
-    ): ResponseEntity<ExecutionResult?> {
-        val result : ExecutionResult
-        try {
-            result = service.compileSolution(id, newCode)
+    ): ResponseEntity<ExecutionResult> {
+        val logger = LoggerFactory.getLogger(this::class.java)
+        return try {
+            val result = service.compileSolution(id, newCode)
+            ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result)
         } catch (ex: Exception) {
-            return when(ex) {
+            logger.error("Error compiling solution with id=$id", ex)
+            when (ex) {
                 is NoSuchElementException -> ResponseEntity.notFound().build()
                 is EmptyCodeException -> ResponseEntity.badRequest().build()
                 else -> ResponseEntity.internalServerError().build()
             }
         }
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(result)
     }
 
-    @DeleteMapping("/id={id}", produces = ["application/json"])
+
+    @DeleteMapping("/{id}", produces = ["application/json"])
     suspend fun deleteSolution(@PathVariable id: SolutionId): ResponseEntity<Solution?> {
         val solution: Solution
         try {
@@ -251,7 +256,7 @@ class SolutionController(private val service: SolutionService) {
     data class SolutionDTORequest(
         val user: String,
         val questId: String,
-        val language: Language,
+        val language: LanguageDTORequest,
         val difficulty: String,
         val solved: Boolean,
         val code: String,
@@ -259,6 +264,7 @@ class SolutionController(private val service: SolutionService) {
     )
 
     data class LanguageDTORequest(
-        val language: Language
+        val name: String,
+        val fileExtension: String
     )
 }

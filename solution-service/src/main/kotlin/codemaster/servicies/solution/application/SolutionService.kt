@@ -6,22 +6,21 @@ import codemaster.servicies.solution.application.errors.EmptyTestCodeException
 import codemaster.servicies.solution.application.utility.LanguageCommandProvider
 import codemaster.servicies.solution.application.utility.UtilityFunctions.parseJUnitConsoleOutput
 import codemaster.servicies.solution.application.utility.UtilityFunctions.prepareCodeDir
-import codemaster.servicies.solution.application.utility.UtilityFunctions.runDockerCommand
+import codemaster.servicies.solution.application.utility.UtilityFunctions.runDocker
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.domain.repository.SolutionRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class SolutionService(
-    private val repository: SolutionRepository,
-    @Value("\${solution.runner.path:build/tmp/code-run}") private val injectedRunnerPath: String
+    private val repository: SolutionRepository
 ) {
 
     companion object {
-        const val TIMEOUT: Long = 20_000
+        const val CONTAINER_TIMEOUT: Long = 30
+        const val PROCESS_TIMEOUT: Long = 20_000
     }
 
     suspend fun addSolution(
@@ -115,17 +114,17 @@ class SolutionService(
         val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
-        val codeDir = prepareCodeDir(solution, injectedRunnerPath)
         val commands = LanguageCommandProvider.getCommandsFor(solution.language)
+        val codeDir = prepareCodeDir(solution)
 
-        return runDockerCommand(
+        return runDocker(
             id,
             codeDir,
             commands.compileCommand,
             "compile"
-        ) { exitCode, output ->
-            if (exitCode == 0) ExecutionResult.Accepted(emptyList(), exitCode)
-            else ExecutionResult.CompileFailed("Compilation failed", output, exitCode)
+        ) { exitCode, output, errors ->
+            if (exitCode == 0) ExecutionResult.Accepted(parseJUnitConsoleOutput(output), exitCode)
+            else ExecutionResult.CompileFailed("Compilation failed", errors, exitCode)
         }
     }
 
@@ -133,31 +132,31 @@ class SolutionService(
         val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
-        val codeDir = prepareCodeDir(solution, injectedRunnerPath)
         val commands = LanguageCommandProvider.getCommandsFor(solution.language)
+        val codeDir = prepareCodeDir(solution)
 
-        val compileResult = runDockerCommand(
+        val compileResult = runDocker(
             id,
             codeDir,
             commands.compileCommand,
             "compile"
-        ) { exitCode, output ->
-            if (exitCode == 0) ExecutionResult.Accepted(emptyList(), exitCode)
-            else ExecutionResult.CompileFailed("Compilation failed", output, exitCode)
+        ) { exitCode, output, errors ->
+            if (exitCode == 0) ExecutionResult.Accepted(parseJUnitConsoleOutput(output), exitCode)
+            else ExecutionResult.CompileFailed("Compilation failed", errors, exitCode)
         }
 
         if (compileResult !is ExecutionResult.Accepted) {
             return repository.updateResult(id, compileResult).awaitSingle()
         }
 
-        val runResult = runDockerCommand(
+        val runResult = runDocker(
             id,
             codeDir,
-            commands.runCommand,
-            "test"
-        ) { exitCode, output ->
+            commands.compileAndRunCommand,
+            "run"
+        ) { exitCode, output, errors ->
             val parsedOutput = parseJUnitConsoleOutput(output)
-            if (exitCode == 0) ExecutionResult.Accepted(parsedOutput, exitCode)
+            if (exitCode == 0) ExecutionResult.Accepted(parsedOutput.ifEmpty { errors.lines() }, exitCode)
             else ExecutionResult.TestsFailed("Tests failed", parsedOutput, exitCode)
         }
 
