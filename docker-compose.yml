@@ -173,6 +173,24 @@ services:
       codemaster-solution-service:
         condition: service_started
 
+  populate-db:
+    build:
+        context: ./populate-db
+        dockerfile: Dockerfile
+    depends_on:
+      codemaster-authentication-service:
+        condition: service_started
+      codemaster-user-service:
+        condition: service_started
+      codemaster-codequest-service:
+        condition: service_started
+      codemaster-solution-service:
+        condition: service_started
+    volumes:
+      - ./populate-db:/app
+    working_dir: /app
+    command: ["sh", "-c", "sleep 5 && python db-service.py"]
+
 volumes:
   mongo_data_user:
   mongo_data_authentication:
