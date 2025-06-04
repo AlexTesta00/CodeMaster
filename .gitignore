@@ -347,3 +347,4 @@ buildq
 
 # Execution directory
 solution-service/tmp
+solution-service/runner-cache

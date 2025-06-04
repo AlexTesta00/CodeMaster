@@ -1,9 +1,8 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Main {
+public class MainTest {
 
     // TEST_CODE_HERE
 
-    // USER_CODE_HERE
 }

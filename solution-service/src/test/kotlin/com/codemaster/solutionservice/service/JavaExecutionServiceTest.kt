@@ -81,7 +81,7 @@ class JavaExecutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository, System.getProperty("user.home") + "/code-run")
+            service = SolutionService(repository)
         }
 
         afterSpec {

@@ -13,6 +13,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -90,7 +91,7 @@ class SolutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository, System.getProperty("user.home") + "/code-run")
+            service = SolutionService(repository)
         }
 
         afterSpec {
@@ -108,7 +109,7 @@ class SolutionServiceTest : DescribeSpec() {
         fun checkSolution(solution: Solution) {
             solution.id shouldBe id1
             solution.code shouldBe code
-            solution.result shouldBe ExecutionResult.Pending
+            solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
             solution.questId shouldBe questId
             solution.language shouldBe language
         }
@@ -165,7 +166,7 @@ class SolutionServiceTest : DescribeSpec() {
                     list.last().id shouldBe id2
                     list.last().code shouldBe code
                     list.last().questId shouldBe questId
-                    list.last().result shouldBe ExecutionResult.Pending
+                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     list.last().language shouldBe language
                 }
 
@@ -178,7 +179,7 @@ class SolutionServiceTest : DescribeSpec() {
                     list.last().id shouldBe id2
                     list.last().code shouldBe code
                     list.last().language shouldBe language
-                    list.last().result shouldBe ExecutionResult.Pending
+                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     list.last().questId shouldBe questId
                 }
 
@@ -213,7 +214,7 @@ class SolutionServiceTest : DescribeSpec() {
                     list.last().user shouldBe user
                     list.last().code shouldBe code
                     list.last().language shouldBe language
-                    list.last().result shouldBe ExecutionResult.Pending
+                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     list.last().questId shouldBe questId
                 }
 

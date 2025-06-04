@@ -10,7 +10,10 @@ import de.flapdoodle.reverse.StateID
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -113,7 +116,7 @@ class SolutionRepositoryTest : DescribeSpec() {
             solution.id shouldBe id1
             solution.code shouldBe code
             solution.user shouldBe user
-            solution.result shouldBe ExecutionResult.Pending
+            solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
             solution.questId shouldBe questId
             solution.language shouldBe language
             solution.testCode shouldBe testCode
@@ -153,7 +156,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                     source.last().id shouldBe id2
                     source.last().code shouldBe code
                     source.last().user shouldBe user
-                    source.last().result shouldBe ExecutionResult.Pending
+                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     source.last().questId shouldBe questId
                     source.last().language shouldBe language
                     source.last().testCode shouldBe testCode
@@ -171,7 +174,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                     source.last().id shouldBe id2
                     source.last().code shouldBe code
                     source.last().user shouldBe user
-                    source.last().result shouldBe ExecutionResult.Pending
+                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     source.last().questId shouldBe questId
                     source.last().language shouldBe language
                     source.last().testCode shouldBe testCode
@@ -228,7 +231,7 @@ class SolutionRepositoryTest : DescribeSpec() {
                     source.last().id shouldBe id2
                     source.last().code shouldBe code
                     source.last().user shouldBe user
-                    source.last().result shouldBe ExecutionResult.Pending
+                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     source.last().questId shouldBe questId
                     source.last().language shouldBe language
                     source.last().testCode shouldBe testCode

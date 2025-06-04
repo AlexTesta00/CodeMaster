@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   computeLevel,
   getUser,
+  healthCheck,
   registerUser,
   removeUser,
   updateUserBio,
@@ -13,6 +14,7 @@ import {
 
 const userRouter: Router = Router()
 
+userRouter.get('/status', healthCheck)
 userRouter.post('/register', registerUser)
 userRouter.get('/:nickname', getUser)
 userRouter.put('/bio', updateUserBio)

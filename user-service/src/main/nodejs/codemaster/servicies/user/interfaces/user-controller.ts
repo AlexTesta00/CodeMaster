@@ -12,7 +12,9 @@ import {
 } from '../application/user-service'
 import { Either, isLeft } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
-import { BAD_REQUEST, NOT_FOUND, OK } from './error-code'
+import { BAD_REQUEST, INTERNAL_ERROR, NOT_FOUND, OK } from './error-code'
+import { isDatabaseConnected } from '../infrastructure/db-connection'
+import { isRabbitConnected } from '../infrastructure/consumer'
 
 export const handleResult = <L extends Error, R>(
   res: Response,
@@ -82,3 +84,18 @@ export const computeLevel = async (req: Request, res: Response): Promise<void> =
   pipe(await computeUserLevel({ value: req.params.nickname }), (result) =>
     handleResult(res, result, OK, NOT_FOUND, 'User level computed')
   )
+
+export const healthCheck = async (req: Request, res: Response): Promise<void> => {
+  const mongoReady = isDatabaseConnected()
+  const rabbitReady = isRabbitConnected()
+  if (mongoReady && rabbitReady) {
+    res.status(OK).json({ status: 'OK', success: true })
+  } else {
+    res.status(INTERNAL_ERROR).json({
+      status: 'Service Unavailable',
+      success: false,
+      mongo: mongoReady,
+      rabbitReady: rabbitReady,
+    })
+  }
+}
