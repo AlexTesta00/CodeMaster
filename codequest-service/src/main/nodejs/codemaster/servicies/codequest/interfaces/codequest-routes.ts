@@ -22,4 +22,6 @@ router.route('/codequest-languages/:id').put(controller.updateLanguages)
 
 router.route('/codequest-difficulty/:id').put(controller.updateDifficulty)
 
+router.route('/health').get(controller.healthCheck)
+
 export default router
