@@ -82,6 +82,24 @@ describe('Test user service', () => {
       timeout
     )
 
+    it('should correctly save multiple users', async () => {
+      const firstUser = await registerNewUser({ value: 'example' })
+      const secondUser = await registerNewUser({ value: 'cronous' })
+      const thirdUser = await registerNewUser({ value: 'taurus' })
+
+      expect(isRight(firstUser)).toBeTruthy()
+      expect(isRight(secondUser)).toBeTruthy()
+      expect(isRight(thirdUser)).toBeTruthy()
+
+      const findFirstUser = await getAllUserInfo({ value: 'example' })
+      const findSecondUser = await getAllUserInfo({ value: 'cronous' })
+      const findThirdUser = await getAllUserInfo({ value: 'taurus' })
+
+      expect(isRight(findFirstUser)).toBeTruthy()
+      expect(isRight(findSecondUser)).toBeTruthy()
+      expect(isRight(findThirdUser)).toBeTruthy()
+    })
+
     it(
       'should return left error because nickname is not in a valid format',
       async () => {
