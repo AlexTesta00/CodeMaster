@@ -32,7 +32,7 @@ class SolutionController(private val service: SolutionService) {
                 )
             )
         } else {
-            ResponseEntity.status(503).body(
+            ResponseEntity.internalServerError().body(
                 mapOf(
                     "status" to "Service Unavailable",
                     "success" to false,
