@@ -155,4 +155,9 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         return mongoTemplate
             .findAndRemove(query, Solution::class.java)
     }
+
+    override fun existBy(): Mono<Boolean> {
+        val query = Query().limit(1)
+        return mongoTemplate.exists(query, Solution::class.java)
+    }
 }
