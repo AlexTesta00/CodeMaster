@@ -30,7 +30,7 @@ describe('Test Trophy API', () => {
           xp: 100,
         }
         const response = await request
-          .post('/api/v1/trophies/')
+          .post('/api/v1/trophies/create')
           .send(trophy)
           .set('Accept', 'application/json')
         expect(response.status).toBe(200)

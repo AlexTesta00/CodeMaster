@@ -1,8 +1,8 @@
 import requests
 
 AUTH_URL = "http://codemaster-authentication-service:4004/api/v1/authentication/register"
-LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/" #TODO: Fix root into /create not /
-TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/" #TODO: Fix root into /create not /
+LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create"
+TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create"
 
 if __name__ == "__main__":
 
