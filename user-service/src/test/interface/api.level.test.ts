@@ -23,7 +23,7 @@ describe('Test Level API', () => {
       async () => {
         const level = { grade: 1, title: 'Novice', xpLevel: 1 }
         const response = await request
-          .post('/api/v1/levels/')
+          .post('/api/v1/levels/create')
           .send(level)
           .set('Accept', 'application/json')
         expect(response.status).toBe(200)
