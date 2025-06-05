@@ -1,3 +1,17 @@
+## [1.8.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.7.0...v1.8.0) (2025-06-05)
+
+### Features
+
+* **authenticaton:** add /status route for check if authentication service is ready ([188825e](https://github.com/AlexTesta00/CodeMaster/commit/188825ef5a101987cee119baa1687e42adab49f3))
+* **docker:** now when start services in production, the user-service and authentication-service db populating ([e1cda6f](https://github.com/AlexTesta00/CodeMaster/commit/e1cda6f9ad5b4015af260f0d715cd23a790554df))
+* **user:** add /status for check if user service is ready or not ([8be2a30](https://github.com/AlexTesta00/CodeMaster/commit/8be2a304eb0d04a703b6856196a91a57aa6cd119))
+
+### Bug Fixes
+
+* **api-gateway:** update nginx configuration file ([ae208f5](https://github.com/AlexTesta00/CodeMaster/commit/ae208f51973f4ad0d61abacb5f5d264ff6361343))
+* **solution-service:** files to be executed are compressed before pass them to container ([a957a77](https://github.com/AlexTesta00/CodeMaster/commit/a957a77ba2be02b064fe785b59f5dff28d210ddc))
+* **user:** fixing a bug that did not allow multiple users to be saved because trophyschema title and level grade are unique ([d018ac2](https://github.com/AlexTesta00/CodeMaster/commit/d018ac223a07f1017d35f319d5a5a0c3653ed4ce))
+
 ## [1.7.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.6.3...v1.7.0) (2025-06-03)
 
 ### Features
