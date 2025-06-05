@@ -1,5 +1,4 @@
 services:
-
   rabbitmq:
     image: rabbitmq:4-management
     ports:
@@ -34,7 +33,7 @@ services:
       mongo-user:
         condition: service_started
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-user
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-user:27017/codemaster-user-db"
 
   codemaster-user-service:
     build:
@@ -70,7 +69,7 @@ services:
       mongo-authentication:
         condition: service_started
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-authentication
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-authentication:27017/codemaster-authentication-db"
 
   codemaster-authentication-service:
     build:
@@ -106,9 +105,9 @@ services:
       mongo-codequest:
         condition: service_started
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-codequest
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-codequest:27017/codemaster-codequest-db"
 
-  codequest-service:
+  codemaster-codequest-service:
     build:
       context: ./codequest-service
       dockerfile: Dockerfile
@@ -121,6 +120,43 @@ services:
     env_file:
       - ./codequest-service/.env
 
+  mongo-solution:
+    image: mongo
+    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
+    ports:
+      - '27020:27017'
+    volumes:
+      - mongo_data_solution:/codemaster/solution/db
+
+  mongo-express-solution:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8084:8081'
+    depends_on:
+      mongo-solution:
+        condition: service_started
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-solution:27017/codemaster-solution-db"
+
+  codemaster-solution-service:
+    build:
+      context: ./solution-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4006:4006'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner-cache:/app/build/tmp/code-run
+    depends_on:
+      mongo-solution:
+        condition: service_started
+    env_file:
+      - ./solution-service/.env
+    environment:
+      - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -132,11 +168,33 @@ services:
         condition: service_started
       codemaster-authentication-service:
         condition: service_started
-      codequest-service:
+      codemaster-codequest-service:
         condition: service_started
+      codemaster-solution-service:
+        condition: service_started
+
+  populate-db:
+    build:
+        context: ./populate-db
+        dockerfile: Dockerfile
+    depends_on:
+      codemaster-authentication-service:
+        condition: service_started
+      codemaster-user-service:
+        condition: service_started
+      codemaster-codequest-service:
+        condition: service_started
+      codemaster-solution-service:
+        condition: service_started
+    volumes:
+      - ./populate-db:/app
+    working_dir: /app
+    command: ["sh", "-c", "sleep 5 && python db-service.py"]
 
 volumes:
   mongo_data_user:
   mongo_data_authentication:
   mongo_data_codequest:
+  mongo_data_solution:
+  runner-cache:
   rabbitmq_data:

@@ -9,6 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("application")
 }
 
 group = "com.codemaster"
@@ -18,6 +19,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+    mainClass.set("codemaster.servicies.solution.ApplicationKt")
 }
 
 repositories {
@@ -57,11 +62,7 @@ kotlin {
 }
 
 tasks.bootJar {
-    enabled = false
-}
-
-tasks.jar {
-    enabled = true
+    archiveFileName.set("codemaster-solution-service.jar")
 }
 
 kover {
@@ -113,7 +114,6 @@ tasks.koverVerify {
 }
 
 tasks.koverXmlReport {
-    // Ensure this task depends on the test task, but without introducing circular dependencies
     dependsOn(tasks.test)
 }
 
@@ -141,4 +141,8 @@ tasks.test {
 tasks.build {
     dependsOn(tasks.test)
     dependsOn("detekt")
+
+    if (!project.hasProperty("skipTests") || project.property("skipTests") != "true") {
+        dependsOn(tasks.test)
+    }
 }

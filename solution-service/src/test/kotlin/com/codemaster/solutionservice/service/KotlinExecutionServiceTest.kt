@@ -84,7 +84,7 @@ class KotlinExecutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository, System.getProperty("user.home") + "/code-run")
+            service = SolutionService(repository)
         }
 
         afterSpec {
@@ -99,8 +99,7 @@ class KotlinExecutionServiceTest : DescribeSpec() {
             }
         }
 
-        describe("SolutionServiceTest") {
-
+        describe("KotlinSolutionServiceTest") {
 
             context("Compile and execute solution code") {
                 val nonCompilingCode = """

@@ -4,57 +4,54 @@ import codemaster.servicies.solution.domain.model.Language
 
 data class LanguageCommands(
     val compileCommand: String,
-    val runCommand: String
+    val compileAndRunCommand: String
 )
 
 object LanguageCommandProvider {
+
     fun getCommandsFor(language: Language): LanguageCommands = when (language.name) {
         "Java" -> LanguageCommands(
             compileCommand = """
-                cd /code && \
-                javac -cp /usr/share/java/junit-platform-console-standalone.jar Main.java
+                javac -cp /usr/share/java/junit-platform-console-standalone.jar Main.java MainTest.java 
             """.trimIndent(),
-            runCommand = """
-                cd /code && \
+            compileAndRunCommand = """
+                javac -cp /usr/share/java/junit-platform-console-standalone.jar Main.java MainTest.java && \
                 java -jar /usr/share/java/junit-platform-console-standalone.jar \
                     execute \
                     --class-path . \
-                    --select-class Main 
+                    --select-class MainTest 
             """.trimIndent()
         )
 
         "Kotlin" -> LanguageCommands(
             compileCommand = """
-                cd /code && \
                 mkdir -p ./out && \
-                kotlinc Main.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out
+                kotlinc Main.kt MainTest.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out
             """.trimIndent(),
-            runCommand = """
-                cd /code && \
+            compileAndRunCommand = """
+                mkdir -p ./out && \
+                kotlinc Main.kt MainTest.kt -cp /usr/share/java/junit-platform-console-standalone.jar -d ./out && \
                 java -jar /usr/share/java/junit-platform-console-standalone.jar \
                     execute \
                     --class-path ./out:/opt/kotlinc/lib/kotlin-stdlib.jar \
-                    --select-class Main \
+                    --select-class MainTest \
                     --details=tree \
                     --details-theme=ascii
             """.trimIndent()
         )
 
-
         "Scala" -> LanguageCommands(
             compileCommand = """
-                cd /code && \
-                scalac -cp /usr/share/java/junit-platform-console-standalone.jar:/usr/share/scala/lib/scala-library.jar Main.scala
+                scalac -cp /usr/share/java/junit-platform-console-standalone.jar:/usr/share/scala/lib/scala-library.jar Main.scala MainTest.scala
             """.trimIndent(),
-            runCommand = """
-                cd /code && \
+            compileAndRunCommand = """
+                scalac -cp /usr/share/java/junit-platform-console-standalone.jar:/usr/share/scala/lib/scala-library.jar Main.scala MainTest.scala
                 java -jar /usr/share/java/junit-platform-console-standalone.jar \
                     execute \
                     --class-path .:/usr/share/scala/lib/scala-library.jar \
-                    --select-class Main
+                    --select-class MainTest
             """.trimIndent()
         )
-
 
         else -> throw IllegalArgumentException("Unsupported language: ${language.name}")
     }
