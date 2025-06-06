@@ -5,6 +5,8 @@ import CodeEditor from '../components/CodeEditor.vue'
 import ClickableTextWithImage from '../components/ClickableTextWithImage.vue'
 import SideBar from '../components/SideBar.vue'
 import TextareaCodeLanguages from '../components/TextareaCodeLanguages.vue'
+import YesOrNoDialog from '../components/YesOrNoDialog.vue'
+import router from '../router'
 
 const codequest = [
     { title: '1.Reverse String', difficulty: 'easy' },
@@ -28,6 +30,17 @@ Output: "olleh"
 * The input string will have at most length 1000.
 * The input string will only contain printable ASCII characters.
 `
+
+const isBackDialogOpen = ref(false)
+
+const handleConfirm = () => {
+  isBackDialogOpen.value = false
+  router.back()
+}
+
+const handleClose = () => {
+  isBackDialogOpen.value = false
+}
 
 const leftPanelWidth = ref(
     parseInt(localStorage.getItem('leftPanelWidth') || '500'),
@@ -66,6 +79,16 @@ onBeforeUnmount(() => {
   <section
     class="h-[90vh] min-h-screen flex flex-row bg-background dark:bg-bgdark mx-4 overflow-hidden animate-fade-in"
   >
+
+    <!-- Dialog for return back -->
+    <yes-or-no-dialog
+      title="Are you sure?"
+      message="Changes will not be saved and the codequest will not be forwarded"
+      :is-open-dialog="isBackDialogOpen"
+      @confirm="handleConfirm"
+      @close="handleClose"
+    />
+
     <!-- Sidebar Overlay -->
     <div
       v-if="isSidebarOpen"
@@ -133,7 +156,7 @@ onBeforeUnmount(() => {
         title="Home"
         url="/icons/home.svg"
         alt="Return to home"
-        @click="$router.push('/dashboard')"
+        @click="isBackDialogOpen = true"
       />
       <clickable-text-with-image
         title="Debug"
