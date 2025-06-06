@@ -11,7 +11,7 @@ defineProps<{
 
 <template>
   <div
-    class="flex flex-row justify-between items-start p-8 bg-white m-4 rounded-xl hover:bg-primary hover:text-white duration-1000"
+    class="flex flex-row justify-between items-start p-8 bg-white dark:bg-headline dark:hover:bg-secondary dark:hover:text-black dark:text-white m-4 rounded-xl hover:bg-primary hover:text-white duration-1000"
     data-aos="zoom-in"
     data-aos-duration="600"
     data-aos-anchor="#questcontainer"
