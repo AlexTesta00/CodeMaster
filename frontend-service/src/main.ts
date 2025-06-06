@@ -5,6 +5,7 @@ import 'aos/dist/aos.css'
 import App from './App.vue'
 import { loader } from '@guolao/vue-monaco-editor'
 import router from './router'
+import { initDarkMode } from './utils/dark-mode.ts'
 
 AOS.init()
 
@@ -15,5 +16,7 @@ loader.config({
         vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs',
     },
 })
+
+initDarkMode()
 
 app.use(router).mount('#app')

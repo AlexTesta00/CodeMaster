@@ -35,7 +35,7 @@ const addLanguage = (lang: string) => {
 
 <template>
   <section
-    class="flex flex-col items-center justify-center mx-4 bg-background animate-fade-in"
+    class="flex flex-col items-center justify-center mx-4 animate-fade-in bg-background dark:bg-bgdark min-h-screen"
   >
     <h1
       class="text-black dark:text-white text-3xl lg:text-5xl w-full text-center mt-4"
@@ -171,7 +171,7 @@ const addLanguage = (lang: string) => {
     >
       <div
         id="questcontainer"
-        class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4"
+        class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4 mb-8"
         data-aos="zoom-in"
         data-aos-duration="600"
       >
@@ -218,7 +218,7 @@ const addLanguage = (lang: string) => {
       </div>
     </div>
     <footer
-      class="left-0 bottom-0 fixed w-full hidden lg:inline animate-fade-in"
+      class="left-0 bottom-0 fixed w-full hidden lg:inline animate-fade-in bg-background dark:bg-bgdark"
     >
       <div class="flex flex-row justify-between items-start w-full h-14">
         <button-with-image

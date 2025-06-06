@@ -38,7 +38,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="lg:ml-16 bg-background dark:bg-bgdark animate-fade-in">
+  <section
+    class="lg:ml-16 min-h-screen bg-background dark:bg-bgdark animate-fade-in lg:overflow-y-hidden"
+  >
     <!--Title welcome back-->
     <header>
       <h1

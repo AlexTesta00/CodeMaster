@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <section class="w-full h-screen bg-background">
+  <section class="w-full h-screen bg-background dark:bg-bgdark">
     <div
       class="w-full h-full flex flex-col justify-center items-center gap-6"
     >

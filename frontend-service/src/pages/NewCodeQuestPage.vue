@@ -62,7 +62,7 @@ onBeforeUnmount(() => {
 
 <template>
   <section
-    class="h-[90dvh] flex flex-row bg-background dark:bg-bgdark mx-4 my-4 overflow-hidden animate-fade-in"
+    class="h-[100vh] flex flex-row bg-background dark:bg-bgdark animate-fade-in overflow-hidden"
   >
     <!-- Dialog for return back -->
     <yes-or-no-dialog
@@ -85,7 +85,7 @@ onBeforeUnmount(() => {
     <!-- Form Section -->
     <form
       :style="{ width: leftPanelWidth + 'px' }"
-      class="flex flex-col h-full overflow-auto min-w-[200px] max-w-[calc(100%-200px)] gap-4"
+      class="flex h-full flex-col overflow-auto min-w-[200px] max-w-[calc(100%-200px)] gap-4 pb-16 ml-4"
       data-aos="fade-up"
       data-aos-duration="1600"
     >
@@ -99,31 +99,26 @@ onBeforeUnmount(() => {
         type="text"
         name="title"
         class="border-2 border-primary w-2/5 rounded-l"
-        maxlength="50"
         placeholder="Example: Reverse string"
         required
       >
       <label
         for="description"
         class="text-black dark:text-white text-2xl"
-      >Description*
-        <span class="text-base text-gray-500">(Max 255 char)</span></label>
+      >Description*</label>
       <textarea
         id="description"
         name="description"
-        maxlength="255"
         placeholder="Example: I want to get the reverse of a string"
         required
       />
       <label
         for="example"
         class="text-black dark:text-white text-2xl"
-      >Example*
-        <span class="text-base text-gray-500">(Max 255 char)</span></label>
+      >Example*</label>
       <textarea
         id="description"
         name="description"
-        maxlength="255"
         placeholder="Example: input -> abcd, output: -> dcba"
         required
       />
@@ -166,7 +161,7 @@ onBeforeUnmount(() => {
 
   <!-- Bottom NavBar -->
   <footer
-    class="flex flex-row justify-center items-center w-full h-16 fixed bottom-0 mb-7"
+    class="flex flex-row justify-center items-center w-full fixed h-16 bottom-0 bg-background dark:bg-bgdark gap-4"
   >
     <button-with-image
       title="Return back"

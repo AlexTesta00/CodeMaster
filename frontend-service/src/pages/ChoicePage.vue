@@ -24,7 +24,7 @@ onMounted(async () => {
 
 <template>
   <section
-    class="ml-4 mr-4 md:overflow-y-hidden animate-fade-in dark:bg-bgdark"
+    class="ml-4 mr-4 min-h-screen overflow-y-hidden animate-fade-in bg-white dark:bg-bgdark"
   >
     <header>
       <h1
@@ -50,16 +50,18 @@ onMounted(async () => {
     <p class="text-center hidden md:block dark:text-background">
       {{ hoverText }}
     </p>
+
+    <div class="flex flex-row justify-center items-center w-full mb-8">
+      <button-with-image
+        class="w-full md:w-64 lg:mt-6"
+        image-url="/icons/back.svg"
+        alt-text="Return to profile page"
+        title="Return Back"
+        @click="router.back()"
+      />
+    </div>
   </section>
   <footer
     class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
-  >
-    <button-with-image
-      class="lg:mt-6"
-      image-url="/icons/back.svg"
-      alt-text="Return to profile page"
-      title="Return Back"
-      @click="router.back()"
-    />
-  </footer>
+  />
 </template>

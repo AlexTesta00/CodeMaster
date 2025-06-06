@@ -64,7 +64,7 @@ onBeforeUnmount(() => {
 
 <template>
   <section
-    class="h-[90dvh] flex flex-row bg-background dark:bg-bgdark mx-4 my-4 overflow-hidden animate-fade-in"
+    class="h-[90vh] min-h-screen flex flex-row bg-background dark:bg-bgdark mx-4 overflow-hidden animate-fade-in"
   >
     <!-- Sidebar Overlay -->
     <div
@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
     <!-- Markdown Section -->
     <div
       :style="{ width: leftPanelWidth + 'px' }"
-      class="h-full overflow-auto min-w-[200px] max-w-[calc(100%-200px)]"
+      class="h-full overflow-auto min-w-[200px] max-w-[calc(100%-200px)] mt-6"
       data-aos="fade-up"
       data-aos-duration="1600"
     >
@@ -118,7 +118,7 @@ onBeforeUnmount(() => {
 
   <!-- Bottom NavBar -->
   <footer
-    class="flex flex-row justify-center items-center w-full h-16 fixed bottom-0 mb-7"
+    class="flex flex-row justify-center items-center w-full h-16 fixed bottom-0 mb-7 bg-transparent"
   >
     <div
       class="w-1/4 h-full bg-primary rounded-full flex flex-row justify-evenly items-center flex-wrap"

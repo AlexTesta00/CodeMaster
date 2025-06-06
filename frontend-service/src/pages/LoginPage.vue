@@ -168,7 +168,7 @@ const goToDahsboardPage = (event) => {
 
             <p
               v-if="page == 'login'"
-              class="mt-6 text-sm text-center text-black"
+              class="mt-6 text-sm text-center text-black dark:text-white"
             >
               Don&#x27;t have an account yet?
               <a
@@ -180,7 +180,7 @@ const goToDahsboardPage = (event) => {
             </p>
             <p
               v-if="page == 'register'"
-              class="mt-6 text-sm text-center text-black"
+              class="mt-6 text-sm text-center text-black dark:text-white"
             >
               You have an account?
               <a

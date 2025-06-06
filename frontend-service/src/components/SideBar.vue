@@ -13,7 +13,7 @@ defineProps<{
 
 <template>
   <aside
-    class="flex flex-col w-1/5 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:border-gray-700 absolute top-0 left-0 z-40 dark:text-white dark:bg-black"
+    class="flex flex-col w-1/5 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:border-gray-700 absolute top-0 left-0 z-40 dark:text-white dark:bg-bgdark"
     data-aos="fade-right"
     data-aos-duration="1400"
   >
