@@ -4,8 +4,7 @@ import router from '../router'
 
 const page = ref('login')
 
-const goToDahsboardPage = (event) => {
-    event.preventDefault()
+const goToDahsboardPage = () => {
     router.push('/dashboard')
 }
 </script>
@@ -65,7 +64,7 @@ const goToDahsboardPage = (event) => {
           <div class="mt-8">
             <form
               method="post"
-              @submit="goToDahsboardPage"
+              @submit.prevent="goToDahsboardPage"
             >
               <div>
                 <label

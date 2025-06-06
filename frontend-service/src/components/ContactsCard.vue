@@ -33,7 +33,7 @@ defineProps<{
     <div class="flex flex-row justify-center items-center gap-6">
       <ImageLink
         v-for="link in links"
-        :key="link"
+        :key="link.url"
         :url="link.url"
         :image-path="link.image"
         :alt="link.alt"
