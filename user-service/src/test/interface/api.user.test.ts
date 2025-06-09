@@ -414,27 +414,27 @@ describe('Test User API', () => {
 
     beforeAll(async () => {
       await request
-        .post('/api/v1/levels/')
+        .post('/api/v1/levels/create')
         .send(firstLevel)
         .set('Accept', 'application/json')
       await request
-        .post('/api/v1/levels/')
+        .post('/api/v1/levels/create')
         .send(secondLevel)
         .set('Accept', 'application/json')
       await request
-        .post('/api/v1/levels/')
+        .post('/api/v1/levels/create')
         .send(thirdLevel)
         .set('Accept', 'application/json')
       await request
-        .post('/api/v1/trophies/')
+        .post('/api/v1/trophies/create')
         .send(firstTrophy)
         .set('Accept', 'application/json')
       await request
-        .post('/api/v1/trophies/')
+        .post('/api/v1/trophies/create')
         .send(secondTrophy)
         .set('Accept', 'application/json')
       await request
-        .post('/api/v1/trophies/')
+        .post('/api/v1/trophies/create')
         .send(thirdTrophy)
         .set('Accept', 'application/json')
     })

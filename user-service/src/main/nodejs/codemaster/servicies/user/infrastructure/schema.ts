@@ -19,14 +19,14 @@ const cvSchema = new Schema({
 })
 
 const trophySchema = new Schema({
-  title: { type: 'string', required: true, unique: true, key: true },
+  title: { type: 'string', required: true, key: true },
   description: { type: 'string', required: true },
   url: { type: 'string', required: true },
   xp: { type: 'number', required: true },
 })
 
 const levelSchema = new Schema({
-  grade: { type: 'number', required: true, unique: true, key: true },
+  grade: { type: 'number', required: true, key: true },
   title: { type: 'string', required: true },
   xp: { type: 'number', required: true },
 })

@@ -51,4 +51,6 @@ interface SolutionRepository {
     ): Mono<Solution>
 
     fun removeSolutionById(id: SolutionId): Mono<Solution>
+
+    fun existBy(): Mono<Boolean>
 }
