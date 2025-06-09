@@ -1,17 +1,68 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '../router'
+import { loginUser, registerNewUser } from '../utils/register-login.ts'
+import { errorToast, successToast } from '../utils/notify.ts'
+import { authenticationTraductor } from '../utils/error-message-traductor.ts'
+import Loading from './Loading.vue'
 
-const page = ref('login')
+const nickname = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const page = ref<'login' | 'register'>('login')
+const isLoading = ref(false)
 
 const goToDahsboardPage = () => {
     router.push('/dashboard')
+}
+
+const handleSubmit = async () => {
+  try {
+    if(page.value === 'login'){
+      isLoading.value = true
+      const response = await loginUser(nickname.value, password.value)
+      if (response.success) {
+        await successToast('Login Successful')
+        isLoading.value = false
+        goToDahsboardPage()
+      } else {
+        await errorToast(authenticationTraductor(response.message))
+        isLoading.value = false
+      }
+    }else{
+      if(password.value !== confirmPassword.value){
+        await errorToast("Error: Passwords do not match")
+        isLoading.value = false
+        return
+      }
+
+      isLoading.value = true
+      const response = await registerNewUser(nickname.value, email.value, password.value)
+      if (response.success) {
+        await successToast("Registration Successful")
+        isLoading.value = false
+        goToDahsboardPage()
+      } else {
+        await errorToast(authenticationTraductor(response.message))
+        isLoading.value = false
+      }
+    }
+  }catch (error) {
+    if(error instanceof Error){
+      await errorToast(authenticationTraductor(error.message))
+      isLoading.value = false
+    }else{
+      isLoading.value = false
+    }
+  }
 }
 </script>
 
 <template>
   <div
     class="bg-white dark:bg-gray-900 animate-fade-in transition duration-500 ease-in-out"
+    v-if="isLoading == false"
   >
     <div class="flex justify-center h-screen">
       <div
@@ -64,21 +115,22 @@ const goToDahsboardPage = () => {
           <div class="mt-8">
             <form
               method="post"
-              @submit.prevent="goToDahsboardPage"
+              @submit.prevent="handleSubmit"
             >
               <div>
                 <label
                   v-if="page == 'login'"
-                  for="emailornickname"
+                  for="nickname"
                   class="block mb-2 text-sm text-black dark:text-gray-200"
-                >Email Address or Nickname</label>
+                >Nickname</label>
                 <input
                   v-if="page == 'login'"
-                  id="emailornickname"
+                  id="nickname"
                   type="text"
-                  name="emailornickname"
-                  placeholder="example@example.com or nickname"
+                  name="nickname"
+                  placeholder="example: mariorossi"
                   class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  v-model="nickname"
                 >
                 <label
                   v-if="page == 'register'"
@@ -92,6 +144,9 @@ const goToDahsboardPage = () => {
                   name="nickname"
                   placeholder="example"
                   class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  pattern="^[a-zA-Z0-9_]{3,10}$"
+                  title="Invalid nickname format, only letter, number and underscore. Min 3, max 10 characters"
+                  v-model="nickname"
                 >
               </div>
 
@@ -108,6 +163,9 @@ const goToDahsboardPage = () => {
                   name="email"
                   placeholder="example@example.com or nickname"
                   class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$"
+                  title="example@example.com"
+                  v-model="email"
                 >
               </div>
 
@@ -117,7 +175,6 @@ const goToDahsboardPage = () => {
                     for="password"
                     class="text-sm text-black dark:text-gray-200"
                   >Password</label>
-                  <!--<a href="#" class="text-sm text-gray-400 focus:text-blue-500 hover:text-blue-500 hover:underline">Forgot password?</a>-->
                 </div>
 
                 <input
@@ -126,6 +183,9 @@ const goToDahsboardPage = () => {
                   name="password"
                   placeholder="Your Password"
                   class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40'"
+                  pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
+                  title="Invalid password format, at least 8 characters, one uppercase letter, one number and one special character"
+                  v-model="password"
                 >
               </div>
 
@@ -142,10 +202,11 @@ const goToDahsboardPage = () => {
                 <input
                   v-if="page == 'register'"
                   id="confirm"
-                  type="text"
+                  type="password"
                   name="confirm"
                   placeholder="Your Password"
                   class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40'"
+                  v-model="confirmPassword"
                 >
               </div>
 
@@ -194,4 +255,5 @@ const goToDahsboardPage = () => {
       </div>
     </div>
   </div>
+  <loading v-if="isLoading"/>
 </template>
