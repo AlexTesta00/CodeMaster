@@ -1,15 +1,13 @@
-import crypto from "crypto";
+import crypto from 'crypto'
 
 export class CommentId {
   private readonly value: string;
 
   constructor(author: string, questId: string, timestamp: Date) {
-    const hash = crypto
+    this.value = crypto
       .createHash("sha256")
       .update(`${author}:${questId}:${timestamp.getDate()}`)
       .digest("hex");
-
-    this.value = hash;
   }
 
   toString(): string {

@@ -5,13 +5,13 @@ export class CommentFactory {
   static newComment(
     content: string,
     questId: string,
-    author: string
+    author: string,
+    timeStamp = new Date(Date.now()),
+    id = new CommentId(author, questId, timeStamp)
   ): Comment {
-    const timeStamp = new Date(Date.now())
-    const id = new CommentId(author, questId, timeStamp)
 
     if(author == "") {
-      throw new CommentError.InvalidAuthor("QuestId cannot be empty")
+      throw new CommentError.InvalidAuthor("Author cannot be empty")
     }
 
     if(questId == "") {
