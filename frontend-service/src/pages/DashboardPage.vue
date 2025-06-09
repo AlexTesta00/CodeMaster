@@ -5,7 +5,6 @@ import ButtonFilter from '../components/ButtonFilter.vue'
 import { onMounted, type Ref, ref } from 'vue'
 import CodeQuest from '../components/CodeQuest.vue'
 import ContactsCard, { type Link } from '../components/ContactsCard.vue'
-import EventNotification from '../components/EventNotification.vue'
 import router from '../router'
 
 export type Person = {
@@ -231,14 +230,6 @@ onMounted(async () => {
 
       <!--CodeQuest DashboardCard-->
       <span class="h-4 lg:hidden" />
-    </div>
-    <!-- Notification -->
-    <div class="w-full h-14 flex flex-col justify-center items-center">
-      <event-notification
-        title="Login Success"
-        message="You've been logged in"
-        type="success"
-      />
     </div>
   </section>
 </template>
