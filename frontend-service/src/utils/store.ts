@@ -21,10 +21,13 @@ export const useAuthStore = defineStore('auth', () => {
     sessionStorage.removeItem('nickname')
   }
 
+  const isLoggedIn = () => !!nickname.value
+
   return {
     nickname,
     setNickname,
     loadNickname,
-    clearNickname
+    clearNickname,
+    isLoggedIn
   }
 })
