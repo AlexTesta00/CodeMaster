@@ -68,6 +68,15 @@ jobs:
           flags: codequest-service
           name: codecov-umbrella
           fail_ci_if_error: true
+      - name: Upload coverage for community-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: community-service/coverage/lcov.info
+          flags: community-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
       - name: Upload coverage for user-service
         if: github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
@@ -120,7 +129,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
