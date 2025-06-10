@@ -5,26 +5,34 @@ import { CommentRepository } from '../../main/nodejs/codemaster/servicies/commun
 import { CommentFactory } from '../../main/nodejs/codemaster/servicies/community/domain/comment-factory'
 import { CommentModel } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-model'
 import { CommentId } from '../../main/nodejs/codemaster/servicies/community/domain/comment-id'
+import {
+  CommunityService,
+  CommunityServiceError,
+} from '../../main/nodejs/codemaster/servicies/community/application/community-service'
+import {
+  CommunityServiceImpl
+} from '../../main/nodejs/codemaster/servicies/community/application/community-service-impl'
+import { Comment } from '../../main/nodejs/codemaster/servicies/community/domain/comment'
 
 describe('TestCodeQuestRepository', () => {
   const timeout = 10000
   let mongoServer: MongoMemoryServer
-  let commentRepo: CommentRepository
+  let service: CommunityService
 
   const author = 'exampleName'
   const content = 'exampleContent'
   const questId = 'test id'
-  const comment = CommentFactory.newComment(content, questId, author)
 
   const fakeQuestId = 'fakeQuestId'
   const fakeAuthor = 'fakeAuthor'
   const fakeId = new CommentId(fakeAuthor, fakeQuestId, new Date(Date.now()))
+  let newComment: Comment
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create()
     const uri = mongoServer.getUri()
     await mongoose.connect(uri)
-    commentRepo = new CommentRepositoryImpl()
+    service = new CommunityServiceImpl()
   }, timeout)
 
   afterAll(async () => {
@@ -41,44 +49,32 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should create comment with correct values',
         async () => {
-          const newComment = CommentFactory.newComment(content, questId, author)
-          const savedComment = await commentRepo.save(newComment)
+          const savedComment = await service.addComment(questId, author, content)
 
-          expect(savedComment.id).toBe(newComment.id.toString())
-          expect(savedComment.content).toBe(newComment.content)
-          expect(savedComment.questId).toBe(newComment.questId)
-          expect(savedComment.author).toBe(newComment.author)
-        },
-        timeout
-      )
-
-      it(
-        'should throw exception if add another comment with same id',
-        async () => {
-          await commentRepo.save(comment)
-          await expect(commentRepo.save(comment)).rejects.toThrow()
+          expect(savedComment.content).toBe(content)
+          expect(savedComment.questId).toBe(questId)
+          expect(savedComment.author).toBe(author)
         },
         timeout
       )
     })
 
     describe('Get comments', () => {
-      const comment2 = CommentFactory.newComment('content2', 'questId2', 'author2')
 
       beforeEach(async () => {
-        await commentRepo.save(comment)
-        await commentRepo.save(comment2)
+        newComment = await service.addComment(questId, author, content)
+        await service.addComment('questId2',  'author2', 'content2')
       }, timeout)
 
       it(
         'should get comment by commentId',
         async () => {
-          const result = await commentRepo.getCommentById(comment.id)
+          const result = await service.getCommentById(newComment.id)
 
-          expect(result.id).toBe(comment.id.toString())
-          expect(result.content).toBe(comment.content)
-          expect(result.questId).toBe(comment.questId)
-          expect(result.author).toBe(comment.author)
+          expect(result.id).toBe(newComment.id.toString())
+          expect(result.content).toBe(content)
+          expect(result.questId).toBe(questId)
+          expect(result.author).toBe(author)
         },
         timeout
       )
@@ -86,13 +82,21 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should get all comments by questId',
         async () => {
-          const results = await commentRepo.getCommentsByCodequest(questId)
+          const results = await service.getCommentsByCodequest(questId)
 
           expect(results.length).toBe(1)
-          expect(results[0].id).toBe(comment.id.toString())
-          expect(results[0].content).toBe(comment.content)
-          expect(results[0].questId).toBe(comment.questId)
-          expect(results[0].author).toBe(comment.author)
+          expect(results[0].id).toBe(newComment.id.toString())
+          expect(results[0].content).toBe(content)
+          expect(results[0].questId).toBe(questId)
+          expect(results[0].author).toBe(author)
+        },
+        timeout
+      )
+
+      it(
+        'should fail and throw exception if the questId is wrong',
+        async () => {
+          await expect(service.getCommentById(fakeId)).rejects.toThrow(CommunityServiceError.CommentNotFound)
         },
         timeout
       )
@@ -100,15 +104,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should return empty list if the questId is wrong',
         async () => {
-          await expect(commentRepo.getCommentById(fakeId)).rejects.toThrow()
-        },
-        timeout
-      )
-
-      it(
-        'should return empty list if the questId is wrong',
-        async () => {
-          const results = await commentRepo.getCommentsByCodequest(fakeQuestId)
+          const results = await service.getCommentsByCodequest(fakeQuestId)
 
           expect(results.length).toBe(0)
         },
@@ -120,15 +116,15 @@ describe('TestCodeQuestRepository', () => {
       const newContent = 'newContent'
 
       beforeEach(async () => {
-        await commentRepo.save(comment)
+        newComment = await service.addComment(questId, author, content)
       }, timeout)
 
       it(
         'should update a comment correctly',
         async () => {
-          const result = await commentRepo.updateContent(comment.id, newContent)
+          const result = await service.updateContent(newComment.id, newContent)
 
-          expect(result.id).toBe(comment.id.toString())
+          expect(result.id).toBe(newComment.id.toString())
           expect(result.content).toBe(newContent)
         },
         timeout
@@ -137,29 +133,27 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw exception if the id is wrong',
         async () => {
-          await expect(commentRepo.updateContent(fakeId, newContent)).rejects.toThrow()
+          await expect(service.updateContent(fakeId, newContent)).rejects.toThrow(CommunityServiceError.CommentNotFound)
         },
         timeout
       )
     })
 
     describe('Delete comments', () => {
-      const comment2 = CommentFactory.newComment('content2', 'questId2', author)
-      const comment3 = CommentFactory.newComment('content3', 'questId2', 'author2')
 
       beforeEach(async () => {
-        await commentRepo.save(comment)
-        await commentRepo.save(comment2)
-        await commentRepo.save(comment3)
+        await service.addComment(questId, author, content)
+        await service.addComment('questId2', author, 'content2')
+        await service.addComment('questId2', 'author2', 'content3')
       }, timeout)
 
       it(
         'should delete comment by id',
         async () => {
-          const result = await commentRepo.deleteComment(comment.id)
+          const result = await service.deleteComment(newComment.id)
 
-          expect(result.id).toBe(comment.id.toString())
-          await expect(commentRepo.getCommentById(comment.id)).rejects.toThrow()
+          expect(result.id).toBe(newComment.id.toString())
+          await expect(service.getCommentById(newComment.id)).rejects.toThrow(CommunityServiceError.CommentNotFound)
         },
         timeout
       )
@@ -167,7 +161,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should delete comments created of the same author',
         async () => {
-          const result = await commentRepo.deleteCommentsByAuthor(author)
+          const result = await service.deleteCommentsByAuthor(author)
 
           expect(result.acknowledged).toBeTruthy()
           expect(result.deletedCount).toBe(2)
@@ -178,7 +172,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should delete comments of the same codequest',
         async () => {
-          const result = await commentRepo.deleteCommentsByCodequest(questId)
+          const result = await service.deleteCommentsByCodequest(questId)
 
           expect(result.acknowledged).toBeTruthy()
           expect(result.deletedCount).toBe(1)
@@ -190,8 +184,8 @@ describe('TestCodeQuestRepository', () => {
         'should fail and throw error if questId is wrong',
         async () => {
           await expect(
-            commentRepo.deleteCommentsByCodequest(fakeQuestId)
-          ).rejects.toThrow()
+            service.deleteCommentsByCodequest(fakeQuestId)
+          ).rejects.toThrow(CommunityServiceError.InvalidQuestId)
         },
         timeout
       )
@@ -199,7 +193,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw error if author is wrong',
         async () => {
-          await expect(commentRepo.deleteCommentsByAuthor(fakeAuthor)).rejects.toThrow()
+          await expect(service.deleteCommentsByAuthor(fakeAuthor)).rejects.toThrow(CommunityServiceError.InvalidAuthor)
         },
         timeout
       )
@@ -207,7 +201,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw error if id is wrong',
         async () => {
-          await expect(commentRepo.deleteComment(fakeId)).rejects.toThrow()
+          await expect(service.deleteComment(fakeId)).rejects.toThrow(CommunityServiceError.CommentNotFound)
         },
         timeout
       )
