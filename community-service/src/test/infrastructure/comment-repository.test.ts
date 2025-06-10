@@ -18,7 +18,7 @@ describe('TestCodeQuestRepository', () => {
 
   const fakeQuestId = 'fakeQuestId'
   const fakeAuthor = 'fakeAuthor'
-  const fakeId = new CommentId(fakeAuthor, fakeQuestId, new Date(Date.now()))
+  const fakeId = CommentId.fromParts(fakeAuthor, fakeQuestId, new Date(Date.now()))
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create()

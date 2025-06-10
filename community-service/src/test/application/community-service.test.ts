@@ -1,20 +1,15 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
-import { CommentRepositoryImpl } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-repository-impl'
-import { CommentRepository } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-repository'
-import { CommentFactory } from '../../main/nodejs/codemaster/servicies/community/domain/comment-factory'
 import { CommentModel } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-model'
 import { CommentId } from '../../main/nodejs/codemaster/servicies/community/domain/comment-id'
 import {
   CommunityService,
   CommunityServiceError,
 } from '../../main/nodejs/codemaster/servicies/community/application/community-service'
-import {
-  CommunityServiceImpl
-} from '../../main/nodejs/codemaster/servicies/community/application/community-service-impl'
+import { CommunityServiceImpl } from '../../main/nodejs/codemaster/servicies/community/application/community-service-impl'
 import { Comment } from '../../main/nodejs/codemaster/servicies/community/domain/comment'
 
-describe('TestCodeQuestRepository', () => {
+describe('TestCodeQuestService', () => {
   const timeout = 10000
   let mongoServer: MongoMemoryServer
   let service: CommunityService
@@ -25,7 +20,7 @@ describe('TestCodeQuestRepository', () => {
 
   const fakeQuestId = 'fakeQuestId'
   const fakeAuthor = 'fakeAuthor'
-  const fakeId = new CommentId(fakeAuthor, fakeQuestId, new Date(Date.now()))
+  const fakeId = CommentId.fromParts(fakeAuthor, fakeQuestId, new Date(Date.now()))
   let newComment: Comment
 
   beforeAll(async () => {
@@ -60,16 +55,15 @@ describe('TestCodeQuestRepository', () => {
     })
 
     describe('Get comments', () => {
-
       beforeEach(async () => {
         newComment = await service.addComment(questId, author, content)
-        await service.addComment('questId2',  'author2', 'content2')
+        await service.addComment('questId2', 'author2', 'content2')
       }, timeout)
 
       it(
         'should get comment by commentId',
         async () => {
-          const result = await service.getCommentById(newComment.id)
+          const result = await service.getCommentById(newComment.id.toString())
 
           expect(result.id).toBe(newComment.id.toString())
           expect(result.content).toBe(content)
@@ -96,7 +90,9 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw exception if the questId is wrong',
         async () => {
-          await expect(service.getCommentById(fakeId)).rejects.toThrow(CommunityServiceError.CommentNotFound)
+          await expect(service.getCommentById(fakeId.toString())).rejects.toThrow(
+            CommunityServiceError.CommentNotFound
+          )
         },
         timeout
       )
@@ -122,7 +118,7 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should update a comment correctly',
         async () => {
-          const result = await service.updateContent(newComment.id, newContent)
+          const result = await service.updateContent(newComment.id.toString(), newContent)
 
           expect(result.id).toBe(newComment.id.toString())
           expect(result.content).toBe(newContent)
@@ -133,16 +129,17 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw exception if the id is wrong',
         async () => {
-          await expect(service.updateContent(fakeId, newContent)).rejects.toThrow(CommunityServiceError.CommentNotFound)
+          await expect(
+            service.updateContent(fakeId.toString(), newContent)
+          ).rejects.toThrow(CommunityServiceError.CommentNotFound)
         },
         timeout
       )
     })
 
     describe('Delete comments', () => {
-
       beforeEach(async () => {
-        await service.addComment(questId, author, content)
+        newComment = await service.addComment(questId, author, content)
         await service.addComment('questId2', author, 'content2')
         await service.addComment('questId2', 'author2', 'content3')
       }, timeout)
@@ -150,10 +147,12 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should delete comment by id',
         async () => {
-          const result = await service.deleteComment(newComment.id)
+          const result = await service.deleteComment(newComment.id.toString())
 
           expect(result.id).toBe(newComment.id.toString())
-          await expect(service.getCommentById(newComment.id)).rejects.toThrow(CommunityServiceError.CommentNotFound)
+          await expect(service.getCommentById(newComment.id.toString())).rejects.toThrow(
+            CommunityServiceError.CommentNotFound
+          )
         },
         timeout
       )
@@ -183,9 +182,9 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw error if questId is wrong',
         async () => {
-          await expect(
-            service.deleteCommentsByCodequest(fakeQuestId)
-          ).rejects.toThrow(CommunityServiceError.InvalidQuestId)
+          await expect(service.deleteCommentsByCodequest(fakeQuestId)).rejects.toThrow(
+            CommunityServiceError.InvalidQuestId
+          )
         },
         timeout
       )
@@ -193,7 +192,9 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw error if author is wrong',
         async () => {
-          await expect(service.deleteCommentsByAuthor(fakeAuthor)).rejects.toThrow(CommunityServiceError.InvalidAuthor)
+          await expect(service.deleteCommentsByAuthor(fakeAuthor)).rejects.toThrow(
+            CommunityServiceError.InvalidAuthor
+          )
         },
         timeout
       )
@@ -201,7 +202,9 @@ describe('TestCodeQuestRepository', () => {
       it(
         'should fail and throw error if id is wrong',
         async () => {
-          await expect(service.deleteComment(fakeId)).rejects.toThrow(CommunityServiceError.CommentNotFound)
+          await expect(service.deleteComment(fakeId.toString())).rejects.toThrow(
+            CommunityServiceError.CommentNotFound
+          )
         },
         timeout
       )

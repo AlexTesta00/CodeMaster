@@ -14,7 +14,7 @@ describe('CommentFactoryTest', () => {
     'should create new comment correctly',
     () => {
       const newComment = CommentFactory.newComment(content, questId, author)
-      const id = new CommentId(author, questId, newComment.timestamp)
+      const id = CommentId.fromParts(author, questId, newComment.timestamp)
 
       expect(newComment.id).toStrictEqual(id)
       expect(newComment.questId).toBe(questId)
