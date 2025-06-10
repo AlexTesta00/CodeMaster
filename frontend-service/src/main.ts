@@ -8,6 +8,7 @@ import router from './router'
 import { initDarkMode } from './utils/dark-mode.ts'
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import { createPinia } from 'pinia'
 
 AOS.init()
 
@@ -21,4 +22,5 @@ loader.config({
 
 initDarkMode()
 app.use(VueSweetalert2)
+app.use(createPinia())
 app.use(router).mount('#app')
