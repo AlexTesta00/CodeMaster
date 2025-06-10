@@ -9,16 +9,15 @@ export class CommentFactory {
     timeStamp = new Date(Date.now()),
     id = new CommentId(author, questId, timeStamp)
   ): Comment {
-
-    if(author == "") {
-      throw new CommentError.InvalidAuthor("Author cannot be empty")
+    if (author == '') {
+      throw new CommentError.InvalidAuthor('Author cannot be empty')
     }
 
-    if(questId == "") {
+    if (questId == '') {
       throw new CommentError.InvalidQuestId('QuestId cannot be empty')
     }
 
-    if(content == "") {
+    if (content == '') {
       throw new CommentError.InvalidContent('Cannot post and empty comment')
     }
 
