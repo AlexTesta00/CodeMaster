@@ -6,6 +6,7 @@ import { onMounted, type Ref, ref } from 'vue'
 import CodeQuest from '../components/CodeQuest.vue'
 import ContactsCard, { type Link } from '../components/ContactsCard.vue'
 import router from '../router'
+import { useAuthStore } from '../utils/store.ts'
 
 export type Person = {
     name: string
@@ -33,6 +34,8 @@ onMounted(async () => {
         errorMessage.value = "Can't load contacts"
         console.error('Errore durante il fetch dei contacts:', error)
     }
+    const auth = useAuthStore()
+    auth.loadNickname()
 })
 </script>
 
