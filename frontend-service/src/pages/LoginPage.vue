@@ -5,6 +5,7 @@ import { loginUser, registerNewUser } from '../utils/register-login.ts'
 import { errorToast, successToast } from '../utils/notify.ts'
 import { authenticationTraductor } from '../utils/error-message-traductor.ts'
 import Loading from './Loading.vue'
+import { useAuthStore } from '../utils/store.ts'
 
 const nickname = ref('')
 const email = ref('')
@@ -12,6 +13,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const page = ref<'login' | 'register'>('login')
 const isLoading = ref(false)
+const authStore = useAuthStore()
 
 const goToDahsboardPage = () => {
     router.push('/dashboard')
@@ -25,6 +27,7 @@ const handleSubmit = async () => {
       if (response.success) {
         await successToast('Login Successful')
         isLoading.value = false
+        authStore.setNickname(nickname.value)
         goToDahsboardPage()
       } else {
         await errorToast(authenticationTraductor(response.message))
@@ -42,6 +45,7 @@ const handleSubmit = async () => {
       if (response.success) {
         await successToast("Registration Successful")
         isLoading.value = false
+        authStore.setNickname(nickname.value)
         goToDahsboardPage()
       } else {
         await errorToast(authenticationTraductor(response.message))
