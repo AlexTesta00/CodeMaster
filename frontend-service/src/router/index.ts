@@ -8,17 +8,18 @@ import CodePage from '../pages/CodePage.vue'
 import ErrorPage from '../pages/ErrorPage.vue'
 import NewCodeQuestPage from '../pages/NewCodeQuestPage.vue'
 import ChoicePage from '../pages/ChoicePage.vue'
+import { useAuthStore } from '../utils/store.ts'
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
     { path: '/login', name: 'Login', component: LoginPage },
-    { path: '/dashboard', name: 'Dashboard', component: DashboardPage },
-    { path: '/profile', name: 'Profile', component: ProfilePage },
-    { path: '/settings', name: 'Settings', component: SettingsPage },
-    { path: '/code', name: 'Code', component: CodePage },
+    { path: '/dashboard', name: 'Dashboard', component: DashboardPage, meta: { requiresAuth: true } },
+    { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
+    { path: '/settings', name: 'Settings', component: SettingsPage, meta: { requiresAuth: true } },
+    { path: '/code', name: 'Code', component: CodePage, meta: { requiresAuth: true } },
     { path: '/error', name: 'Error', component: ErrorPage },
-    { path: '/codequest', name: 'CodeQuest', component: NewCodeQuestPage },
-    { path: '/choice', name: 'Choice', component: ChoicePage },
+    { path: '/codequest', name: 'CodeQuest', component: NewCodeQuestPage, meta: { requiresAuth: true } },
+    { path: '/choice', name: 'Choice', component: ChoicePage, meta: { requiresAuth: true } },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -30,6 +31,23 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+})
+
+router.beforeEach(async (to, from, next) => {
+    const auth = useAuthStore()
+    auth.loadNickname()
+
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+    if(requiresAuth && !auth.isLoggedIn()){
+        return next({ name: 'Login' })
+    }
+
+    if (to.name === 'Login' && auth.isLoggedIn()) {
+        return next({ name: 'Dashboard' })
+    }
+
+    next()
 })
 
 export default router
