@@ -113,7 +113,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - '4007:4007'
+      - '3000:3000'
     depends_on:
       mongo-codequest:
         condition: service_started
@@ -134,7 +134,7 @@ services:
     ports:
       - '8085:8081'
     depends_on:
-      mongo-codequest:
+      mongo-community:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-community:27017/codemaster-community-db"
@@ -145,9 +145,9 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - '3000:3000'
+      - '4007:4007'
     depends_on:
-      mongo-codequest:
+      mongo-community:
         condition: service_started
     env_file:
       - ./community-service/.env
@@ -219,6 +219,8 @@ services:
       codemaster-codequest-service:
         condition: service_started
       codemaster-solution-service:
+        condition: service_started
+      codemaster-community-service:
         condition: service_started
     volumes:
       - ./populate-db:/app
