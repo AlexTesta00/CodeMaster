@@ -7,7 +7,7 @@ export class CommentFactory {
     questId: string,
     author: string,
     timeStamp = new Date(Date.now()),
-    id = new CommentId(author, questId, timeStamp)
+    id = CommentId.fromParts(author, questId, timeStamp)
   ): Comment {
     if (author == '') {
       throw new CommentError.InvalidAuthor('Author cannot be empty')

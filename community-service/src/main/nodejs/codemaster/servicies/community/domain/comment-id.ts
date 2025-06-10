@@ -3,11 +3,20 @@ import crypto from 'crypto'
 export class CommentId {
   private readonly value: string
 
-  constructor(author: string, questId: string, timestamp: Date) {
-    this.value = crypto
+  private constructor(value: string) {
+    this.value = value
+  }
+
+  static fromParts(author: string, questId: string, timestamp: Date): CommentId {
+    const hash = crypto
       .createHash('sha256')
-      .update(`${author}:${questId}:${timestamp.getDate()}`)
+      .update(`${author}:${questId}:${timestamp.getTime()}`)
       .digest('hex')
+    return new CommentId(hash)
+  }
+
+  static fromString(value: string): CommentId {
+    return new CommentId(value)
   }
 
   toString(): string {
