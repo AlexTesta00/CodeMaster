@@ -1,4 +1,12 @@
 import type { Option } from 'fp-ts/Option'
+import type { Link } from '../components/ContactsCard.vue'
+
+export type Person = {
+  name: string
+  image: string
+  role: string
+  link: [Link]
+}
 
 export interface AuthenticationResponse {
   message: string

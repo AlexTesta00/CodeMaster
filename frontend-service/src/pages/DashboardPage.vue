@@ -4,38 +4,67 @@ import DashboardCard from '../components/DashboardCard.vue'
 import ButtonFilter from '../components/ButtonFilter.vue'
 import { onMounted, type Ref, ref } from 'vue'
 import CodeQuest from '../components/CodeQuest.vue'
-import ContactsCard, { type Link } from '../components/ContactsCard.vue'
+import ContactsCard from '../components/ContactsCard.vue'
 import router from '../router'
 import { useAuthStore } from '../utils/store.ts'
+import Loading from './Loading.vue'
+import type { Level, Person, ProfilePicture, Trophy } from '../utils/interface.ts'
+import { errorToast } from '../utils/notify.ts'
+import { getUserByNickname } from '../utils/api.ts'
+import { isSome } from 'fp-ts/Option'
 
-export type Person = {
-    name: string
-    image: string
-    role: string
-    link: [Link]
-}
-
+const isLoading = ref(false)
+const profilePicture = ref<ProfilePicture | null>(null)
+const lastTrophy = ref<Trophy| null>(null)
+const level = ref<Level| null>(null)
 const filterActive = ref('none')
 const auth = useAuthStore()
 const toggleFilterActive = (filter: string) =>
     filterActive.value == filter
         ? (filterActive.value = 'none')
         : (filterActive.value = filter)
-const errorMessage = ref('')
 const contacts: Ref<Person[]> = ref([])
 
 onMounted(async () => {
+  auth.loadNickname()
+  if(auth.nickname){
     try {
-        const response = await fetch('/data/contacts.json')
-        if (!response.ok) {
-            errorMessage.value = "Can't load contacts"
+      isLoading.value = true
+      const response = await fetch('/data/contacts.json')
+      if (!response.ok) {
+        await errorToast("Can't load contacts")
+      }
+      contacts.value = await response.json()
+
+      //Load user data
+      const res = await getUserByNickname(auth.nickname)
+      if(res.success){
+        if(isSome(res.user.profilePicture)){
+          profilePicture.value = res.user.profilePicture.value
         }
-        contacts.value = await response.json()
-    } catch (error) {
-        errorMessage.value = "Can't load contacts"
-        console.error('Errore durante il fetch dei contacts:', error)
+
+        if(isSome(res.user.trophies)){
+          const trophies = Array.from(res.user.trophies.value)
+          if(trophies.length > 0){
+            lastTrophy.value = trophies[trophies.length - 1]
+          }
+        }
+
+        level.value = res.user.level
+      }else{
+        await errorToast("Failed to load user data")
+        await router.push('/error')
+      }
+    } catch {
+      await errorToast("Failed to fetch data")
+      await router.push('/error')
+    }finally {
+      isLoading.value = false
     }
-    auth.loadNickname()
+  }else{
+    await errorToast("Dashboard page requires authentication")
+    await router.push('/error')
+  }
 })
 </script>
 
@@ -58,9 +87,9 @@ onMounted(async () => {
       <!--DashboardCard see profile-->
       <dashboard-card>
         <img
-          src="/images/barney.png"
+          :src="(profilePicture) ? profilePicture.url : '/images/barney.png'"
           class="w-32 h-32 rounded-lg"
-          alt="Barney Image"
+          :alt="profilePicture?.url + ' characters profile image'"
         >
         <router-link
           class="text-white bg-primary p-2 w-2/4 mt-6 rounded-xl hover:bg-secondary hover:text-black duration-200 text-center"
@@ -93,12 +122,12 @@ onMounted(async () => {
           Last Trophies
         </h2>
         <img
-          src="/images/trophy-star.png"
+          :src="lastTrophy?.url || '/images/dog.png'"
           class="w-32 h-32 object-cover"
           alt="Trophy Photo"
         >
         <h3 class="text-xl text-white">
-          Code Expert
+          {{ lastTrophy?.title || 'No trophy yet' }}
         </h3>
       </dashboard-card>
       <!--DashboardCard Level -->
@@ -111,13 +140,8 @@ onMounted(async () => {
           class="w-32 h-32 object-cover"
           alt="Level Photo"
         >
-        <progress
-          class="w-4/5 h-3 [&::-webkit-progress-value]:bg-primary [&::-moz-progress-value]:bg-primary"
-          value="50"
-          max="100"
-        />
         <h3 class="text-xl text-white">
-          Code Master
+          {{ level?.title || 'No level yet'}}
         </h3>
       </dashboard-card>
     </div>
@@ -235,4 +259,5 @@ onMounted(async () => {
       <span class="h-4 lg:hidden" />
     </div>
   </section>
+  <loading v-if="isLoading"/>
 </template>
