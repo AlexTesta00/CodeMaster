@@ -16,6 +16,7 @@ export type Person = {
 }
 
 const filterActive = ref('none')
+const auth = useAuthStore()
 const toggleFilterActive = (filter: string) =>
     filterActive.value == filter
         ? (filterActive.value = 'none')
@@ -34,21 +35,20 @@ onMounted(async () => {
         errorMessage.value = "Can't load contacts"
         console.error('Errore durante il fetch dei contacts:', error)
     }
-    const auth = useAuthStore()
     auth.loadNickname()
 })
 </script>
 
 <template>
   <section
-    class="lg:ml-16 min-h-screen bg-background dark:bg-bgdark animate-fade-in lg:overflow-y-hidden"
+    class="lg:ml-16 min-h-screen bg-background dark:bg-bgdark animate-fade-in overflow-y-hidden"
   >
     <!--Title welcome back-->
     <header>
       <h1
         class="text-black text-center lg:text-left text-3xl lg:text-5xl mt-6 dark:text-white lg:ml-4 animate-fade-in"
       >
-        Welcome Back 👋🏻,<br>StopRosik
+        Welcome Back 👋🏻,<br>{{ auth.nickname }}
       </h1>
     </header>
     <!--First section-->

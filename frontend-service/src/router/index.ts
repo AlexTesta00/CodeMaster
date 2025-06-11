@@ -17,14 +17,14 @@ const routes = [
     { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
     { path: '/settings', name: 'Settings', component: SettingsPage, meta: { requiresAuth: true } },
     { path: '/code', name: 'Code', component: CodePage, meta: { requiresAuth: true } },
-    { path: '/error', name: 'Error', component: ErrorPage },
+    { path: '/error', name: 'Error', component: ErrorPage, props: {title: 'Service temporary not available', errorCode: '500'} },
     { path: '/codequest', name: 'CodeQuest', component: NewCodeQuestPage, meta: { requiresAuth: true } },
     { path: '/choice', name: 'Choice', component: ChoicePage, meta: { requiresAuth: true } },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: ErrorPage,
-        props: { title: 'Ops..this is not the right place', errorCode: 404 },
+        props: { title: 'Ops..this is not the right place', errorCode: '404' },
     },
 ]
 

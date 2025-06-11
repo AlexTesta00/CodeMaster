@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '../router'
-import { loginUser, registerNewUser } from '../utils/register-login.ts'
+import { loginUser, registerNewUser } from '../utils/api.ts'
 import { errorToast, successToast } from '../utils/notify.ts'
 import { authenticationTraductor } from '../utils/error-message-traductor.ts'
 import Loading from './Loading.vue'
