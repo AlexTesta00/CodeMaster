@@ -35,7 +35,7 @@ const isBackDialogOpen = ref(false)
 
 const handleConfirm = () => {
   isBackDialogOpen.value = false
-  router.back()
+  router.push('/dashboard')
 }
 
 const handleClose = () => {

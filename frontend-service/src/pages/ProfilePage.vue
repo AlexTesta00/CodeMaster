@@ -384,7 +384,7 @@ onMounted(async () => {
           image-url="/icons/back.svg"
           alt-text="Back button"
           class="lg:ml-80"
-          @click="router.back()"
+          @click="router.push('/dashboard')"
         />
         <div
           class="flex flex-row justify-center items-center mr-4 lg:mr-80 gap-6"

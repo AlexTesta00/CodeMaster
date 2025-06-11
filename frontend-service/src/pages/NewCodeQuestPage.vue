@@ -34,7 +34,7 @@ const handleMouseMove = (e: MouseEvent) => {
 
 const handleConfirm = () => {
     isBackDialogOpen.value = false
-    router.back()
+    router.push('/profile')
 }
 
 const handleClose = () => {

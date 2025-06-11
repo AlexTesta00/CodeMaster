@@ -59,7 +59,7 @@ const isDarkModeOn = ref(isDarkModeEnabled())
       image-url="/icons/back.svg"
       alt-text="Back button"
       class="hover:bg-headline ml-0"
-      @click="router.back()"
+      @click="router.push('/profile')"
     />
   </footer>
 </template>
