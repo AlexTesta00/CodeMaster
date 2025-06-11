@@ -3,13 +3,42 @@ import { ref, onMounted } from 'vue'
 import CardChoicheable from '../components/CardChoicheable.vue'
 import ButtonWithImage from '../components/ButtonWithImage.vue'
 import router from '../router/index.js'
+import Loading from './Loading.vue'
+import { useAuthStore } from '../utils/store.js'
+import { updateProfilePicture } from '../utils/api.js'
+import { successToast } from '../utils/notify.js'
 
 const characters = ref([])
 const hoverText = ref('')
 const errorMessage = ref('')
+const currentFigure = ref('')
+const isLoading = ref(false)
+const auth = useAuthStore()
+
+const goToProfilePage = () => {
+  router.push('/profile')
+}
+
+const updateUserProfilePicture = async ({ imageUrl, alt }) => {
+  if(!auth.nickname) return
+  try {
+    isLoading.value = true
+    await updateProfilePicture(auth.nickname, {
+      url: imageUrl,
+      alt: alt
+    })
+    await successToast("User profile picture updated successfully")
+    goToProfilePage()
+  }catch {
+    await successToast("User profile picture not updated")
+  }finally {
+    isLoading.value = false
+  }
+}
 
 onMounted(async () => {
     try {
+        isLoading.value = true
         const response = await fetch('/data/characters.json')
         if (!response.ok) {
             errorMessage.value = 'Failed to fetch characters'
@@ -18,6 +47,8 @@ onMounted(async () => {
     } catch (error) {
         errorMessage.value = "Can't load characters"
         console.error('Errore durante il fetch dei characters:', error)
+    }finally {
+      isLoading.value = false
     }
 })
 </script>
@@ -25,6 +56,7 @@ onMounted(async () => {
 <template>
   <section
     class="ml-4 mr-4 min-h-screen overflow-y-hidden animate-fade-in bg-white dark:bg-bgdark"
+    v-if="isLoading === false"
   >
     <header>
       <h1
@@ -37,6 +69,7 @@ onMounted(async () => {
       class="flex flex-col md:flex-row justify-center items-center mb-12 md:mt-24 md:gap-x-16"
     >
       <card-choicheable
+        v-model="currentFigure"
         v-for="(character, index) in characters"
         :key="index"
         :title="character.name"
@@ -45,6 +78,7 @@ onMounted(async () => {
         :description="character.description"
         @hover-in="hoverText = $event"
         @hover-out="hoverText = ''"
+        @selected="updateUserProfilePicture"
       />
     </div>
     <p class="text-center hidden md:block dark:text-background">
@@ -64,4 +98,5 @@ onMounted(async () => {
   <footer
     class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
   />
+  <loading v-if="isLoading"/>
 </template>

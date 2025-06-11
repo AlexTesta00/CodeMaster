@@ -18,6 +18,8 @@ const selectedLanguages = ref<string[]>([])
 const auth = useAuthStore()
 const bio = ref('')
 const cv = ref('')
+const profilePicture = ref('')
+const altProfilePicture = ref('')
 const loading = ref(false)
 
 const redirectToCVPage = () => {
@@ -120,6 +122,18 @@ onMounted(async () => {
           selectedLanguages.value = []
         }
 
+        if(isSome(user!.profilePicture)){
+          profilePicture.value = user!.profilePicture.value.url
+          if(isSome(user!.profilePicture.value.alt)){
+            altProfilePicture.value = user!.profilePicture.value.alt.value
+          }else{
+            altProfilePicture.value = 'Barney profile picture'
+          }
+        }else{
+          profilePicture.value = '/images/barney.png'
+          altProfilePicture.value = 'Barney profile picture'
+        }
+
       }
       console.log('Fetched user data:', res.user)
     }catch (error) {
@@ -145,12 +159,20 @@ onMounted(async () => {
       data-aos="zoom-in"
       data-aos-duration="1400"
     >
-      <img
-        src="/images/barney.png"
-        alt="Barney Image Art"
-        class="w-32 rounded-xl lg:w-64 cursor-pointer"
-        @click="router.push('/choice')"
-      >
+      <div class="relative group w-32 lg:w-64 rounded-xl cursor-pointer" @click="router.push('/choice')">
+        <img
+          :src="profilePicture"
+          alt="Barney Image Art"
+          class="w-full h-auto rounded-xl"
+        />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <p class="text-white text-center text-sm lg:text-lg font-semibold">
+            Choose your characters
+          </p>
+        </div>
+      </div>
       <div
         class="flex flex-col justify-center items-start w-full h-full p-4"
       >
@@ -296,7 +318,7 @@ onMounted(async () => {
         data-aos="zoom-in"
         data-aos-duration="1400"
       >
-        <button class="w-full lg:w-1/4 p-4 text-white bg-error rounded-lg my-6" @click="logout">Logout</button>
+        <button class="w-1/4 p-4 text-white bg-error rounded-lg my-6" @click="logout">Logout</button>
       </div>
     </div>
     <!-- CodeQuest Resolved -->
@@ -307,7 +329,7 @@ onMounted(async () => {
     >
       <div
         id="questcontainer"
-        class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4 mb-8"
+        class="w-full lg:w-2/5 h-4/5 lg:h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4 mb-24"
         data-aos="zoom-in"
         data-aos-duration="600"
       >

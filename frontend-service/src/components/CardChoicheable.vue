@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
     title: string
     imageUrl: string
     alt?: string
@@ -9,7 +9,10 @@ defineProps<{
 const emit = defineEmits<{
     (e: 'hover-in', text: string): void
     (e: 'hover-out', text: string): void
+    (e: 'selected', data: {imageUrl: string, alt?: string}): void
 }>()
+
+const handleClick = () => emit('selected', {imageUrl: props.imageUrl, alt: props.alt})
 </script>
 
 <template>
@@ -17,6 +20,7 @@ const emit = defineEmits<{
     class="flex flex-col items-center justify-center mt-12 md:hover:animate-bounce transition-all"
     @mouseover="emit('hover-in', description)"
     @mouseleave="emit('hover-out', description)"
+    @click="handleClick"
   >
     <img
       :src="imageUrl"
@@ -30,5 +34,3 @@ const emit = defineEmits<{
     </h2>
   </div>
 </template>
-
-<style scoped></style>
