@@ -32,9 +32,9 @@ export const initDarkMode = () => {
             '(prefers-color-scheme: dark)',
         ).matches
 
-        if(prefersDark){
+        if (prefersDark) {
             enableDarkMode()
-        }else{
+        } else {
             disableDarkMode()
         }
     }

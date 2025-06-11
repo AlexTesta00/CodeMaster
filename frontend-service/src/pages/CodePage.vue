@@ -34,12 +34,12 @@ Output: "olleh"
 const isBackDialogOpen = ref(false)
 
 const handleConfirm = () => {
-  isBackDialogOpen.value = false
-  router.push('/dashboard')
+    isBackDialogOpen.value = false
+    router.push('/dashboard')
 }
 
 const handleClose = () => {
-  isBackDialogOpen.value = false
+    isBackDialogOpen.value = false
 }
 
 const leftPanelWidth = ref(
@@ -79,7 +79,6 @@ onBeforeUnmount(() => {
   <section
     class="h-[90vh] min-h-screen flex flex-row bg-background dark:bg-bgdark mx-4 overflow-hidden animate-fade-in"
   >
-
     <!-- Dialog for return back -->
     <yes-or-no-dialog
       title="Are you sure?"

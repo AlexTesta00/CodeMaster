@@ -2,32 +2,32 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  const nickname = ref<string | null>(null)
+    const nickname = ref<string | null>(null)
 
-  const setNickname = (newNickname: string) => {
-    nickname.value = newNickname
-    sessionStorage.setItem('nickname', newNickname)
-  }
-
-  const loadNickname = () => {
-    const storedNickname = sessionStorage.getItem('nickname')
-    if (storedNickname) {
-      nickname.value = storedNickname
+    const setNickname = (newNickname: string) => {
+        nickname.value = newNickname
+        sessionStorage.setItem('nickname', newNickname)
     }
-  }
 
-  const clearNickname = () => {
-    nickname.value = null
-    sessionStorage.removeItem('nickname')
-  }
+    const loadNickname = () => {
+        const storedNickname = sessionStorage.getItem('nickname')
+        if (storedNickname) {
+            nickname.value = storedNickname
+        }
+    }
 
-  const isLoggedIn = () => !!nickname.value
+    const clearNickname = () => {
+        nickname.value = null
+        sessionStorage.removeItem('nickname')
+    }
 
-  return {
-    nickname,
-    setNickname,
-    loadNickname,
-    clearNickname,
-    isLoggedIn
-  }
+    const isLoggedIn = () => !!nickname.value
+
+    return {
+        nickname,
+        setNickname,
+        loadNickname,
+        clearNickname,
+        isLoggedIn,
+    }
 })

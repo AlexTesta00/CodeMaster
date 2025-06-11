@@ -9,10 +9,11 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'hover-in', text: string): void
     (e: 'hover-out', text: string): void
-    (e: 'selected', data: {imageUrl: string, alt?: string}): void
+    (e: 'selected', data: { imageUrl: string; alt?: string }): void
 }>()
 
-const handleClick = () => emit('selected', {imageUrl: props.imageUrl, alt: props.alt})
+const handleClick = () =>
+    emit('selected', { imageUrl: props.imageUrl, alt: props.alt })
 </script>
 
 <template>

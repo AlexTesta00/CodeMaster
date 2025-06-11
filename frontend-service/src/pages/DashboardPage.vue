@@ -7,16 +7,21 @@ import CodeQuest from '../components/CodeQuest.vue'
 import ContactsCard from '../components/ContactsCard.vue'
 import router from '../router'
 import { useAuthStore } from '../utils/store.ts'
-import Loading from './Loading.vue'
-import type { Level, Person, ProfilePicture, Trophy } from '../utils/interface.ts'
+import LoadingPage from './LoadingPage.vue'
+import type {
+    Level,
+    Person,
+    ProfilePicture,
+    Trophy,
+} from '../utils/interface.ts'
 import { errorToast } from '../utils/notify.ts'
 import { getUserByNickname } from '../utils/api.ts'
 import { isSome } from 'fp-ts/Option'
 
 const isLoading = ref(false)
 const profilePicture = ref<ProfilePicture | null>(null)
-const lastTrophy = ref<Trophy| null>(null)
-const level = ref<Level| null>(null)
+const lastTrophy = ref<Trophy | null>(null)
+const level = ref<Level | null>(null)
 const filterActive = ref('none')
 const auth = useAuthStore()
 const toggleFilterActive = (filter: string) =>
@@ -26,45 +31,45 @@ const toggleFilterActive = (filter: string) =>
 const contacts: Ref<Person[]> = ref([])
 
 onMounted(async () => {
-  auth.loadNickname()
-  if(auth.nickname){
-    try {
-      isLoading.value = true
-      const response = await fetch('/data/contacts.json')
-      if (!response.ok) {
-        await errorToast("Can't load contacts")
-      }
-      contacts.value = await response.json()
+    auth.loadNickname()
+    if (auth.nickname) {
+        try {
+            isLoading.value = true
+            const response = await fetch('/data/contacts.json')
+            if (!response.ok) {
+                await errorToast("Can't load contacts")
+            }
+            contacts.value = await response.json()
 
-      //Load user data
-      const res = await getUserByNickname(auth.nickname)
-      if(res.success){
-        if(isSome(res.user.profilePicture)){
-          profilePicture.value = res.user.profilePicture.value
+            //Load user data
+            const res = await getUserByNickname(auth.nickname)
+            if (res.success) {
+                if (isSome(res.user.profilePicture)) {
+                    profilePicture.value = res.user.profilePicture.value
+                }
+
+                if (isSome(res.user.trophies)) {
+                    const trophies = Array.from(res.user.trophies.value)
+                    if (trophies.length > 0) {
+                        lastTrophy.value = trophies[trophies.length - 1]
+                    }
+                }
+
+                level.value = res.user.level
+            } else {
+                await errorToast('Failed to load user data')
+                await router.push('/error')
+            }
+        } catch {
+            await errorToast('Failed to fetch data')
+            await router.push('/error')
+        } finally {
+            isLoading.value = false
         }
-
-        if(isSome(res.user.trophies)){
-          const trophies = Array.from(res.user.trophies.value)
-          if(trophies.length > 0){
-            lastTrophy.value = trophies[trophies.length - 1]
-          }
-        }
-
-        level.value = res.user.level
-      }else{
-        await errorToast("Failed to load user data")
+    } else {
+        await errorToast('Dashboard page requires authentication')
         await router.push('/error')
-      }
-    } catch {
-      await errorToast("Failed to fetch data")
-      await router.push('/error')
-    }finally {
-      isLoading.value = false
     }
-  }else{
-    await errorToast("Dashboard page requires authentication")
-    await router.push('/error')
-  }
 })
 </script>
 
@@ -87,7 +92,11 @@ onMounted(async () => {
       <!--DashboardCard see profile-->
       <dashboard-card>
         <img
-          :src="(profilePicture) ? profilePicture.url : '/images/barney.png'"
+          :src="
+            profilePicture
+              ? profilePicture.url
+              : '/images/barney.png'
+          "
           class="w-32 h-32 rounded-lg"
           :alt="profilePicture?.url + ' characters profile image'"
         >
@@ -141,7 +150,7 @@ onMounted(async () => {
           alt="Level Photo"
         >
         <h3 class="text-xl text-white">
-          {{ level?.title || 'No level yet'}}
+          {{ level?.title || 'No level yet' }}
         </h3>
       </dashboard-card>
     </div>
@@ -259,5 +268,5 @@ onMounted(async () => {
       <span class="h-4 lg:hidden" />
     </div>
   </section>
-  <loading v-if="isLoading"/>
+  <loading-page v-if="isLoading" />
 </template>

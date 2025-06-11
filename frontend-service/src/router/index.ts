@@ -13,13 +13,48 @@ import { useAuthStore } from '../utils/store.ts'
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
     { path: '/login', name: 'Login', component: LoginPage },
-    { path: '/dashboard', name: 'Dashboard', component: DashboardPage, meta: { requiresAuth: true } },
-    { path: '/profile', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
-    { path: '/settings', name: 'Settings', component: SettingsPage, meta: { requiresAuth: true } },
-    { path: '/code', name: 'Code', component: CodePage, meta: { requiresAuth: true } },
-    { path: '/error', name: 'Error', component: ErrorPage, props: {title: 'Service temporary not available', errorCode: '500'} },
-    { path: '/codequest', name: 'CodeQuest', component: NewCodeQuestPage, meta: { requiresAuth: true } },
-    { path: '/choice', name: 'Choice', component: ChoicePage, meta: { requiresAuth: true } },
+    {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: DashboardPage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: ProfilePage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/settings',
+        name: 'Settings',
+        component: SettingsPage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/code',
+        name: 'Code',
+        component: CodePage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/error',
+        name: 'Error',
+        component: ErrorPage,
+        props: { title: 'Service temporary not available', errorCode: '500' },
+    },
+    {
+        path: '/codequest',
+        name: 'CodeQuest',
+        component: NewCodeQuestPage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/choice',
+        name: 'Choice',
+        component: ChoicePage,
+        meta: { requiresAuth: true },
+    },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -37,9 +72,9 @@ router.beforeEach(async (to, _, next) => {
     const auth = useAuthStore()
     auth.loadNickname()
 
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
-    if(requiresAuth && !auth.isLoggedIn()){
+    if (requiresAuth && !auth.isLoggedIn()) {
         return next({ name: 'Login' })
     }
 
