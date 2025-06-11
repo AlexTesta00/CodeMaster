@@ -6,8 +6,8 @@ import App from './App.vue'
 import { loader } from '@guolao/vue-monaco-editor'
 import router from './router'
 import { initDarkMode } from './utils/dark-mode.ts'
-import VueSweetalert2 from 'vue-sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
+import VueSweetalert2 from 'vue-sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 import { createPinia } from 'pinia'
 
 AOS.init()

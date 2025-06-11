@@ -4,10 +4,16 @@ import { onMounted, ref } from 'vue'
 import LanguageButton from '../components/LanguageButton.vue'
 import TextareaLanguage from '../components/TextareaLanguage.vue'
 import ButtonWithImage from '../components/ButtonWithImage.vue'
-import Loading from './Loading.vue'
+import LoadingPage from './LoadingPage.vue'
 import router from '../router'
 import { useAuthStore } from '../utils/store.ts'
-import { getUserByNickname, logoutUser, updateBio, updateCV, updateLanguages } from '../utils/api.ts'
+import {
+    getUserByNickname,
+    logoutUser,
+    updateBio,
+    updateCV,
+    updateLanguages,
+} from '../utils/api.ts'
 import { isSome } from 'fp-ts/Option'
 import { errorToast, successToast } from '../utils/notify.ts'
 
@@ -23,22 +29,25 @@ const altProfilePicture = ref('')
 const loading = ref(false)
 
 const redirectToCVPage = () => {
-  if (cv.value) {
-    window.open('https://' + cv.value, '_blank')
-  } else {
-    errorToast('No CV URL provided')
-  }
+    if (cv.value) {
+        window.open('https://' + cv.value, '_blank')
+    } else {
+        errorToast('No CV URL provided')
+    }
 }
 
 const removeLanguage = async (lang: string) => {
     selectedLanguages.value = selectedLanguages.value.filter((l) => l !== lang)
-    if(auth.nickname){
-      try{
-        await updateLanguages(auth.nickname, selectedLanguages.value.map(lang => ({ name: lang })))
-        await successToast('Languages updated successfully')
-      }catch {
-        await errorToast('Languages not updated')
-      }
+    if (auth.nickname) {
+        try {
+            await updateLanguages(
+                auth.nickname,
+                selectedLanguages.value.map((lang) => ({ name: lang })),
+            )
+            await successToast('Languages updated successfully')
+        } catch {
+            await errorToast('Languages not updated')
+        }
     }
 }
 
@@ -47,107 +56,112 @@ const addLanguage = async (lang: string) => {
     if (!selectedLanguages.value.includes(lang)) {
         selectedLanguages.value.push(lang)
     }
-    if(auth.nickname){
-      try{
-        console.log('Selected languages:', selectedLanguages.value)
-        await updateLanguages(auth.nickname, selectedLanguages.value.map(lang => ({ name: lang })))
-        await successToast('Languages updated successfully')
-      }catch {
-        await errorToast('Languages not updated')
-      }
+    if (auth.nickname) {
+        try {
+            console.log('Selected languages:', selectedLanguages.value)
+            await updateLanguages(
+                auth.nickname,
+                selectedLanguages.value.map((lang) => ({ name: lang })),
+            )
+            await successToast('Languages updated successfully')
+        } catch {
+            await errorToast('Languages not updated')
+        }
     }
 }
 
 const saveBio = async () => {
-  if(!auth.nickname) return
-  loading.value = true
-  try {
-    await updateBio(auth.nickname, bio.value)
-    await successToast('Bio updated successfully')
-    bioIsEditing.value = false
-  }catch {
-    await errorToast('Bio not updated')
-  }finally {
-    loading.value = false
-  }
+    if (!auth.nickname) return
+    loading.value = true
+    try {
+        await updateBio(auth.nickname, bio.value)
+        await successToast('Bio updated successfully')
+        bioIsEditing.value = false
+    } catch {
+        await errorToast('Bio not updated')
+    } finally {
+        loading.value = false
+    }
 }
 
 const saveCV = async () => {
-  if(!auth.nickname) return
-  loading.value = true
-  try {
-    await updateCV(auth.nickname, {url: cv.value})
-    await successToast('CV updated successfully')
-    cvIsEditing.value = false
-  }catch {
-    await errorToast('CV not updated')
-  }finally {
-    loading.value = false
-  }
+    if (!auth.nickname) return
+    loading.value = true
+    try {
+        await updateCV(auth.nickname, { url: cv.value })
+        await successToast('CV updated successfully')
+        cvIsEditing.value = false
+    } catch {
+        await errorToast('CV not updated')
+    } finally {
+        loading.value = false
+    }
 }
 
 const logout = async () => {
-  if(!auth.nickname) return
-  try {
-    loading.value = true
-    await logoutUser(auth.nickname)
-    auth.clearNickname()
-    await successToast('User logged out successfully')
-    await router.push('/')
-  }catch {
-    await errorToast('User not logged out')
-  }finally {
-    loading.value = false
-  }
+    if (!auth.nickname) return
+    try {
+        loading.value = true
+        await logoutUser(auth.nickname)
+        auth.clearNickname()
+        await successToast('User logged out successfully')
+        await router.push('/')
+    } catch {
+        await errorToast('User not logged out')
+    } finally {
+        loading.value = false
+    }
 }
 
 onMounted(async () => {
-  if(auth.nickname){
-    try {
-      const res = await getUserByNickname(auth.nickname)
-      if(res.success){
-        const user = res.user
+    if (auth.nickname) {
+        try {
+            const res = await getUserByNickname(auth.nickname)
+            if (res.success) {
+                const user = res.user
 
-        if(isSome(user!.userInfo.bio)){
-          bio.value = user!.userInfo.bio.value
+                if (isSome(user!.userInfo.bio)) {
+                    bio.value = user!.userInfo.bio.value
+                }
+
+                if (isSome(user!.cv)) {
+                    cv.value = user!.cv.value.url
+                }
+
+                if (isSome(user!.languages)) {
+                    selectedLanguages.value = Array.from(
+                        user!.languages.value,
+                    ).map((lang) => lang.name)
+                } else {
+                    selectedLanguages.value = []
+                }
+
+                if (isSome(user!.profilePicture)) {
+                    profilePicture.value = user!.profilePicture.value.url
+                    if (isSome(user!.profilePicture.value.alt)) {
+                        altProfilePicture.value =
+                            user!.profilePicture.value.alt.value
+                    } else {
+                        altProfilePicture.value = 'Barney profile picture'
+                    }
+                } else {
+                    profilePicture.value = '/images/barney.png'
+                    altProfilePicture.value = 'Barney profile picture'
+                }
+            }
+            console.log('Fetched user data:', res.user)
+        } catch (error) {
+            await errorToast('Impossible to load user data')
+            console.log(error)
         }
-
-        if(isSome(user!.cv)){
-          cv.value = user!.cv.value.url
-        }
-
-        if(isSome(user!.languages)){
-          selectedLanguages.value = Array.from(user!.languages.value).map(lang => lang.name)
-        }else{
-          selectedLanguages.value = []
-        }
-
-        if(isSome(user!.profilePicture)){
-          profilePicture.value = user!.profilePicture.value.url
-          if(isSome(user!.profilePicture.value.alt)){
-            altProfilePicture.value = user!.profilePicture.value.alt.value
-          }else{
-            altProfilePicture.value = 'Barney profile picture'
-          }
-        }else{
-          profilePicture.value = '/images/barney.png'
-          altProfilePicture.value = 'Barney profile picture'
-        }
-
-      }
-      console.log('Fetched user data:', res.user)
-    }catch (error) {
-      await errorToast('Impossible to load user data')
-      console.log(error)
     }
-  }
 })
 </script>
 
 <template>
   <section
-    class="flex flex-col items-center justify-center mx-4 animate-fade-in bg-background dark:bg-bgdark min-h-screen"
     v-if="loading == false"
+    class="flex flex-col items-center justify-center mx-4 animate-fade-in bg-background dark:bg-bgdark min-h-screen"
   >
     <h1
       class="text-black dark:text-white text-3xl lg:text-5xl w-full text-center mt-4"
@@ -159,16 +173,21 @@ onMounted(async () => {
       data-aos="zoom-in"
       data-aos-duration="1400"
     >
-      <div class="relative group w-32 lg:w-64 rounded-xl cursor-pointer" @click="router.push('/choice')">
+      <div
+        class="relative group w-32 lg:w-64 rounded-xl cursor-pointer"
+        @click="router.push('/choice')"
+      >
         <img
           :src="profilePicture"
           alt="Barney Image Art"
           class="w-full h-auto rounded-xl"
-        />
+        >
         <div
           class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         >
-          <p class="text-white text-center text-sm lg:text-lg font-semibold">
+          <p
+            class="text-white text-center text-sm lg:text-lg font-semibold"
+          >
             Choose your characters
           </p>
         </div>
@@ -235,7 +254,10 @@ onMounted(async () => {
           :is-editable="languageIsEditing"
           @remove-language="removeLanguage"
         />
-        <p v-if="selectedLanguages.length === 0" class="text-white text-sm italic ml-4">
+        <p
+          v-if="selectedLanguages.length === 0"
+          class="text-white text-sm italic ml-4"
+        >
           Nessun linguaggio selezionato
         </p>
       </div>
@@ -279,7 +301,9 @@ onMounted(async () => {
           data-aos="zoom-in"
           data-aos-duration="1400"
         >
-          <div class="flex flex-row items-center justify-center w-full mb-4">
+          <div
+            class="flex flex-row items-center justify-center w-full mb-4"
+          >
             <p
               class="py-2.5 px-3 text-white bg-primary dark:bg-gray-800 dark:border-gray-700 rtl:rounded-r-lg rtl:rounded-l-none rtl:border-l-0 rtl:border-r rounded-l-lg mb-4"
             >
@@ -318,7 +342,12 @@ onMounted(async () => {
         data-aos="zoom-in"
         data-aos-duration="1400"
       >
-        <button class="w-1/4 p-4 text-white bg-error rounded-lg my-6" @click="logout">Logout</button>
+        <button
+          class="w-1/4 p-4 text-white bg-error rounded-lg my-6"
+          @click="logout"
+        >
+          Logout
+        </button>
       </div>
     </div>
     <!-- CodeQuest Resolved -->
@@ -414,5 +443,5 @@ onMounted(async () => {
       </div>
     </footer>
   </section>
-  <loading v-if="loading"></loading>
+  <loading-page v-if="loading" />
 </template>
