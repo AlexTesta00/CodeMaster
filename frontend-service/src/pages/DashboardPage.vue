@@ -145,7 +145,7 @@ onMounted(async () => {
           Level
         </h2>
         <img
-          src="/images/project.png"
+          :src=" level?.imageUrl || '/images/dog.png'"
           class="w-32 h-32 object-cover"
           alt="Level Photo"
         >

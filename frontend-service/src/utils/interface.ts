@@ -65,6 +65,7 @@ export interface Level {
     grade: LevelId
     title: string
     xpLevel: number
+    imageUrl: string
 }
 
 export interface UserManager {
