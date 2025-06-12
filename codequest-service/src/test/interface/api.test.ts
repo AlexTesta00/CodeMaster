@@ -1,4 +1,3 @@
-import { app } from '../../main/nodejs/codemaster/servicies/codequest/interfaces/server'
 import supertest from 'supertest'
 import {
   BAD_REQUEST,
@@ -12,20 +11,25 @@ import { Problem } from '../../main/nodejs/codemaster/servicies/codequest/domain
 import { Example } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example'
 import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory'
 import * as dotenv from 'dotenv'
-import { populateLanguages } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate'
 import { CodeQuestModel } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model'
 import { Language } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language'
 import { CodeQuest } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
+import { createServer } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/express/server-factory'
+import TestAgent from 'supertest/lib/agent'
+import { RabbitMqEventConsumer } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/consumer'
+import { RabbitMqEventPublisher } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/publisher'
+import { Express } from 'express'
 
 dotenv.config()
 
 describe('Test API', () => {
   let mongoServer: MongoMemoryServer
+  let request: TestAgent
+  let result: { app: Express; consumer: RabbitMqEventConsumer; publisher: RabbitMqEventPublisher }
 
-  const timeout: number = 20000
-  const request = supertest(app)
+  const timeout: number = 50_000
   const author = 'example name'
   const problem = new Problem(
     'Problem example',
@@ -57,15 +61,26 @@ describe('Test API', () => {
   }
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create()
-    const uri = mongoServer.getUri()
-    await mongoose.connect(uri)
-    await populateLanguages()
+    try {
+      mongoServer = await MongoMemoryServer.create()
+      const uri = mongoServer.getUri()
+      await mongoose.connect(uri)
+      result = await startApp()
+      await result.publisher.connect()
+      await result.consumer.start()
+      request = supertest(result.app)
+    } catch (err) {
+      console.error('Errore in beforeAll:', err)
+    }
   }, timeout)
 
   afterAll(async () => {
+    console.log('✅ Test cleanup done — process should exit now.')
     await mongoose.disconnect()
     await mongoServer.stop()
+    await result.publisher.close()
+    await result.consumer.close()
+    process.exit(0)
   })
 
   function checkCodequest(codequest: CodeQuest) {
@@ -78,6 +93,10 @@ describe('Test API', () => {
       )
     ).toEqual(languages)
     expect(codequest).toHaveProperty('difficulty.name', difficulty.name)
+  }
+
+  async function startApp() {
+    return await createServer()
   }
 
   describe('Test POST new codequest', () => {

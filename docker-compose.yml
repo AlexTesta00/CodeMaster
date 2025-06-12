@@ -115,6 +115,8 @@ services:
     ports:
       - '3000:3000'
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       mongo-codequest:
         condition: service_started
     env_file:
@@ -147,6 +149,8 @@ services:
     ports:
       - '4007:4007'
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       mongo-community:
         condition: service_started
     env_file:
@@ -182,6 +186,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - runner-cache:/app/build/tmp/code-run
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       mongo-solution:
         condition: service_started
     env_file:

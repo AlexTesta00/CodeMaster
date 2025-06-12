@@ -14,5 +14,6 @@ export interface CodeQuestRepository {
   updateTitle(questId: string, newTitle: string): Promise<CodeQuest>
   updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest>
   updateDifficulty(questId: string, difficulty: Difficulty): Promise<CodeQuest>
+  deleteAllCodequestByAuthor(author: string): Promise<CodeQuest[]>
   delete(questId: string): Promise<CodeQuest>
 }
