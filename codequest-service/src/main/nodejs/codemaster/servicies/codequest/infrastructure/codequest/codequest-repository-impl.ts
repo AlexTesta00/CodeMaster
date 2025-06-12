@@ -117,4 +117,17 @@ export class CodeQuestRepositoryImpl implements CodeQuestRepository {
     const codequestDoc = await CodeQuestModel.findOneAndDelete({ questId }).orFail()
     return this.buildCodeQuest(codequestDoc)
   }
+
+  async deleteAllCodequestByAuthor(author: string): Promise<CodeQuest[]> {
+    const codequestDocs = await CodeQuestModel.find({ author: author })
+    const codequests = codequestDocs.map((codequest) => this.buildCodeQuest(codequest))
+
+    for (const codeQuest of codequests) {
+      const questId = codeQuest.id
+      await CodeQuestModel.findOneAndDelete({ questId })
+    }
+
+    console.log(await CodeQuestModel.find({ author: author }))
+    return codequests
+  }
 }

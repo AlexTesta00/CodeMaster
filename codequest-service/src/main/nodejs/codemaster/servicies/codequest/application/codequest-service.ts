@@ -25,6 +25,7 @@ export interface CodeQuestService {
   updateProblem(questId: string, newProblem: Problem): Promise<CodeQuest>
   updateTitle(questId: string, newTitle: string): Promise<CodeQuest>
   updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest>
+  deleteAllCodequestsByAuthor(author: string): Promise<CodeQuest[]>
   delete(questId: string): Promise<CodeQuest>
 }
 
@@ -33,4 +34,5 @@ export class CodeQuestServiceError {
   static InvalidCodeQuestId = class extends Error {}
   static LanguageVersionNotFound = class extends Error {}
   static CodeQuestNotFound = class extends Error {}
+  static AuthorNotFound = class extends Error {}
 }

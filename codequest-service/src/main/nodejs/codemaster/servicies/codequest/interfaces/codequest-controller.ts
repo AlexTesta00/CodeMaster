@@ -1,20 +1,19 @@
 import { NextFunction, Request, Response } from 'express'
 import { CodeQuestServiceImpl } from '../application/codequest-service-impl'
 import { CREATED, INTERNAL_ERROR, OK } from './status'
-import { isDatabaseConnected } from '../infrastructure/db-connection'
 
 class Controller {
-  private service = new CodeQuestServiceImpl()
+  constructor(private readonly service: CodeQuestServiceImpl) {}
 
-  healthCheck = async (req: Request, res: Response, next: NextFunction) => {
-    const mongoReady = isDatabaseConnected()
-    if (mongoReady) {
+  healthCheck = async (req: Request, res: Response) => {
+    const serviceReady = this.service.isServiceReady()
+    if (serviceReady) {
       res.status(OK).json({ status: 'OK', success: true })
     } else {
       res.status(INTERNAL_ERROR).json({
         status: 'Service Unavailable',
         success: false,
-        mongo: mongoReady
+        mongo: serviceReady,
       })
     }
   }
