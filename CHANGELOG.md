@@ -1,3 +1,34 @@
+## [2.0.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.8.0...v2.0.0) (2025-06-12)
+
+### ⚠ BREAKING CHANGES
+
+* **user:** change route for create level and trophy, now are /create
+
+### Features
+
+* **codequest-service:** add /health route ([b50533f](https://github.com/AlexTesta00/CodeMaster/commit/b50533faef5e77445e7f59d7eafb8bb66b64358d))
+* **community-service:** add and integrate rabbitmq ([47be387](https://github.com/AlexTesta00/CodeMaster/commit/47be3871a531f1486418d355c279598ddb041fde))
+* **community-service:** add community service repository ([893ffa6](https://github.com/AlexTesta00/CodeMaster/commit/893ffa64934b096427ac1655047cb8773162b2e9))
+* **community-service:** add community-service api and tests ([b183afb](https://github.com/AlexTesta00/CodeMaster/commit/b183afb4a6c2300ebb093097243aa6db3bf8909b))
+* **community-service:** add community-service service and tests ([6528c91](https://github.com/AlexTesta00/CodeMaster/commit/6528c9189fdfa0f16fc61b22f4eddb5a0eae7922))
+* **community-service:** add community-service to nginx configuration file ([eabae3e](https://github.com/AlexTesta00/CodeMaster/commit/eabae3efccf4001a590487947253f93e27a11158))
+* **community-service:** add job in workflow to upload community-service code coverage and dockerfile ([06bc2f3](https://github.com/AlexTesta00/CodeMaster/commit/06bc2f34acede1cd7eb166937bad2b3ce2529371))
+* **community-service:** add new service community-service ([cc3a5f0](https://github.com/AlexTesta00/CodeMaster/commit/cc3a5f02bdaf6f01df890b1b758fb5cc5f3f9e42))
+* **community-service:** add repository tests ([330a32c](https://github.com/AlexTesta00/CodeMaster/commit/330a32c9c90d10f61ae3a961d4e17a35c0ea33b2))
+* **community-service:** create comment model with factory ([55b51f4](https://github.com/AlexTesta00/CodeMaster/commit/55b51f40a8e20df6d2a5761479ae68ddd7261ddf))
+* **docker:** add community-service container to docker compose file ([506cbc5](https://github.com/AlexTesta00/CodeMaster/commit/506cbc5409d9f022b592c6e6b092777a2b8c4219))
+* **solution-service:** add /health route to check if mongo is up ([1bcfdab](https://github.com/AlexTesta00/CodeMaster/commit/1bcfdab478a97087ea4c8bbcfc06713a810cf023))
+* **user:** now level have imageUrl fields ([5212d66](https://github.com/AlexTesta00/CodeMaster/commit/5212d6632bc0a34f576277f7d1091807a4f2530e))
+
+### Bug Fixes
+
+* **codequest-service:** set db connection uri for tests ([769536c](https://github.com/AlexTesta00/CodeMaster/commit/769536cfb524881eca65f1bbca2637f9c7c065be))
+* **community-service:** resolve issue related to mongodb connection ([639ba28](https://github.com/AlexTesta00/CodeMaster/commit/639ba28c29e7dcb9d768ce96fe174a25cfbf065d))
+* **deps:** update node.js dependencies ([c99f26b](https://github.com/AlexTesta00/CodeMaster/commit/c99f26b1ed92827b614034f0fdc554ddbc0340f3))
+* **deps:** update node.js dependencies ([3c995bd](https://github.com/AlexTesta00/CodeMaster/commit/3c995bd51aeb94ac0e6be7be8f7609f5cb41923f))
+* **solution-service:** fix detekt issues ([34804fd](https://github.com/AlexTesta00/CodeMaster/commit/34804fdccd734da90ab27bb4a4822089283446af))
+* **user:** change route for create level and trophy, now are /create ([fa37645](https://github.com/AlexTesta00/CodeMaster/commit/fa376456185a2136fcfbc6950f0ea48d148c2861))
+
 ## [1.8.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.7.0...v1.8.0) (2025-06-05)
 
 ### Features
