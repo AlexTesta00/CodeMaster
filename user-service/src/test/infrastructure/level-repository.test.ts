@@ -4,6 +4,7 @@ import { LevelModel } from '../../main/nodejs/codemaster/servicies/user/infrastr
 import {
   createDefaultLevel,
   createLevel,
+  DEFAULT_IMAGE_URL,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import {
   deleteLevel,
@@ -38,7 +39,7 @@ describe('Level Repository', () => {
 
   describe('saveLevel', () => {
     it('should save a level successfully', async () => {
-      const level = createLevel(5, 'Intermediate Level', 1000)
+      const level = createLevel(5, 'Intermediate Level', 1000, DEFAULT_IMAGE_URL)
       const rightLevel = isRight(level) ? level.right : null
       await saveLevel(rightLevel!)
       const savedLevel = await LevelModel.findOne({ grade: 5 }).exec()
@@ -46,11 +47,12 @@ describe('Level Repository', () => {
       expect(savedLevel?.grade).toBe(5)
       expect(savedLevel?.title).toBe('Intermediate Level')
       expect(savedLevel?.xp).toBe(1000)
+      expect(savedLevel?.url).toBe(DEFAULT_IMAGE_URL)
     })
 
     it('should return UnknownError when saving fails', async () => {
       jest.spyOn(LevelModel.prototype, 'save').mockRejectedValueOnce(new UnknownError())
-      const level = createLevel(3, 'Test Level', 500)
+      const level = createLevel(3, 'Test Level', 500, DEFAULT_IMAGE_URL)
       const rightLevel = isRight(level) ? level.right : null
       const result = await saveLevel(rightLevel!)
       expect(result).toEqual(left(new UnknownError()))
@@ -59,7 +61,7 @@ describe('Level Repository', () => {
 
   describe('findLevel', () => {
     it('should find an existing level by grade', async () => {
-      const level = createLevel(7, 'Advanced Level', 2000)
+      const level = createLevel(7, 'Advanced Level', 2000, DEFAULT_IMAGE_URL)
       expect(isRight(level)).toBeTruthy()
 
       const rightLevel = isRight(level) ? level.right : null
@@ -90,7 +92,7 @@ describe('Level Repository', () => {
 
   describe('deleteLevel', () => {
     it('should delete an existing level', async () => {
-      const level = createLevel(4, 'Level to delete', 750)
+      const level = createLevel(4, 'Level to delete', 750, DEFAULT_IMAGE_URL)
       const rightLevel = isRight(level) ? level.right : null
       await saveLevel(rightLevel!)
       const result = await deleteLevel({ value: 4 })
@@ -116,7 +118,7 @@ describe('Level Repository', () => {
   describe('getAllLevels', () => {
     it('should correctly return all levels', async () => {
       const firstLevel = createDefaultLevel()
-      const secondLevel = createLevel(2, 'Expert', 20)
+      const secondLevel = createLevel(2, 'Expert', 20, DEFAULT_IMAGE_URL)
       const levels = [firstLevel, secondLevel]
         .filter(isRight)
         .map((either) => either.right)
@@ -137,7 +139,7 @@ describe('Level Repository', () => {
 
   describe('toLevelModel', () => {
     it('should correctly convert Level to LevelModel', () => {
-      const level = createLevel(6, 'Conversion Test', 1500)
+      const level = createLevel(6, 'Conversion Test', 1500, DEFAULT_IMAGE_URL)
       const rightLevel = isRight(level) ? level.right : null
       const model = toLevelModel(rightLevel!)
       expect(model.grade).toBe(6)

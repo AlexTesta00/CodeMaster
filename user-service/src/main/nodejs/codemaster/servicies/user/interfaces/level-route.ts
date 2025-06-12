@@ -3,7 +3,7 @@ import { addLevel, getLevels, removeLevel } from './level-controller'
 
 const levelRouter: Router = Router()
 
-levelRouter.post('/', addLevel) //TODO: FIXME: level create /create not / (root)
+levelRouter.post('/create', addLevel)
 levelRouter.delete('/:grade', removeLevel)
 levelRouter.get('/', getLevels)
 

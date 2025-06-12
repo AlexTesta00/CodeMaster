@@ -70,12 +70,12 @@ export const createAdvancedUser = (
     createUserInfo(nickname, bio),
     chain((userInfo) =>
       right({
-        userInfo,
+        userInfo: userInfo,
         profilePicture: some(profilePicture),
         languages: some(languages),
         cv: some(cv),
         trophies: some(trophies),
-        level,
+        level: level,
       })
     )
   )
@@ -93,12 +93,12 @@ export const createAdvancedUserOption = (
     isSome(bio) ? createUserInfo(nickname, bio.value) : createDefaultUserInfo(nickname),
     chain((userInfo) =>
       right({
-        userInfo,
+        userInfo: userInfo,
         profilePicture: profilePicture,
         languages: languages,
         cv: cv,
         trophies: trophies,
-        level,
+        level: level,
       })
     )
   )

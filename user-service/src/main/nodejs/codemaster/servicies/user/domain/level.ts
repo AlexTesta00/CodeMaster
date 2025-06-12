@@ -6,4 +6,5 @@ export type Level = Readonly<{
   grade: LevelId
   title: string
   xpLevel: number
+  imageUrl: string
 }>

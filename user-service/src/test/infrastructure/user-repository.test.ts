@@ -75,6 +75,7 @@ describe('Test user repository', () => {
         expect(user?.level.grade).toEqual(rightLevel!.grade.value)
         expect(user?.level.title).toEqual(rightLevel!.title)
         expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
+        expect(user?.level.url).toBe(rightLevel!.imageUrl)
       },
       timeout
     )
@@ -95,6 +96,7 @@ describe('Test user repository', () => {
         expect(user?.level.grade).toEqual(rightLevel!.grade.value)
         expect(user?.level.title).toEqual(rightLevel!.title)
         expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
+        expect(user?.level.url).toEqual(rightLevel!.imageUrl)
       },
       timeout
     )
@@ -187,6 +189,7 @@ describe('Test user repository', () => {
         expect(user?.level.grade).toEqual(rightLevel!.grade.value)
         expect(user?.level.title).toEqual(rightLevel!.title)
         expect(user?.level.xp).toEqual(rightLevel!.xpLevel)
+        expect(user?.level.url).toEqual(rightLevel!.imageUrl)
       },
       timeout
     )

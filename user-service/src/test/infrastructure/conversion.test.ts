@@ -14,7 +14,10 @@ import {
   createDefaultUser,
 } from '../../main/nodejs/codemaster/servicies/user/domain/user-factory'
 import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
-import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {
+  createDefaultLevel,
+  DEFAULT_IMAGE_URL,
+} from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 
 const nickname: string = 'example'
 const bio: string = 'Test bio'
@@ -127,6 +130,7 @@ describe('Test conversion', () => {
       grade: 3,
       title: 'Intermediate',
       xp: 1500,
+      url: DEFAULT_IMAGE_URL,
     }
 
     const result = toLevel(validLevelDoc)
@@ -136,6 +140,7 @@ describe('Test conversion', () => {
       expect(result.right.grade.value).toBe(validLevelDoc.grade)
       expect(result.right.title).toBe(validLevelDoc.title)
       expect(result.right.xpLevel).toBe(validLevelDoc.xp)
+      expect(result.right.imageUrl).toBe(DEFAULT_IMAGE_URL)
     }
   })
 })

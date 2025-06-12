@@ -9,6 +9,7 @@ import codemaster.servicies.solution.application.utility.UtilityFunctions.prepar
 import codemaster.servicies.solution.application.utility.UtilityFunctions.runDocker
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.domain.repository.SolutionRepository
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
@@ -167,5 +168,14 @@ class SolutionService(
         val updatedSolution = repository.updateResult(id, runResult).awaitSingle()
 
         return updatedSolution
+    }
+
+    suspend fun pingMongo(): Boolean {
+        return try {
+            repository.existBy().awaitFirst()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

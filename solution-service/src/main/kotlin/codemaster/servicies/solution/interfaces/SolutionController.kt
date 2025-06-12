@@ -1,5 +1,6 @@
 package codemaster.servicies.solution.interfaces
 
+import ch.qos.logback.core.model.Model
 import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
@@ -13,6 +14,34 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/solutions")
 class SolutionController(private val service: SolutionService) {
+
+    @GetMapping("/health", produces = ["application/json"])
+    suspend fun healthCheck(): ResponseEntity<Map<String, Any>> {
+        val mongoReady = try {
+            service.pingMongo()
+            true
+        } catch (e: Exception) {
+            false
+        }
+
+        return if (mongoReady) {
+            ResponseEntity.ok(
+                mapOf(
+                    "status" to "OK",
+                    "success" to true
+                )
+            )
+        } else {
+            ResponseEntity.internalServerError().body(
+                mapOf(
+                    "status" to "Service Unavailable",
+                    "success" to false,
+                    "mongo" to mongoReady
+                )
+            )
+        }
+    }
+
 
     @PostMapping("/", produces = ["application/json"])
     suspend fun addSolution(@RequestBody request: SolutionDTORequest): ResponseEntity<Solution?> {

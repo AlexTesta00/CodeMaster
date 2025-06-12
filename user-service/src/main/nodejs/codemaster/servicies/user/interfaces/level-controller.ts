@@ -3,8 +3,8 @@ import { deleteLevel, getAllLevels, registerNewLevel } from '../application/user
 import { isLeft } from 'fp-ts/Either'
 
 export const addLevel = async (req: Request, res: Response): Promise<void> => {
-  const { grade, title, xpLevel } = req.body
-  const result = await registerNewLevel({ value: grade }, title, xpLevel)
+  const { grade, title, xpLevel, url } = req.body
+  const result = await registerNewLevel({ value: grade }, title, xpLevel, url)
   if (isLeft(result))
     res.status(404).json({ message: result.left.message, success: false })
   else
