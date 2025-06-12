@@ -30,7 +30,9 @@ export const findLevel = async (levelId: LevelId): Promise<Either<Error, Level>>
       (error) => (error instanceof Error ? error : new UnknownError())
     )(),
     chain((either) => either),
-    chain((levelDoc) => createLevel(levelDoc.grade, levelDoc.title, levelDoc.xp))
+    chain((levelDoc) =>
+      createLevel(levelDoc.grade, levelDoc.title, levelDoc.xp, levelDoc.url)
+    )
   )
 
 export const deleteLevel = async (levelId: LevelId): Promise<Either<Error, void>> =>

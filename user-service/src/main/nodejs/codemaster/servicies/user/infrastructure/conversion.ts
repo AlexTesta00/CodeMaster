@@ -45,6 +45,7 @@ export interface UserDocument {
     grade: number
     title: string
     xp: number
+    url: string
   }
   userInfo: {
     nickname: string
@@ -64,6 +65,7 @@ export interface LevelDocument {
   grade: number
   title: string
   xp: number
+  url: string
 }
 
 export const toUserManagerModel = (userManager: UserManager) => {
@@ -111,6 +113,7 @@ export const toUserManagerModel = (userManager: UserManager) => {
       grade: userManager.level.grade.value,
       title: userManager.level.title,
       xp: userManager.level.xpLevel,
+      url: userManager.level.imageUrl,
     },
   })
 }
@@ -149,6 +152,7 @@ export const toUserManager = (userDocument: UserDocument): Either<Error, UserMan
       grade: { value: userDocument.level.grade },
       title: userDocument.level.title,
       xpLevel: userDocument.level.xp,
+      imageUrl: userDocument.level.url,
     }
   )
 
@@ -174,8 +178,14 @@ export const toLevelModel = (level: Level) => {
     grade: level.grade.value,
     title: level.title,
     xp: level.xpLevel,
+    url: level.imageUrl,
   })
 }
 
 export const toLevel = (levelDocument: LevelDocument): Either<Error, Level> =>
-  createLevel(levelDocument.grade, levelDocument.title, levelDocument.xp)
+  createLevel(
+    levelDocument.grade,
+    levelDocument.title,
+    levelDocument.xp,
+    levelDocument.url
+  )

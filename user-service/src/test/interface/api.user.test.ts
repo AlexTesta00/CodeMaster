@@ -1,7 +1,10 @@
 import supertest from 'supertest'
 import { app } from '../../main/nodejs/codemaster/servicies/app'
 import { none, some } from 'fp-ts/Option'
-import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {
+  createDefaultLevel,
+  DEFAULT_IMAGE_URL,
+} from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { isRight } from 'fp-ts/Either'
 import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/user/infrastructure/db-connection'
 import dotenv from 'dotenv'
@@ -390,9 +393,14 @@ describe('Test User API', () => {
   })
 
   describe('Test /level', () => {
-    const firstLevel = { grade: 1, title: 'Novice', xpLevel: 150 }
-    const secondLevel = { grade: 2, title: 'Expert', xpLevel: 200 }
-    const thirdLevel = { grade: 3, title: 'Master', xpLevel: 300 }
+    const firstLevel = { grade: 1, title: 'Novice', xpLevel: 150, url: DEFAULT_IMAGE_URL }
+    const secondLevel = {
+      grade: 2,
+      title: 'Expert',
+      xpLevel: 200,
+      url: DEFAULT_IMAGE_URL,
+    }
+    const thirdLevel = { grade: 3, title: 'Master', xpLevel: 300, url: DEFAULT_IMAGE_URL }
     const firstTrophy = {
       title: { value: 'Welcome' },
       description: 'First trophy',
@@ -468,6 +476,7 @@ describe('Test User API', () => {
           grade: { value: 1 },
           title: 'Novice',
           xpLevel: 150,
+          imageUrl: DEFAULT_IMAGE_URL,
         })
       },
       timeout

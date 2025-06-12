@@ -165,9 +165,10 @@ export const getAllTrophies = async (): Promise<Either<Error, Iterable<Trophy>>>
 export const registerNewLevel = async (
   grade: LevelId,
   title: string,
-  xpLevel: number
+  xpLevel: number,
+  imageUrl: string
 ): Promise<Either<Error, Level>> => {
-  const newLevel = createLevel(grade.value, title, xpLevel)
+  const newLevel = createLevel(grade.value, title, xpLevel, imageUrl)
   if (isLeft(newLevel)) return left(newLevel.left)
   return await saveLevel(newLevel.right)
 }
