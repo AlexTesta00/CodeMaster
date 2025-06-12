@@ -6,10 +6,13 @@ export const FIRST_LEVEL_GRADE: number = 1
 export const FIRST_LEVEL_TITLE: string = 'Novice'
 export const FIRST_LEVEL_XP: number = 1
 
+export const DEFAULT_IMAGE_URL = 'https://cdn-icons-png.flaticon.com/512/1055/1055646.png'
+
 export const createLevel = (
   grade: number,
   title: string,
-  xp: number
+  xp: number,
+  imageUrl: string
 ): Either<Error, Level> =>
   pipe(
     right({}),
@@ -25,9 +28,10 @@ export const createLevel = (
           grade: { value: grade },
           title: title,
           xpLevel: xp,
+          imageUrl: imageUrl,
         })
     )
   )
 
 export const createDefaultLevel = (): Either<Error, Level> =>
-  createLevel(FIRST_LEVEL_GRADE, FIRST_LEVEL_TITLE, FIRST_LEVEL_XP)
+  createLevel(FIRST_LEVEL_GRADE, FIRST_LEVEL_TITLE, FIRST_LEVEL_XP, DEFAULT_IMAGE_URL)

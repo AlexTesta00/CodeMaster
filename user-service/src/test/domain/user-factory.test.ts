@@ -8,6 +8,7 @@ import { Language } from '../../main/nodejs/codemaster/servicies/user/domain/lan
 import { Trophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy'
 import {
   createDefaultLevel,
+  DEFAULT_IMAGE_URL,
   FIRST_LEVEL_GRADE,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { createTrophy } from '../../main/nodejs/codemaster/servicies/user/domain/trophy-factory'
@@ -76,6 +77,7 @@ describe('User Functions', () => {
       expect(result!.userInfo.nickname.value).toBe('user_123')
       expect(result!.level.grade.value).toBe(1)
       expect(result!.level.title).toBe('Novice')
+      expect(result!.level.imageUrl).toBe(DEFAULT_IMAGE_URL)
       expect(isSome(result!.userInfo.bio)).not.toBeTruthy()
       expect(isSome(result!.trophies)).not.toBeTruthy()
       expect(isSome(result!.profilePicture)).not.toBeTruthy()
@@ -142,6 +144,7 @@ describe('User Functions', () => {
         isSome(result!.trophies) ? Array.from(result!.trophies.value).length : null
       ).toBe(1)
       expect(result!.level.grade.value).toBe(FIRST_LEVEL_GRADE)
+      expect(result!.level.imageUrl).toBe(DEFAULT_IMAGE_URL)
     })
   })
 })

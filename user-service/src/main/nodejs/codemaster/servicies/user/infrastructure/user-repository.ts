@@ -80,6 +80,7 @@ export const updateUserInfo = async (
                 grade: newUserInfo.level.grade.value,
                 title: newUserInfo.level.title,
                 xp: newUserInfo.level.xpLevel,
+                url: newUserInfo.level.imageUrl,
               },
             },
           },

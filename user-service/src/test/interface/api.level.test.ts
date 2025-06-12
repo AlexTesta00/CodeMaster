@@ -2,6 +2,7 @@ import supertest from 'supertest'
 import { app } from '../../main/nodejs/codemaster/servicies/app'
 import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/user/infrastructure/db-connection'
 import dotenv from 'dotenv'
+import { DEFAULT_IMAGE_URL } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 
 describe('Test Level API', () => {
   const request = supertest(app)
@@ -21,7 +22,7 @@ describe('Test Level API', () => {
     it(
       'should correctly add a level',
       async () => {
-        const level = { grade: 1, title: 'Novice', xpLevel: 1 }
+        const level = { grade: 1, title: 'Novice', xpLevel: 1, url: DEFAULT_IMAGE_URL }
         const response = await request
           .post('/api/v1/levels/create')
           .send(level)
@@ -33,6 +34,7 @@ describe('Test Level API', () => {
           grade: { value: 1 },
           title: 'Novice',
           xpLevel: 1,
+          imageUrl: DEFAULT_IMAGE_URL,
         })
       },
       timeout
@@ -50,6 +52,7 @@ describe('Test Level API', () => {
           grade: { value: 1 },
           title: 'Novice',
           xpLevel: 1,
+          imageUrl: DEFAULT_IMAGE_URL,
         },
       ])
     })
