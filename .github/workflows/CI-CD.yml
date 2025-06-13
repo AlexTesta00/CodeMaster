@@ -129,7 +129,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service, frontend-service]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
