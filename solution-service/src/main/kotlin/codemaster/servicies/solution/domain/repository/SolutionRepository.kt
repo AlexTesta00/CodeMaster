@@ -52,5 +52,9 @@ interface SolutionRepository {
 
     fun removeSolutionById(id: SolutionId): Mono<Solution>
 
+    fun removeSolutionsByUser(user: String): Flux<Solution>
+
+    fun removeSolutionsByCodequest(questId: String): Flux<Solution>
+
     fun existBy(): Mono<Boolean>
 }

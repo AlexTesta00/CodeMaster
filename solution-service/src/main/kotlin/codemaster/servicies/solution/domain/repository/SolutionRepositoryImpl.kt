@@ -156,6 +156,20 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
             .findAndRemove(query, Solution::class.java)
     }
 
+    override fun removeSolutionsByUser(user: String): Flux<Solution> {
+        val query = Query(Criteria.where("user").`is`(user))
+
+        return mongoTemplate
+            .findAllAndRemove(query, Solution::class.java)
+    }
+
+    override fun removeSolutionsByCodequest(questId: String): Flux<Solution> {
+        val query = Query(Criteria.where("questId").`is`(questId))
+
+        return mongoTemplate
+            .findAllAndRemove(query, Solution::class.java)
+    }
+
     override fun existBy(): Mono<Boolean> {
         val query = Query().limit(1)
         return mongoTemplate.exists(query, Solution::class.java)

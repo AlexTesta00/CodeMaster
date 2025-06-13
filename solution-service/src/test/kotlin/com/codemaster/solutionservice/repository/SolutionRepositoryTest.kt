@@ -14,6 +14,7 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -392,15 +393,32 @@ class SolutionRepositoryTest : DescribeSpec() {
             }
 
             context("Delete solution") {
-                beforeTest {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                }
                 it("should delete the solution by id correctly") {
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
                     val deleted = repository.removeSolutionById(id1).awaitSingle()
 
                     repository.findSolutionById(deleted.id).awaitSingleOrNull() shouldBe null
                 }
+                it("should delete all solutions created by a user") {
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
+                    val deletedList = repository
+                        .removeSolutionsByUser(user)
+                        .collectList()
+                        .awaitSingle()
+
+                    checkSolution(deletedList.first())
+                }
+                it("should delete all solutions of a codequests") {
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
+                    val deletedList = repository
+                        .removeSolutionsByCodequest(questId)
+                        .collectList()
+                        .awaitSingle()
+
+                    checkSolution(deletedList.first())
+                }
                 it("should fail if the solution with given id does not exist in the database") {
+                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
                     val fakeId = SolutionId.generate()
 
                     repository.removeSolutionById(fakeId).awaitSingleOrNull() shouldBe null

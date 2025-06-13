@@ -325,6 +325,10 @@ class SolutionServiceTest : DescribeSpec() {
                 }
             }
 
+            it("should delete all solutions created by a user") {
+                service
+            }
+
             it("should throw exception if there is no solution with given id") {
                 val fakeId = SolutionId.generate()
 
