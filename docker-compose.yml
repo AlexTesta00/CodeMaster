@@ -120,6 +120,38 @@ services:
     env_file:
       - ./codequest-service/.env
 
+  mongo-community:
+    image: mongo
+    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
+    ports:
+      - '27021:27017'
+    volumes:
+      - mongo_data_community:/codemaster/community/db
+
+  mongo-express-community:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8085:8081'
+    depends_on:
+      mongo-community:
+        condition: service_started
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-community:27017/codemaster-community-db"
+
+  codemaster-community-service:
+    build:
+      context: ./community-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4007:4007'
+    depends_on:
+      mongo-community:
+        condition: service_started
+    env_file:
+      - ./community-service/.env
+
   mongo-solution:
     image: mongo
     command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
@@ -172,6 +204,8 @@ services:
         condition: service_started
       codemaster-solution-service:
         condition: service_started
+      codemaster-community-service:
+        condition: service_started
 
   populate-db:
     build:
@@ -186,6 +220,8 @@ services:
         condition: service_started
       codemaster-solution-service:
         condition: service_started
+      codemaster-community-service:
+        condition: service_started
     volumes:
       - ./populate-db:/app
     working_dir: /app
@@ -196,5 +232,6 @@ volumes:
   mongo_data_authentication:
   mongo_data_codequest:
   mongo_data_solution:
+  mongo_data_community:
   runner-cache:
   rabbitmq_data:

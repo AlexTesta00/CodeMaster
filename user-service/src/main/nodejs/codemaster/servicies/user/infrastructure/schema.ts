@@ -29,6 +29,7 @@ const levelSchema = new Schema({
   grade: { type: 'number', required: true, key: true },
   title: { type: 'string', required: true },
   xp: { type: 'number', required: true },
+  url: { type: 'string', required: true },
 })
 
 const userManagerSchema = new Schema({

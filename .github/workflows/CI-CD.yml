@@ -29,7 +29,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y dbus systemd
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4.4.0
+        uses: gradle/actions/setup-gradle@v4.4.1
       - name: Add Permission To Gradle
         run:  chmod +x ./gradlew
       - name: Start MongoDB
@@ -66,6 +66,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: codequest-service/coverage/lcov.info
           flags: codequest-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
+      - name: Upload coverage for community-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: community-service/coverage/lcov.info
+          flags: community-service
           name: codecov-umbrella
           fail_ci_if_error: true
       - name: Upload coverage for user-service
@@ -120,7 +129,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
