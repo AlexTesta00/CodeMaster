@@ -136,7 +136,7 @@ onMounted(async () => {
           alt="Trophy Photo"
         >
         <h3 class="text-xl text-white">
-          {{ lastTrophy?.title || 'No trophy yet' }}
+          {{ lastTrophy?.title.value || 'No trophy yet' }}
         </h3>
       </dashboard-card>
       <!--DashboardCard Level -->

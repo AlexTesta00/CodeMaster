@@ -6,6 +6,7 @@ import { errorToast, successToast } from '../utils/notify.ts'
 import { authenticationTraductor } from '../utils/error-message-traductor.ts'
 import LoadingPage from './LoadingPage.vue'
 import { useAuthStore } from '../utils/store.ts'
+import { assignTrophy, assignTrophyByTitle } from '../utils/game-logic.ts'
 
 const nickname = ref('')
 const email = ref('')
@@ -48,8 +49,11 @@ const handleSubmit = async () => {
             )
             if (response.success) {
                 await successToast('Registration Successful')
-                isLoading.value = false
                 authStore.setNickname(nickname.value)
+                if(authStore.nickname){
+                  await assignTrophyByTitle(authStore.nickname, 'Welcome')
+                }
+                isLoading.value = false
                 goToDahsboardPage()
             } else {
                 await errorToast(authenticationTraductor(response.message))
