@@ -41,6 +41,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
