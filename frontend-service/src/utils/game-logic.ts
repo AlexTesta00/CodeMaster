@@ -1,6 +1,6 @@
 import type { Trophy } from './interface.ts'
 import axios from 'axios'
-import { errorToast, successToast, sweetModalWithImage } from './notify.ts'
+import { errorToast, sweetModalWithImage } from './notify.ts'
 
 const USER_TROPHY_URL = 'http://localhost/api/v1/users/'
 const TROPHY_URL = 'http://localhost/api/v1/trophies/'

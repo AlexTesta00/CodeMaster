@@ -227,6 +227,24 @@ services:
     working_dir: /app
     command: ["sh", "-c", "sleep 5 && python db-service.py"]
 
+  frontend-service:
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    depends_on:
+      codemaster-authentication-service:
+        condition: service_started
+      codemaster-user-service:
+        condition: service_started
+      codemaster-solution-service:
+        condition: service_started
+      codemaster-codequest-service:
+        condition: service_started
+      codemaster-community-service:
+        condition: service_started
+    ports:
+      - "5173:5173"
+
 volumes:
   mongo_data_user:
   mongo_data_authentication:
