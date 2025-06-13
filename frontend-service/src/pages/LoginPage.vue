@@ -6,7 +6,7 @@ import { errorToast, successToast } from '../utils/notify.ts'
 import { authenticationTraductor } from '../utils/error-message-traductor.ts'
 import LoadingPage from './LoadingPage.vue'
 import { useAuthStore } from '../utils/store.ts'
-import { assignTrophy, assignTrophyByTitle } from '../utils/game-logic.ts'
+import { assignTrophyByTitle } from '../utils/game-logic.ts'
 
 const nickname = ref('')
 const email = ref('')
