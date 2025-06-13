@@ -1,6 +1,6 @@
 import type { Trophy } from './interface.ts'
 import axios from 'axios'
-import { errorToast, successToast } from './notify.ts'
+import { errorToast, successToast, sweetModalWithImage } from './notify.ts'
 
 const USER_TROPHY_URL = 'http://localhost/api/v1/users/'
 const TROPHY_URL = 'http://localhost/api/v1/trophies/'
@@ -48,7 +48,7 @@ const assignTrophy = async (
       return false
     }
 
-    await successToast('Congratulations, you got a new trophy!')
+    await sweetModalWithImage(`Congratulations you have obtained: ${trophy.title.value} trophy`, trophy.description, trophy.url, 'Image of trophy obtained')
     return true
   } catch (error) {
     await errorToast('Something went wrong while assigning trophy')
