@@ -9,12 +9,13 @@ import { CodeQuestServiceError } from '../../main/nodejs/codemaster/servicies/co
 import { CodeQuestModel } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model'
 import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
 import { CodeQuest } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest'
-import { RabbitMqEventPublisher } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/publisher'
+import { MockRabbitMqEventPublisher } from '../MockRabbitMqEventPublisher'
 
 describe('TestCodequestService', () => {
   let mongoServer: MongoMemoryServer
   let service: CodeQuestServiceImpl
-  let publisher: RabbitMqEventPublisher
+  const mockPublisher = new MockRabbitMqEventPublisher()
+
 
   const timeout = 15000
   const author = 'exampleName'
@@ -31,15 +32,9 @@ describe('TestCodequestService', () => {
   const difficulty = Difficulty.Medium
 
   beforeAll(async () => {
-    publisher = new RabbitMqEventPublisher()
-    service = new CodeQuestServiceImpl(publisher)
+    service = new CodeQuestServiceImpl(mockPublisher)
 
     dotenv.config()
-    try {
-      await publisher.connect()
-    } catch (error) {
-      process.exit(1)
-    }
 
     mongoServer = await MongoMemoryServer.create()
     const uri = mongoServer.getUri()
@@ -50,7 +45,6 @@ describe('TestCodequestService', () => {
   afterAll(async () => {
     await mongoose.disconnect()
     await mongoServer.stop()
-    await publisher.close()
   }, timeout)
 
   afterEach(async () => {

@@ -7,15 +7,16 @@ import { CodeQuestRepositoryImpl } from '../infrastructure/codequest/codequest-r
 import { LanguageRepositoryImpl } from '../infrastructure/language/language-repository-impl'
 import { CodeQuestService, CodeQuestServiceError } from './codequest-service'
 import { Difficulty } from '../domain/codequest/difficulty'
-import { RabbitMqEventPublisher } from '../infrastructure/middleware/publisher'
+import { PublisherImpl } from '../infrastructure/middleware/publisher-impl'
 import { CodequestDeletedEvent } from '../domain/events/codequest-deleted'
 import { MongoConnector } from '../infrastructure/db-connection'
+import { Publisher } from '../infrastructure/middleware/publisher'
 
 export class CodeQuestServiceImpl implements CodeQuestService {
   private languageRepo = new LanguageRepositoryImpl()
   private codequestRepo = new CodeQuestRepositoryImpl()
 
-  constructor(private readonly publisher: RabbitMqEventPublisher) {}
+  constructor(private readonly publisher: Publisher) {}
 
   async addCodeQuest(
     title: string,

@@ -18,16 +18,16 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
 import { createServer } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/express/server-factory'
 import TestAgent from 'supertest/lib/agent'
-import { RabbitMqEventConsumer } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/consumer'
-import { RabbitMqEventPublisher } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/publisher'
-import { Express } from 'express'
+import { MockRabbitMqEventPublisher } from '../MockRabbitMqEventPublisher'
+import { MockRabbitMqEventConsumer } from '../MockRabbitMqEventConsumer'
 
 dotenv.config()
 
 describe('Test API', () => {
   let mongoServer: MongoMemoryServer
   let request: TestAgent
-  let result: { app: Express; consumer: RabbitMqEventConsumer; publisher: RabbitMqEventPublisher }
+  const mockPublisher = new MockRabbitMqEventPublisher()
+  const mockConsumer = new MockRabbitMqEventConsumer()
 
   const timeout: number = 50_000
   const author = 'example name'
@@ -65,12 +65,11 @@ describe('Test API', () => {
       mongoServer = await MongoMemoryServer.create()
       const uri = mongoServer.getUri()
       await mongoose.connect(uri)
-      result = await startApp()
-      await result.publisher.connect()
-      await result.consumer.start()
-      request = supertest(result.app)
+      const app = await createServer({ publisher: mockPublisher, consumer: mockConsumer })
+      request = supertest(app)
     } catch (err) {
-      console.error('Errore in beforeAll:', err)
+      console.error('Errore in beforeAll:', err);
+      throw err;
     }
   }, timeout)
 
@@ -78,9 +77,6 @@ describe('Test API', () => {
     console.log('✅ Test cleanup done — process should exit now.')
     await mongoose.disconnect()
     await mongoServer.stop()
-    await result.publisher.close()
-    await result.consumer.close()
-    process.exit(0)
   })
 
   function checkCodequest(codequest: CodeQuest) {
@@ -93,10 +89,6 @@ describe('Test API', () => {
       )
     ).toEqual(languages)
     expect(codequest).toHaveProperty('difficulty.name', difficulty.name)
-  }
-
-  async function startApp() {
-    return await createServer()
   }
 
   describe('Test POST new codequest', () => {
