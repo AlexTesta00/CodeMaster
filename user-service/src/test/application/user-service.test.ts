@@ -25,7 +25,10 @@ import {
 } from '../../main/nodejs/codemaster/servicies/user/application/user-service'
 import { isLeft, isRight } from 'fp-ts/Either'
 import { isNone, isSome, none, some } from 'fp-ts/Option'
-import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {
+  createDefaultLevel,
+  DEFAULT_IMAGE_URL,
+} from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { CV } from '../../main/nodejs/codemaster/servicies/user/domain/cv'
 import { Language } from '../../main/nodejs/codemaster/servicies/user/domain/language'
 import {
@@ -672,13 +675,14 @@ describe('Test user service', () => {
         const title = 'Intermediate'
         const xpLevel = 500
 
-        const result = await registerNewLevel(levelId, title, xpLevel)
+        const result = await registerNewLevel(levelId, title, xpLevel, DEFAULT_IMAGE_URL)
         expect(isRight(result)).toBeTruthy()
 
         const level = isRight(result) ? result.right : null
         expect(level?.grade.value).toEqual(levelId.value)
         expect(level?.title).toEqual(title)
         expect(level?.xpLevel).toEqual(xpLevel)
+        expect(level?.imageUrl).toEqual(DEFAULT_IMAGE_URL)
       },
       timeout
     )
@@ -690,7 +694,7 @@ describe('Test user service', () => {
         const title = 'Invalid'
         const xpLevel = -100
 
-        const result = await registerNewLevel(levelId, title, xpLevel)
+        const result = await registerNewLevel(levelId, title, xpLevel, DEFAULT_IMAGE_URL)
         expect(isLeft(result)).toBeTruthy()
       },
       timeout
@@ -702,7 +706,12 @@ describe('Test user service', () => {
       'should correctly delete a level',
       async () => {
         const levelId: LevelId = { value: 2 }
-        const registerResult = await registerNewLevel(levelId, 'Intermediate', 500)
+        const registerResult = await registerNewLevel(
+          levelId,
+          'Intermediate',
+          500,
+          DEFAULT_IMAGE_URL
+        )
         expect(isRight(registerResult)).toBeTruthy()
 
         const deleteResult = await deleteLevel(levelId)
@@ -729,8 +738,18 @@ describe('Test user service', () => {
     it(
       'should return all levels',
       async () => {
-        const level_one = await registerNewLevel({ value: 1 }, 'Beginner', 100)
-        const level_two = await registerNewLevel({ value: 2 }, 'Intermediate', 500)
+        const level_one = await registerNewLevel(
+          { value: 1 },
+          'Beginner',
+          100,
+          DEFAULT_IMAGE_URL
+        )
+        const level_two = await registerNewLevel(
+          { value: 2 },
+          'Intermediate',
+          500,
+          DEFAULT_IMAGE_URL
+        )
         const expected = [level_one, level_two]
           .filter(isRight)
           .map((level) => level.right)
@@ -773,9 +792,9 @@ describe('Test user service', () => {
           400
         )
 
-        await registerNewLevel({ value: 1 }, 'Beginner', 100)
-        await registerNewLevel({ value: 2 }, 'Intermediate', 500)
-        await registerNewLevel({ value: 3 }, 'Advanced', 1000)
+        await registerNewLevel({ value: 1 }, 'Beginner', 100, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 2 }, 'Intermediate', 500, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 3 }, 'Advanced', 1000, DEFAULT_IMAGE_URL)
 
         const trophies = [first_trophy, second_trophy]
           .filter(isRight)
@@ -799,9 +818,9 @@ describe('Test user service', () => {
         const userId: UserId = { value: nickname.value }
         await registerNewUser(userId)
 
-        await registerNewLevel({ value: 1 }, 'Beginner', 100)
-        await registerNewLevel({ value: 2 }, 'Intermediate', 500)
-        await registerNewLevel({ value: 3 }, 'Advanced', 1000)
+        await registerNewLevel({ value: 1 }, 'Beginner', 100, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 2 }, 'Intermediate', 500, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 3 }, 'Advanced', 1000, DEFAULT_IMAGE_URL)
 
         const result = await computeUserLevel(userId)
         expect(isLeft(result)).toBeTruthy()
@@ -818,9 +837,9 @@ describe('Test user service', () => {
         const userId: UserId = { value: nickname.value }
         await registerNewUser(userId)
 
-        await registerNewLevel({ value: 1 }, 'Beginner', 100)
-        await registerNewLevel({ value: 2 }, 'Intermediate', 500)
-        await registerNewLevel({ value: 3 }, 'Advanced', 1000)
+        await registerNewLevel({ value: 1 }, 'Beginner', 100, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 2 }, 'Intermediate', 500, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 3 }, 'Advanced', 1000, DEFAULT_IMAGE_URL)
 
         const trophy = createTrophy(
           'millionare',
@@ -848,9 +867,9 @@ describe('Test user service', () => {
         const userId: UserId = { value: nickname.value }
         await registerNewUser(userId)
 
-        await registerNewLevel({ value: 1 }, 'Beginner', 1)
-        await registerNewLevel({ value: 2 }, 'Intermediate', 500)
-        await registerNewLevel({ value: 3 }, 'Advanced', 1000)
+        await registerNewLevel({ value: 1 }, 'Beginner', 1, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 2 }, 'Intermediate', 500, DEFAULT_IMAGE_URL)
+        await registerNewLevel({ value: 3 }, 'Advanced', 1000, DEFAULT_IMAGE_URL)
 
         const trophy = createTrophy(':(', 'loser', 'https://localhost.com', 1)
         const rightTrophy = isRight(trophy) ? trophy.right : null

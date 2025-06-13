@@ -1,6 +1,7 @@
 import {
   createDefaultLevel,
   createLevel,
+  DEFAULT_IMAGE_URL,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { isLeft, isRight } from 'fp-ts/Either'
 
@@ -10,13 +11,13 @@ describe('Level Functions', () => {
       const grade = 2
       const title = 'Intermediate'
       const xp = 100
-
-      const level = createLevel(grade, title, xp)
+      const level = createLevel(grade, title, xp, DEFAULT_IMAGE_URL)
       const result = isRight(level) ? level.right : null
 
       expect(result!.grade.value).toBe(grade)
       expect(result!.title).toBe(title)
       expect(result!.xpLevel).toBe(xp)
+      expect(result!.imageUrl).toBe(DEFAULT_IMAGE_URL)
     })
 
     it('should throw an error if grade is less than 1', () => {
@@ -24,7 +25,7 @@ describe('Level Functions', () => {
       const title = 'Invalid Grade'
       const xp = 100
 
-      const level = createLevel(grade, title, xp)
+      const level = createLevel(grade, title, xp, DEFAULT_IMAGE_URL)
       const result = isLeft(level) ? level.left : null
 
       expect(result!.message).toEqual('Grade must be greater than 0')
@@ -35,7 +36,7 @@ describe('Level Functions', () => {
       const title = ''
       const xp = 100
 
-      const level = createLevel(grade, title, xp)
+      const level = createLevel(grade, title, xp, DEFAULT_IMAGE_URL)
       const result = isLeft(level) ? level.left : null
 
       expect(result!.message).toEqual('Title cannot be empty')
@@ -46,7 +47,7 @@ describe('Level Functions', () => {
       const title = 'No XP'
       const xp = 0
 
-      const level = createLevel(grade, title, xp)
+      const level = createLevel(grade, title, xp, DEFAULT_IMAGE_URL)
       const result = isLeft(level) ? level.left : null
 
       expect(result!.message).toEqual('XP must be greater than to 0')
