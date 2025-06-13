@@ -7,8 +7,7 @@ const hostname = '0.0.0.0'
 async function bootstrap() {
   try {
     await MongoConnector.connectToDatabase()
-    const result = await createServer()
-    const app = result.app
+    const app = await createServer()
     console.log('Connected to database')
     app.listen(port, hostname, () => {
       console.log(`Server is running on port ${port}`)

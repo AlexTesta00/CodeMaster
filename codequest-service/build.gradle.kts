@@ -12,41 +12,8 @@ node {
     download.set(true)
 }
 
-val createRabbitMQContainer = tasks.register<DockerCreateContainer>("createRabbitMQContainer") {
-    targetImageId("rabbitmq:3-management")
-    containerName.set("test-rabbitmq-codequest")
-    hostConfig.portBindings.set(listOf("5673:5672", "15673:15672"))
-}
-
-val startRabbitMQ = tasks.register<DockerStartContainer>("startRabbitMQ") {
-    dependsOn(createRabbitMQContainer)
-    targetContainerId(createRabbitMQContainer.get().containerId)
-}
-
-val stopRabbitMQ = tasks.register<DockerStopContainer>("stopRabbitMQ") {
-    targetContainerId(createRabbitMQContainer.get().containerId)
-    onlyIf { createRabbitMQContainer.get().containerId != null }
-}
-
-val removeRabbitMQContainer = tasks.register<DockerRemoveContainer>("removeRabbitMQContainer") {
-    doFirst {
-        println("⏳ Waiting for RabbitMQ to stop...")
-        Thread.sleep(2000)
-    }
-    dependsOn(stopRabbitMQ)
-    targetContainerId(createRabbitMQContainer.get().containerId)
-    force.set(true)
-}
-
 tasks.register<NpmTask>("npmTest") {
-    dependsOn("npmInstall", startRabbitMQ)
-    finalizedBy(removeRabbitMQContainer)
-
-    doFirst {
-        println("⏳ Waiting for RabbitMQ...")
-        Thread.sleep(10000)
-    }
-
+    dependsOn("npmInstall")
     args.set(listOf("run", "test"))
 }
 
