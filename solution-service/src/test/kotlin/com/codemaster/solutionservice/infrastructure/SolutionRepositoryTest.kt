@@ -1,7 +1,7 @@
-package com.codemaster.solutionservice.repository
+package com.codemaster.solutionservice.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.repository.SolutionRepositoryImpl
+import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
 import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.transitions.Mongod
@@ -10,11 +10,8 @@ import de.flapdoodle.reverse.StateID
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeSameInstanceAs
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking

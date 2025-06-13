@@ -8,7 +8,7 @@ import codemaster.servicies.solution.application.utility.UtilityFunctions.parseJ
 import codemaster.servicies.solution.application.utility.UtilityFunctions.prepareCodeDir
 import codemaster.servicies.solution.application.utility.UtilityFunctions.runDocker
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.repository.SolutionRepository
+import codemaster.servicies.solution.infrastructure.SolutionRepository
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -109,6 +109,16 @@ class SolutionService(
     suspend fun deleteSolution(id: SolutionId): Solution {
         val solution = repository.removeSolutionById(id).awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
+    }
+
+    suspend fun deleteSolutionsByUser(user: String): List<Solution> {
+        val solutions = repository.removeSolutionsByUser(user).collectList().awaitSingleOrNull()
+        return solutions ?: throw NoSuchElementException("No solution created by user '$user' founded")
+    }
+
+    suspend fun deleteSolutionsByCodequest(questId: String): List<Solution> {
+        val solutions = repository.removeSolutionsByCodequest(questId).collectList().awaitSingleOrNull()
+        return solutions ?: throw NoSuchElementException("No solution created by user '$questId' founded")
     }
 
     suspend fun compileSolution(id: SolutionId, newCode: String): ExecutionResult {

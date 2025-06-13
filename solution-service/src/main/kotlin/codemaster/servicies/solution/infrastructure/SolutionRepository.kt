@@ -1,4 +1,4 @@
-package codemaster.servicies.solution.domain.repository
+package codemaster.servicies.solution.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
 import reactor.core.publisher.Flux

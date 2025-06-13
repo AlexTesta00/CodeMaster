@@ -4,7 +4,7 @@ import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.domain.errors.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.repository.SolutionRepositoryImpl
+import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
 import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
@@ -12,9 +12,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.TestInstance
