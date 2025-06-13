@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/AlexTesta00/CodeMaster/compare/v2.0.0...v2.0.1) (2025-06-13)
+
+### Bug Fixes
+
+* **api-gateway:** added routes for trophy and levels ([4019821](https://github.com/AlexTesta00/CodeMaster/commit/4019821d1d27b7f2adfbb75331167e78bc8e0171))
+* **deps:** update dependency mongoose to v8.15.2 ([6b337c2](https://github.com/AlexTesta00/CodeMaster/commit/6b337c20d2ebebc2e3e58eb95e12fd142582196c))
+
 ## [2.0.0](https://github.com/AlexTesta00/CodeMaster/compare/v1.8.0...v2.0.0) (2025-06-12)
 
 ### ⚠ BREAKING CHANGES
