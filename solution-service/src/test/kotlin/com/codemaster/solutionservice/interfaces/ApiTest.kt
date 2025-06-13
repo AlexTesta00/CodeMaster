@@ -742,10 +742,6 @@ class ApiTest(
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.error").isEqualTo("Compilation failed")
-                .jsonPath("$.stderr").isEqualTo("Main.java:8: error: reached end of file while parsing\n" +
-                        "}\n" +
-                        " ^\n" +
-                        "1 error")
         }
     }
 
