@@ -1,31 +1,25 @@
 package codemaster.servicies.solution.infrastructure.rabbitmq
 
 import codemaster.servicies.solution.application.SolutionService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Component
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import org.springframework.messaging.handler.annotation.Payload
 
 @Component
-class RabbitMqEventConsumer(
+class Consumer(
     private val solutionService: SolutionService
 ) {
-    private val objectMapper = jacksonObjectMapper()
 
     @RabbitListener(queues = ["solution-user-deleted"])
-    suspend fun handleUserDeleted(message: String) {
-        val userId = objectMapper.readValue(message, String::class.java)
-        println("Received user.deleted event for user: $userId")
-        solutionService.deleteSolutionsByUser(userId)
+    suspend fun handleUserDeleted(@Payload event: UserDeletedEvent) {
+        println("Received user.deleted event for user: ${event.userId}")
+        solutionService.deleteSolutionsByUser(event.userId)
     }
 
     @RabbitListener(queues = ["solution-codequest-deleted"])
-    suspend fun handleCodequestDeleted(message: String) {
-        val questId = objectMapper.readValue(message, String::class.java)
-        println("Received codequest.delete event for quest: $questId")
-        solutionService.deleteSolutionsByCodequest(questId)
+    suspend fun handleCodequestDeleted(@Payload event: CodequestDeletedEvent) {
+        println("Received codequest.delete event for quest: ${event.questId}")
+        solutionService.deleteSolutionsByCodequest(event.questId)
     }
 }
+
