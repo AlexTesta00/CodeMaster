@@ -23,15 +23,11 @@ export class LanguageRepositoryImpl implements LanguageRepository {
   async insertAllLanguages(): Promise<void> {
     for (let i = 0; i < languages.length; i++) {
       const language = languages[i]
-      try {
-        await new LanguageModel({
-          name: language.name,
-          version: language.version,
-          fileExtension: language.fileExtension,
-        }).save()
-      } catch (err) {
-        throw err
-      }
+      await new LanguageModel({
+        name: language.name,
+        version: language.version,
+        fileExtension: language.fileExtension,
+      }).save()
     }
   }
 }

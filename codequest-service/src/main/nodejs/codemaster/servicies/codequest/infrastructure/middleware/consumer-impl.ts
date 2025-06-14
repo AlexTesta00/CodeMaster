@@ -1,6 +1,5 @@
 import amqp, { Channel, ChannelModel, Message } from 'amqplib'
 import { CodeQuestServiceImpl } from '../../application/codequest-service-impl'
-import { Publisher } from './publisher'
 import { Consumer } from './consumer'
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost'
@@ -27,7 +26,7 @@ export class ConsumerImpl implements Consumer {
       await this.channel.bindQueue(queue, EXCHANGE, ROUTING_KEY)
 
       const consumeResult = await this.channel.consume(queue, this.handleMessage, {
-        noAck: false
+        noAck: false,
       })
 
       this.consumerTag = consumeResult.consumerTag
@@ -57,7 +56,7 @@ export class ConsumerImpl implements Consumer {
   async close(): Promise<void> {
     if (this.channel) await this.channel.close()
     if (this.connection) await this.connection.close()
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     console.log('[info] RabbitMQ connection closed with delay')
   }
 }

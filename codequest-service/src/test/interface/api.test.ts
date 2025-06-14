@@ -68,8 +68,8 @@ describe('Test API', () => {
       const app = await createServer({ publisher: mockPublisher, consumer: mockConsumer })
       request = supertest(app)
     } catch (err) {
-      console.error('Errore in beforeAll:', err);
-      throw err;
+      console.error('Errore in beforeAll:', err)
+      throw err
     }
   }, timeout)
 
