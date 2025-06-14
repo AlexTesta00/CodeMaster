@@ -16,7 +16,6 @@ describe('TestCodequestService', () => {
   let service: CodeQuestServiceImpl
   const mockPublisher = new MockRabbitMqEventPublisher()
 
-
   const timeout = 15000
   const author = 'exampleName'
   const problem = new Problem(

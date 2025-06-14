@@ -2,8 +2,15 @@ import { Publisher } from '../main/nodejs/codemaster/servicies/codequest/infrast
 
 export class MockRabbitMqEventPublisher implements Publisher {
   private connected = true
-  async connect() { this.connected = true }
-  async publish(topic: string, event: object) { /* mock */ }
-  isConnected() { return this.connected }
-  async close() { this.connected = false }
+  async connect() {
+    this.connected = true
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async publish(topic: string, event: object) {}
+  isConnected() {
+    return this.connected
+  }
+  async close() {
+    this.connected = false
+  }
 }

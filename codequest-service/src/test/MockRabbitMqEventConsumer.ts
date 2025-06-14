@@ -2,6 +2,10 @@ import { Consumer } from '../main/nodejs/codemaster/servicies/codequest/infrastr
 
 export class MockRabbitMqEventConsumer implements Consumer {
   private connected = true
-  async close(): Promise<void> { this.connected = false }
-  async start(): Promise<void> { this.connected = true }
+  async close(): Promise<void> {
+    this.connected = false
+  }
+  async start(): Promise<void> {
+    this.connected = true
+  }
 }

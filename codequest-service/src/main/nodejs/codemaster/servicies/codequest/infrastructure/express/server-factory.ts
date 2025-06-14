@@ -9,12 +9,10 @@ import { Consumer } from '../middleware/consumer'
 import { Publisher } from '../middleware/publisher'
 import { ConsumerImpl } from '../middleware/consumer-impl'
 
-export async function createServer(
-  deps?: {
-    publisher?: Publisher
-    consumer?: Consumer
-  }
-): Promise<Express> {
+export async function createServer(deps?: {
+  publisher?: Publisher
+  consumer?: Consumer
+}): Promise<Express> {
   const publisher = deps?.publisher ?? new PublisherImpl()
 
   const codeQuestService = new CodeQuestServiceImpl(publisher)
