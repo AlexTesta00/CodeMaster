@@ -1,6 +1,8 @@
 package codemaster.servicies.solution.infrastructure.rabbitmq
 
 import org.springframework.amqp.core.*
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
+import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -30,5 +32,11 @@ class RabbitMqConfig {
         codequestDeletedQueue: Queue,
         codequestExchange: TopicExchange
     ): Binding =
-        BindingBuilder.bind(codequestDeletedQueue).to(codequestExchange).with("codequest.delete")
+        BindingBuilder.bind(codequestDeletedQueue).to(codequestExchange).with("codequest.deleted")
+
+    @Bean
+    fun messageConverter(): MessageConverter {
+        return Jackson2JsonMessageConverter()
+    }
 }
+

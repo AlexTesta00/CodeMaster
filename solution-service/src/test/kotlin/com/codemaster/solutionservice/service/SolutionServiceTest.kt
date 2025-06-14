@@ -310,12 +310,8 @@ class SolutionServiceTest : DescribeSpec() {
         }
 
         describe("Delete solution") {
-
-            beforeTest {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
-            }
-
             it("should delete solution correctly by id") {
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
                 service.deleteSolution(id1)
 
                 shouldThrow<NoSuchElementException> {
@@ -324,15 +320,29 @@ class SolutionServiceTest : DescribeSpec() {
             }
 
             it("should delete all solutions created by a user") {
-                service
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.deleteSolutionsByUser(user)
+
+                service.getSolutionsByUser(user) shouldBe emptyList()
+            }
+
+            it("should delete all solutions of a codequest") {
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.deleteSolutionsByCodequest(questId)
+
+                service.getSolutionsByQuestId(questId) shouldBe emptyList()
             }
 
             it("should throw exception if there is no solution with given id") {
                 val fakeId = SolutionId.generate()
+                val fakeUser = "fakeUser"
+                val fakeQuest = "fakeQuest"
 
                 shouldThrow<NoSuchElementException> {
                     service.deleteSolution(fakeId)
                 }
+                service.deleteSolutionsByUser(fakeUser) shouldBe emptyList()
+                service.deleteSolutionsByCodequest(fakeQuest) shouldBe emptyList()
             }
         }
     }

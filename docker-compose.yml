@@ -194,6 +194,7 @@ services:
       - ./solution-service/.env
     environment:
       - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
+      - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   api-gateway:
     build:
