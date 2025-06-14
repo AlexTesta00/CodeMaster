@@ -4,18 +4,18 @@ import mongoose from 'mongoose'
 import { Problem } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/problem'
 import { Example } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example'
 import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory'
-import {
-  CodeQuestService,
-  CodeQuestServiceError,
-} from '../../main/nodejs/codemaster/servicies/codequest/application/codequest-service'
+import dotenv from 'dotenv'
+import { CodeQuestServiceError } from '../../main/nodejs/codemaster/servicies/codequest/application/codequest-service'
 import { CodeQuestModel } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model'
-import { populateLanguages } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate'
 import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
 import { CodeQuest } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest'
+import { MockRabbitMqEventPublisher } from '../MockRabbitMqEventPublisher'
 
 describe('TestCodequestService', () => {
   let mongoServer: MongoMemoryServer
-  let service: CodeQuestService
+  let service: CodeQuestServiceImpl
+  const mockPublisher = new MockRabbitMqEventPublisher()
+
 
   const timeout = 15000
   const author = 'exampleName'
@@ -24,7 +24,7 @@ describe('TestCodequestService', () => {
     [new Example('example1', 'example2', 'explanation')],
     ['constraints']
   )
-  const title = 'Title example'
+  const title: string = 'Title Example'
   const languages = [
     LanguageFactory.newLanguage('Java', '17', '.java'),
     LanguageFactory.newLanguage('Scala', '2.11.12', '.scala'),
@@ -32,11 +32,14 @@ describe('TestCodequestService', () => {
   const difficulty = Difficulty.Medium
 
   beforeAll(async () => {
+    service = new CodeQuestServiceImpl(mockPublisher)
+
+    dotenv.config()
+
     mongoServer = await MongoMemoryServer.create()
     const uri = mongoServer.getUri()
     await mongoose.connect(uri)
-    service = new CodeQuestServiceImpl()
-    await populateLanguages()
+    await service.populateLanguages()
   }, timeout)
 
   afterAll(async () => {
@@ -288,11 +291,7 @@ describe('TestCodequestService', () => {
           languages[0].version,
           languages[0].fileExtension
         )
-        const foundCodequests = await service.getCodeQuestsByLanguage(
-          language.name,
-          language.version,
-          language.fileExtension
-        )
+        const foundCodequests = await service.getCodeQuestsByLanguage(language.name)
 
         foundCodequests.forEach((codequest) => {
           expect(codequest).not.toBeNull()
@@ -326,11 +325,7 @@ describe('TestCodequestService', () => {
         const invalidLanguage = LanguageFactory.newLanguage('C', 'C99', '.c')
 
         await expect(() =>
-          service.getCodeQuestsByLanguage(
-            invalidLanguage.name,
-            invalidLanguage.version,
-            invalidLanguage.fileExtension
-          )
+          service.getCodeQuestsByLanguage(invalidLanguage.name)
         ).rejects.toThrow(CodeQuestServiceError.LanguageNotFound)
       },
       timeout
@@ -466,6 +461,19 @@ describe('TestCodequestService', () => {
         await expect(() => service.getCodeQuestById(deleted.id)).rejects.toThrow(
           CodeQuestServiceError.InvalidCodeQuestId
         )
+      },
+      timeout
+    )
+
+    it(
+      'should delete all codequests created by a user correctly',
+      async () => {
+        await service.addCodeQuest(title, author, problem, null, languages, difficulty)
+
+        await service.addCodeQuest(title, author, problem, null, languages, difficulty)
+
+        await service.deleteAllCodequestsByAuthor(author)
+        expect(await service.getCodeQuests()).toStrictEqual([])
       },
       timeout
     )

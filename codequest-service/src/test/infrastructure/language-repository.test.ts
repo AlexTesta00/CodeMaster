@@ -4,7 +4,6 @@ import { LanguageRepositoryImpl } from '../../main/nodejs/codemaster/servicies/c
 import mongoose from 'mongoose'
 import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory'
 import * as languages from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/languages.json'
-import { populateLanguages } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate'
 
 describe('TestLanguageRepository', () => {
   let mongoServer: MongoMemoryServer
@@ -20,7 +19,7 @@ describe('TestLanguageRepository', () => {
     const uri = mongoServer.getUri()
     await mongoose.connect(uri)
     languageRepo = new LanguageRepositoryImpl()
-    await populateLanguages()
+    await languageRepo.insertAllLanguages()
   }, timeout)
 
   afterAll(async () => {

@@ -1,4 +1,3 @@
-import { app } from '../../main/nodejs/codemaster/servicies/codequest/interfaces/server'
 import supertest from 'supertest'
 import {
   BAD_REQUEST,
@@ -12,20 +11,25 @@ import { Problem } from '../../main/nodejs/codemaster/servicies/codequest/domain
 import { Example } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/example'
 import { LanguageFactory } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language-factory'
 import * as dotenv from 'dotenv'
-import { populateLanguages } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/language/populate'
 import { CodeQuestModel } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/codequest/codequest-model'
 import { Language } from '../../main/nodejs/codemaster/servicies/codequest/domain/language/language'
 import { CodeQuest } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/codequest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { Difficulty } from '../../main/nodejs/codemaster/servicies/codequest/domain/codequest/difficulty'
+import { createServer } from '../../main/nodejs/codemaster/servicies/codequest/infrastructure/express/server-factory'
+import TestAgent from 'supertest/lib/agent'
+import { MockRabbitMqEventPublisher } from '../MockRabbitMqEventPublisher'
+import { MockRabbitMqEventConsumer } from '../MockRabbitMqEventConsumer'
 
 dotenv.config()
 
 describe('Test API', () => {
   let mongoServer: MongoMemoryServer
+  let request: TestAgent
+  const mockPublisher = new MockRabbitMqEventPublisher()
+  const mockConsumer = new MockRabbitMqEventConsumer()
 
-  const timeout: number = 20000
-  const request = supertest(app)
+  const timeout: number = 50_000
   const author = 'example name'
   const problem = new Problem(
     'Problem example',
@@ -57,13 +61,20 @@ describe('Test API', () => {
   }
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create()
-    const uri = mongoServer.getUri()
-    await mongoose.connect(uri)
-    await populateLanguages()
+    try {
+      mongoServer = await MongoMemoryServer.create()
+      const uri = mongoServer.getUri()
+      await mongoose.connect(uri)
+      const app = await createServer({ publisher: mockPublisher, consumer: mockConsumer })
+      request = supertest(app)
+    } catch (err) {
+      console.error('Errore in beforeAll:', err);
+      throw err;
+    }
   }, timeout)
 
   afterAll(async () => {
+    console.log('✅ Test cleanup done — process should exit now.')
     await mongoose.disconnect()
     await mongoServer.stop()
   })
