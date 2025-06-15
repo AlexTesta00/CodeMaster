@@ -155,6 +155,8 @@ services:
         condition: service_started
     env_file:
       - ./community-service/.env
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-solution:
     image: mongo
