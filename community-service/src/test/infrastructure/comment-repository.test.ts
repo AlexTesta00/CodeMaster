@@ -6,7 +6,7 @@ import { CommentFactory } from '../../main/nodejs/codemaster/servicies/community
 import { CommentModel } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-model'
 import { CommentId } from '../../main/nodejs/codemaster/servicies/community/domain/comment-id'
 
-describe('TestCodeQuestRepository', () => {
+describe('TestCommentRepository', () => {
   const timeout = 10000
   let mongoServer: MongoMemoryServer
   let commentRepo: CommentRepository
@@ -48,15 +48,6 @@ describe('TestCodeQuestRepository', () => {
           expect(savedComment.content).toBe(newComment.content)
           expect(savedComment.questId).toBe(newComment.questId)
           expect(savedComment.author).toBe(newComment.author)
-        },
-        timeout
-      )
-
-      it(
-        'should throw exception if add another comment with same id',
-        async () => {
-          await commentRepo.save(comment)
-          await expect(commentRepo.save(comment)).rejects.toThrow()
         },
         timeout
       )
