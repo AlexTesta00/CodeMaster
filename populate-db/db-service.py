@@ -7,6 +7,22 @@ CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests"
 SOLUTIONS_URL = "http://codemaster-solution-service:4006/api/v1/solutions/"
 COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments"
 
+def get_existing_levels():
+    url = 'http://codemaster-user-service:4005/api/v1/levels/'
+    result = requests.get(url)
+    if result.status_code == 200:
+        return result.json()
+    else:
+        return []
+
+def get_existing_trophies():
+    url = 'http://codemaster-user-service:4005/api/v1/trophies/'
+    result = requests.get(url)
+    if result.status_code == 200:
+        return result.json()
+    else:
+        return []
+
 if __name__ == "__main__":
 
     codequests = [
@@ -186,16 +202,16 @@ if __name__ == "__main__":
     ]
 
     levels = [
-        {'grade': 1, 'title': 'Novice', 'xpLevel': 1},
-        {'grade': 2, 'title': 'Rookie', 'xpLevel': 100},
-        {'grade': 3, 'title': 'Amateur', 'xpLevel': 200},
-        {'grade': 4, 'title': 'Expert', 'xpLevel': 300},
-        {'grade': 5, 'title': 'Champion', 'xpLevel': 400},
-        {'grade': 6, 'title': 'Legend', 'xpLevel': 500},
-        {'grade': 7, 'title': 'Ultimate', 'xpLevel': 1000},
-        {'grade': 8, 'title': 'Coder', 'xpLevel': 1500},
-        {'grade': 9, 'title': 'Master', 'xpLevel': 2000},
-        {'grade': 10, 'title': 'CodeMaster', 'xpLevel': 5000}
+        {'grade': 1, 'title': 'Novice', 'xpLevel': 1, 'url': 'https://cdn-icons-png.flaticon.com/512/1055/1055646.png'},
+        {'grade': 2, 'title': 'Rookie', 'xpLevel': 100, 'url': 'https://cdn-icons-png.flaticon.com/512/2736/2736136.png' },
+        {'grade': 3, 'title': 'Amateur', 'xpLevel': 200, 'url': 'https://cdn-icons-png.flaticon.com/512/15873/15873196.png' },
+        {'grade': 4, 'title': 'Expert', 'xpLevel': 300, 'url': 'https://cdn-icons-png.flaticon.com/512/11511/11511373.png' },
+        {'grade': 5, 'title': 'Champion', 'xpLevel': 400, 'url': 'https://cdn-icons-png.flaticon.com/512/924/924915.png' },
+        {'grade': 6, 'title': 'Legend', 'xpLevel': 500, 'url': 'https://cdn-icons-png.flaticon.com/512/1910/1910476.png' },
+        {'grade': 7, 'title': 'Ultimate', 'xpLevel': 1000, 'url': 'https://cdn-icons-png.flaticon.com/512/15047/15047490.png' },
+        {'grade': 8, 'title': 'Coder', 'xpLevel': 1500, 'url': 'https://cdn-icons-png.flaticon.com/512/10817/10817310.png' },
+        {'grade': 9, 'title': 'Master', 'xpLevel': 2000, 'url': 'https://cdn-icons-png.flaticon.com/512/3270/3270465.png' },
+        {'grade': 10, 'title': 'CodeMaster', 'xpLevel': 5000, 'url': 'https://cdn-icons-png.flaticon.com/512/432/432492.png' }
     ]
 
     trophies = [
@@ -223,31 +239,37 @@ if __name__ == "__main__":
 
     print("[⏳] Creating levels...")
 
-    for level in levels:
-        try:
-            res = requests.post(LEVEL_URL, json=level)
-            if res.status_code == 200:
-                print(f"[✅] Level {level['title']} created successfully.")
-            else:
-                print(f"[X] Failed to create level {level['title']}: {res.status_code} - {res.text}")
-                break
-        except requests.exceptions.RequestException as e:
-            print(f"Error creating level {level['title']}: {e}")
-    print("[✅] Levels creation completed.")
+    if get_existing_levels():
+        print(f"[ℹ️] Skipping levels creation: levels already exist.")
+    else:
+        for level in levels:
+            try:
+                res = requests.post(LEVEL_URL, json=level)
+                if res.status_code == 200:
+                    print(f"[✅] Level {level['title']} created successfully.")
+                else:
+                    print(f"[X] Failed to create level {level['title']}: {res.status_code} - {res.text}")
+                    break
+            except requests.exceptions.RequestException as e:
+                print(f"Error creating level {level['title']}: {e}")
+        print("[✅] Levels creation completed.")
 
     print("[⏳] Creating trophies...")
 
-    for trophy in trophies:
-        try:
-            res = requests.post(TROPHY_URL, json=trophy)
-            if res.status_code == 200:
-                print(f"[✅] Trophy {trophy['title']} created successfully.")
-            else:
-                print(f"[X] Failed to create trophy {trophy['title']}: {res.status_code} - {res.text}")
-                break
-        except requests.exceptions.RequestException as e:
-            print(f"Error creating trophy {trophy['title']}: {e}")
-    print("[✅] Trophies creation completed.")
+    if get_existing_trophies():
+        print(f"[ℹ️] Skipping trophy creation: trophies already exist.")
+    else:
+        for trophy in trophies:
+            try:
+                res = requests.post(TROPHY_URL, json=trophy)
+                if res.status_code == 200:
+                    print(f"[✅] Trophy {trophy['title']} created successfully.")
+                else:
+                    print(f"[X] Failed to create trophy {trophy['title']}: {res.status_code} - {res.text}")
+                    break
+            except requests.exceptions.RequestException as e:
+                print(f"Error creating trophy {trophy['title']}: {e}")
+        print("[✅] Trophies creation completed.")
 
     print("[⏳] Creating codequests...")
 
