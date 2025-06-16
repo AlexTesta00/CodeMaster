@@ -2,6 +2,7 @@ package codemaster.servicies.solution.application.utility
 
 import codemaster.servicies.solution.application.SolutionService.Companion.CONTAINER_TIMEOUT
 import codemaster.servicies.solution.application.SolutionService.Companion.PROCESS_TIMEOUT
+import codemaster.servicies.solution.application.SolutionService.Companion.TIME_SPAN
 import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
 import codemaster.servicies.solution.domain.model.Solution
@@ -86,7 +87,7 @@ object UtilityFunctions {
                     paths.filter { Files.isRegularFile(it) }.forEach { file ->
                         val entryName = dir.relativize(file).toString().replace('\\', '/')
                         val entry = TarArchiveEntry(file.toFile(), entryName)
-                        entry.modTime = Date(System.currentTimeMillis() - 60_000)
+                        entry.modTime = Date(System.currentTimeMillis() - TIME_SPAN)
                         tarOut.putArchiveEntry(entry)
                         Files.newInputStream(file).use { input ->
                             input.copyTo(tarOut)
