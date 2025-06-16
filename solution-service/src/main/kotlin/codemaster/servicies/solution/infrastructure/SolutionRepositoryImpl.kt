@@ -1,4 +1,4 @@
-package codemaster.servicies.solution.domain.repository
+package codemaster.servicies.solution.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
 import org.springframework.data.mongodb.core.FindAndModifyOptions
@@ -154,6 +154,20 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
 
         return mongoTemplate
             .findAndRemove(query, Solution::class.java)
+    }
+
+    override fun removeSolutionsByUser(user: String): Flux<Solution> {
+        val query = Query(Criteria.where("user").`is`(user))
+
+        return mongoTemplate
+            .findAllAndRemove(query, Solution::class.java)
+    }
+
+    override fun removeSolutionsByCodequest(questId: String): Flux<Solution> {
+        val query = Query(Criteria.where("questId").`is`(questId))
+
+        return mongoTemplate
+            .findAllAndRemove(query, Solution::class.java)
     }
 
     override fun existBy(): Mono<Boolean> {

@@ -1,4 +1,4 @@
-package codemaster.servicies.solution.domain.repository
+package codemaster.servicies.solution.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
 import reactor.core.publisher.Flux
@@ -51,6 +51,10 @@ interface SolutionRepository {
     ): Mono<Solution>
 
     fun removeSolutionById(id: SolutionId): Mono<Solution>
+
+    fun removeSolutionsByUser(user: String): Flux<Solution>
+
+    fun removeSolutionsByCodequest(questId: String): Flux<Solution>
 
     fun existBy(): Mono<Boolean>
 }

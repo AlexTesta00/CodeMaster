@@ -2,13 +2,13 @@
   "name": "community-service",
   "version": "1.0.0",
   "description": "Microservice supporting and managing community interactions",
-  "main": "src/main/nodejs/codemaster/servicies/community/index.ts",
+  "main": "src/main/nodejs/codemaster/servicies/community/server.ts",
   "scripts": {
     "test": "jest --runInBand --detectOpenHandles --coverage",
-    "start": "ts-node src/main/nodejs/codemaster/servicies/community/index.ts",
-    "dev": "nodemon src/main/nodejs/codemaster/servicies/community/index.ts",
+    "start": "ts-node src/main/nodejs/codemaster/servicies/community/server.ts",
+    "dev": "nodemon src/main/nodejs/codemaster/servicies/community/server.ts",
     "build": "tsc",
-    "serve": "node src/main/nodejs/codemaster/servicies/community/index.ts",
+    "serve": "node src/main/nodejs/codemaster/servicies/community/server.ts",
     "lint": "npx eslint --config eslint.config.mjs .",
     "prettier": "npx prettier . --write",
     "check:pretty": "npx prettier . --check"

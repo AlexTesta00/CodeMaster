@@ -210,5 +210,10 @@ describe('TestCodeQuestRepository', () => {
       },
       timeout
     )
+
+    it('should delete all codequest from the same author', async () => {
+      await codequestRepo.deleteAllCodequestByAuthor(firstCodequest.author)
+      expect(await CodeQuestModel.find({}).exec()).toStrictEqual([])
+    })
   })
 })

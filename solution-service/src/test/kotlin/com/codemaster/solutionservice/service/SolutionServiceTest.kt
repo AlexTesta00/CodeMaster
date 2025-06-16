@@ -4,7 +4,7 @@ import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.domain.errors.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.repository.SolutionRepositoryImpl
+import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
 import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
@@ -12,9 +12,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.TestInstance
@@ -312,12 +310,8 @@ class SolutionServiceTest : DescribeSpec() {
         }
 
         describe("Delete solution") {
-
-            beforeTest {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
-            }
-
             it("should delete solution correctly by id") {
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
                 service.deleteSolution(id1)
 
                 shouldThrow<NoSuchElementException> {
@@ -325,12 +319,30 @@ class SolutionServiceTest : DescribeSpec() {
                 }
             }
 
+            it("should delete all solutions created by a user") {
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.deleteSolutionsByUser(user)
+
+                service.getSolutionsByUser(user) shouldBe emptyList()
+            }
+
+            it("should delete all solutions of a codequest") {
+                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.deleteSolutionsByCodequest(questId)
+
+                service.getSolutionsByQuestId(questId) shouldBe emptyList()
+            }
+
             it("should throw exception if there is no solution with given id") {
                 val fakeId = SolutionId.generate()
+                val fakeUser = "fakeUser"
+                val fakeQuest = "fakeQuest"
 
                 shouldThrow<NoSuchElementException> {
                     service.deleteSolution(fakeId)
                 }
+                service.deleteSolutionsByUser(fakeUser) shouldBe emptyList()
+                service.deleteSolutionsByCodequest(fakeQuest) shouldBe emptyList()
             }
         }
     }

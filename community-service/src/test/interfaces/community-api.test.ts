@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import supertest from 'supertest'
 import * as dotenv from 'dotenv'
-import { app } from '../../main/nodejs/codemaster/servicies/community/interfaces/server'
 import { CommentModel } from '../../main/nodejs/codemaster/servicies/community/infrastructure/comment-model'
 import { CommentId } from '../../main/nodejs/codemaster/servicies/community/domain/comment-id'
 import { Comment } from '../../main/nodejs/codemaster/servicies/community/domain/comment'
@@ -12,14 +11,18 @@ import {
   NOT_FOUND,
   OK,
 } from '../../main/nodejs/codemaster/servicies/community/interfaces/status'
+import TestAgent from 'supertest/lib/agent'
+import { createServer } from '../../main/nodejs/codemaster/servicies/community/infrastructure/express/server-factory'
+import { MockRabbitMqEventConsumer } from '../consumer-mock'
 
 dotenv.config()
 
 describe('Test API', () => {
   let mongoServer: MongoMemoryServer
+  let request: TestAgent
 
+  const consumerMock = new MockRabbitMqEventConsumer()
   const timeout: number = 20000
-  const request = supertest(app)
   const baseUrl = '/api/v1/comments/'
 
   const author = 'exampleName'
@@ -38,6 +41,8 @@ describe('Test API', () => {
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create()
+    const app = await createServer({ consumer: consumerMock })
+    request = supertest(app)
     const uri = mongoServer.getUri()
     await mongoose.connect(uri)
   }, timeout)

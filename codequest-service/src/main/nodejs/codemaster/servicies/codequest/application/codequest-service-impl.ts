@@ -3,20 +3,23 @@ import { CodeQuest } from '../domain/codequest/codequest'
 import { CodeQuestFactory } from '../domain/codequest/codequest-factory'
 import { Problem } from '../domain/codequest/problem'
 import { Language } from '../domain/language/language'
-import { CodeQuestRepository } from '../infrastructure/codequest/codequest-repository'
 import { CodeQuestRepositoryImpl } from '../infrastructure/codequest/codequest-repository-impl'
-import { LanguageRepository } from '../infrastructure/language/language-repository'
 import { LanguageRepositoryImpl } from '../infrastructure/language/language-repository-impl'
 import { CodeQuestService, CodeQuestServiceError } from './codequest-service'
 import { Difficulty } from '../domain/codequest/difficulty'
+import { CodequestDeletedEvent } from '../domain/events/codequest-deleted'
+import { MongoConnector } from '../infrastructure/db-connection'
+import { Publisher } from '../infrastructure/middleware/publisher'
 
 export class CodeQuestServiceImpl implements CodeQuestService {
-  private languageRepo: LanguageRepository = new LanguageRepositoryImpl()
-  private codequestRepo: CodeQuestRepository = new CodeQuestRepositoryImpl()
+  private languageRepo = new LanguageRepositoryImpl()
+  private codequestRepo = new CodeQuestRepositoryImpl()
+
+  constructor(private readonly publisher: Publisher) {}
 
   async addCodeQuest(
-    title: 'string',
-    author: 'string',
+    title: string,
+    author: string,
     problem: Problem,
     timestamp: Date | null,
     languages: Language[],
@@ -131,14 +134,43 @@ export class CodeQuestServiceImpl implements CodeQuestService {
     }
   }
 
+  async deleteAllCodequestsByAuthor(author: string): Promise<CodeQuest[]> {
+    try {
+      const codequests = await this.codequestRepo.deleteAllCodequestByAuthor(author)
+      await Promise.all(
+        codequests.map((codequest) => {
+          const event = new CodequestDeletedEvent(codequest.id)
+          return this.publisher.publish('codequest.deleted', event)
+        })
+      )
+      return codequests
+    } catch {
+      throw new CodeQuestServiceError.AuthorNotFound(
+        `No codequest created by ${author} found`
+      )
+    }
+  }
+
   async delete(questId: string): Promise<CodeQuest> {
     try {
+      const event = new CodequestDeletedEvent(questId)
+      await this.publisher.publish('codequest.deleted', event)
       return await this.codequestRepo.delete(questId)
     } catch {
       throw new CodeQuestServiceError.CodeQuestNotFound(
         'No codequest found with given id'
       )
     }
+  }
+
+  async populateLanguages() {
+    await this.languageRepo.insertAllLanguages()
+  }
+
+  isServiceReady() {
+    const mongoReady = MongoConnector.isDatabaseConnected()
+    const rabbitReady = this.publisher.isConnected()
+    return mongoReady && rabbitReady
   }
 
   #languageAvailable = async (language: string): Promise<Language> => {
