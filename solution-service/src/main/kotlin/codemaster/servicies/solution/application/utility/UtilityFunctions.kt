@@ -8,10 +8,15 @@ import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.utils.IOUtils
 import java.io.InputStream
+import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.Comparator
 
@@ -74,6 +79,26 @@ object UtilityFunctions {
         return codeDir
     }
 
+    private suspend fun createTarFromDirectory(dir: Path, outputStream: OutputStream) {
+        withContext(Dispatchers.IO) {
+            TarArchiveOutputStream(outputStream).use { tarOut ->
+                Files.walk(dir).use { paths ->
+                    paths.filter { Files.isRegularFile(it) }.forEach { file ->
+                        val entryName = dir.relativize(file).toString().replace('\\', '/')
+                        val entry = TarArchiveEntry(file.toFile(), entryName)
+                        entry.modTime = Date(System.currentTimeMillis() - 60_000)
+                        tarOut.putArchiveEntry(entry)
+                        Files.newInputStream(file).use { input ->
+                            input.copyTo(tarOut)
+                        }
+                        tarOut.closeArchiveEntry()
+                    }
+                }
+                tarOut.finish()
+            }
+        }
+    }
+
     suspend fun runDocker(
         id: SolutionId,
         codeDir: Path,
@@ -82,8 +107,6 @@ object UtilityFunctions {
         onComplete: (exitCode: Int, output: String, errors: String) -> ExecutionResult
     ): ExecutionResult = withContext(Dispatchers.IO) {
         val containerName = "runner-${id.value}-$phase"
-
-        val tarProcess = ProcessBuilder("tar", "-C", codeDir.toString(), "-cf", "-", ".").start()
 
         val wrappedCommand = """
             timeout ${CONTAINER_TIMEOUT}s sh -c 'mkdir -p /code && chmod 777 /code && cd /code && tar -xf - && $command'
@@ -99,9 +122,8 @@ object UtilityFunctions {
                 if (phase == "run") redirectErrorStream(true)
             }.start()
 
-            tarProcess.inputStream.copyTo(process.outputStream)
+            createTarFromDirectory(codeDir, process.outputStream)
             process.outputStream.close()
-            tarProcess.inputStream.close()
 
             val finished = process.waitFor(PROCESS_TIMEOUT, TimeUnit.MILLISECONDS)
             if (!finished) {
@@ -115,7 +137,10 @@ object UtilityFunctions {
             }
 
             val output = process.inputStream.readAll()
-            val errors = process.errorStream.readAll()
+            val rawErrors = process.errorStream.readAll()
+            val errors = rawErrors.lines()
+                .filterNot { it.contains("tar:") && it.contains("time stamp") }
+                .joinToString("\n")
             val exitCode = process.exitValue()
 
             onComplete(exitCode, output, errors)
