@@ -40,6 +40,8 @@ export interface ProfilePicture {
 
 export interface Language {
     name: string
+    version: string
+    fileExtension: string
 }
 
 export interface CV {
@@ -81,4 +83,36 @@ export interface UserManagerResponse {
     message: string
     success: boolean
     user: UserManager
+}
+
+export interface Example {
+    input: string
+    output: string
+    explanation: string
+}
+
+export interface Problem {
+    description: string
+    examples: Example[]
+    constraints: string[]
+}
+
+export interface Difficulty {
+    name: string
+}
+
+export interface CodeQuest {
+    id: string
+    title: string
+    author: string
+    problem: Problem
+    timestamp: Date | null
+    languages: Language[]
+    difficulty: Difficulty
+}
+
+export interface CodeQuestResponse {
+    message: string
+    success: boolean
+    user: CodeQuest
 }
