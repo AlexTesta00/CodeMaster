@@ -234,7 +234,7 @@ services:
     volumes:
       - ./populate-db:/app
     working_dir: /app
-    command: ["sh", "-c", "sleep 5 && python db-service.py"]
+    command: ["sh", "-c", "sleep 10 && python db-service.py"]
 
   frontend-service:
     build:
