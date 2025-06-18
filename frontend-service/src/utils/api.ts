@@ -1,11 +1,12 @@
 import axios from 'axios'
 import type {
-    AuthenticationResponse,
+    AuthenticationResponse, CodeQuestResponse, Difficulty, Language, Problem,
     UserManagerResponse,
 } from './interface.ts'
 
 const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
 const USER_URL = 'http://localhost/api/v1/users/'
+const CODEQUEST_URL = 'http://localhost/api/v1/codequests/'
 // Enable sending cookies with requests
 axios.defaults.withCredentials = true
 
@@ -89,6 +90,23 @@ export const updateLanguages = async (
     const response = await axios.put(`${USER_URL}languages`, {
         nickname,
         newLanguages,
+    })
+    return response.data
+}
+
+export const addNewCodequest = async (
+    title: string,
+    author: string | null,
+    problem: Problem,
+    languages: Language[],
+    difficulty: Difficulty
+): Promise<CodeQuestResponse> => {
+    const response = await axios.post(`${CODEQUEST_URL}`, {
+        title,
+        author,
+        problem,
+        languages,
+        difficulty
     })
     return response.data
 }
