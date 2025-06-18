@@ -1,6 +1,8 @@
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import org.gradle.api.GradleException
+import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -104,11 +106,37 @@ tasks.check {
     dependsOn("koverVerify")
 }
 
+fun findDockerCommand(): String {
+    val osName = System.getProperty("os.name").lowercase()
+
+    val command = if (osName.contains("windows")) {
+        listOf("cmd", "/c", "where", "docker")
+    } else {
+        listOf("which", "docker")
+    }
+
+    val process = ProcessBuilder(command)
+        .redirectErrorStream(true)
+        .start()
+
+    val output = process.inputStream.bufferedReader().readText().trim()
+    val exitCode = process.waitFor()
+
+    if (exitCode != 0 || output.isEmpty()) {
+        throw GradleException("Docker executable not found in PATH. Please install Docker or add it to PATH.")
+    }
+
+    return output.lines().first()
+}
+
 tasks.register<Exec>("buildMultiLangRunnerImage") {
     group = "docker"
     description = "Build Docker image for multi-lang-runner"
 
-    commandLine("docker", "build", "-t", "multi-lang-runner:latest", "../multi-lang-runner/")
+    val dockerPath = findDockerCommand()
+    val dockerContextDir = File(project.projectDir, "../multi-lang-runner").canonicalPath
+
+    commandLine(dockerPath, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
 }
 
 tasks.koverVerify {
