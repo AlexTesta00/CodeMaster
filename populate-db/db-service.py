@@ -1,11 +1,11 @@
 import requests
 
-AUTH_URL = "http://codemaster-authentication-service:4004/api/v1/authentication/register"
-LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create"
-TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create"
-CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests"
+AUTH_URL = "http://codemaster-authentication-service:4004/api/v1/authentication/register/"
+LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create/"
+TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create/"
+CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests/"
 SOLUTIONS_URL = "http://codemaster-solution-service:4006/api/v1/solutions/"
-COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments"
+COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments/"
 
 def get_existing_levels():
     url = 'http://codemaster-user-service:4005/api/v1/levels/'
