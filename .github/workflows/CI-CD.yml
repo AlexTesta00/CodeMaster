@@ -157,10 +157,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Build Docker image (force CLI)
         run: |
           IMAGE_NAME="${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
-          docker build \
+          /usr/bin/docker build \
             -t $IMAGE_NAME:latest \
             -t $IMAGE_NAME:${{ env.VERSION }} \
             ./${{ matrix.service }}
