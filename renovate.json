@@ -16,12 +16,12 @@
       "groupName": "Node.js dependencies"
     }
   ],
-  "automerge": false,
+  "automerge": true,
   "gradle": {
     "enabled": true
   },
   "npm": {
     "enabled": true
   },
-  "baseBranches": ["develop"]
+  "baseBranches": ["main"]
 }
