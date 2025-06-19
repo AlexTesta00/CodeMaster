@@ -116,3 +116,19 @@ export interface CodeQuestResponse {
     success: boolean
     user: CodeQuest
 }
+
+export interface ExecutionResult {
+
+}
+
+export interface DebugResponse {
+    message: string
+    success: boolean
+    user: ExecutionResult
+}
+
+export interface ExecutionResponse {
+    message: string
+    success: boolean
+    user: CodeQuest
+}

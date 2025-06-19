@@ -110,3 +110,8 @@ export const addNewCodequest = async (
     })
     return response.data
 }
+
+export const getAllCodequests = async (): Promise<CodeQuestResponse[]> => {
+    const response = await axios.get(`${CODEQUEST_URL}`)
+    return response.data
+}
