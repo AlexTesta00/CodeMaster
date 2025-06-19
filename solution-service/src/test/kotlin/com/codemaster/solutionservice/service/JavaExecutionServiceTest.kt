@@ -2,7 +2,7 @@ package com.codemaster.solutionservice.service
 
 import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.repository.SolutionRepositoryImpl
+import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
 import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker

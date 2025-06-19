@@ -1,14 +1,14 @@
 import { CommunityServiceImpl } from '../application/community-service-impl'
-import { isDatabaseConnected } from '../infrastructure/db-connection'
 import { NextFunction, Request, Response } from 'express'
 import { CREATED, INTERNAL_ERROR, OK } from './status'
-import { isRabbitConnected } from '../infrastructure/consumer'
+import { MongoConnector } from '../infrastructure/db-connection'
+import { isRabbitConnected } from '../infrastructure/middleware/consumer-impl'
 
 class CommunityController {
-  private service = new CommunityServiceImpl()
+  constructor(private readonly service: CommunityServiceImpl) {}
 
   healthCheck = async (req: Request, res: Response) => {
-    const mongoReady = isDatabaseConnected()
+    const mongoReady = MongoConnector.isDatabaseConnected()
     const rabbitReady = isRabbitConnected()
     if (mongoReady && rabbitReady) {
       res.status(OK).json({ status: 'OK', success: true })

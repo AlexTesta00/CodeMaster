@@ -41,6 +41,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
+    implementation("org.apache.commons:commons-compress:1.26.1")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -102,19 +104,41 @@ tasks.check {
     dependsOn("koverVerify")
 }
 
-tasks.register<Exec>("buildMultiLangRunnerImage") {
-    group = "docker"
-    description = "Build Docker image for multi-lang-runner"
-
-    commandLine("docker", "build", "-t", "multi-lang-runner:latest", "../multi-lang-runner/")
-}
-
 tasks.koverVerify {
     dependsOn(tasks.test)
 }
 
 tasks.koverXmlReport {
     dependsOn(tasks.test)
+}
+
+fun findDockerCommand(): String {
+    val osName = System.getProperty("os.name").lowercase()
+
+    return if (osName.contains("windows")) {
+        val output = ProcessBuilder("cmd", "/c", "where", "docker")
+            .redirectErrorStream(true)
+            .start()
+            .inputStream.bufferedReader().readText().trim()
+
+        val dockerPath = output.lines().firstOrNull { it.endsWith(".exe") }
+            ?: throw GradleException("Docker not found in PATH on Windows.")
+
+        dockerPath
+    } else {
+        "docker"
+    }
+}
+
+tasks.register<Exec>("buildMultiLangRunnerImage") {
+    group = "docker"
+    description = "Build Docker image for multi-lang-runner"
+
+    val dockerContextDir = File(project.projectDir, "../multi-lang-runner")
+        .toPath().toAbsolutePath().toString().replace("\\", "/")
+
+    val dockerExecutable = findDockerCommand()
+    commandLine(dockerExecutable, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
 }
 
 tasks.test {
