@@ -6,6 +6,7 @@ import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
 import {addNewCodequest} from "../utils/api.ts";
 import type { Language } from "../utils/interface.ts";
+import {errorToast} from "../utils/notify.ts";
 
 const title = ref('')
 const description = ref('')
@@ -92,17 +93,12 @@ const handleClose = () => {
   isBackDialogOpen.value = false
 }
 
-const handleQuestConfirm = () => {
+const handleQuestConfirm = async () => {
   const nickname = sessionStorage.getItem('nickname')
 
-  if (!nickname) {
-    console.error('Missing nickname')
-    return
-  }
-
-  addNewCodequest(
+  const response = await addNewCodequest(
       title.value,
-      sessionStorage.getItem('nickname'),
+      nickname,
       {
         description: description.value,
         examples: examples.value,
@@ -114,8 +110,12 @@ const handleQuestConfirm = () => {
       }
   )
 
+  if (!response.success) {
+    await errorToast("Can't save codequest")
+  }
+
   isQuestDialogOpen.value = false
-  router.push('/profile')
+  await router.push('/profile')
 }
 
 const handleQuestClose = () => {
@@ -188,7 +188,16 @@ onBeforeUnmount(() => {
       />
       <label
           class="text-black dark:text-white text-2xl"
-      >Examples*</label>
+      >Examples*
+        <button
+            type="button"
+            @click="addExample"
+            class="inline-flex items-center p-2 rounded bg-primary hover:bg-blue-600 text-white w-auto min-w-[40px]"
+            aria-label="Add example"
+        >
+          <img src="/icons/add.svg" alt="Add" class="w-5 h-5" />
+        </button>
+      </label>
       <div
           v-for="(example, index) in examples"
           :key="index"
@@ -214,19 +223,12 @@ onBeforeUnmount(() => {
         <button
             type="button"
             @click="removeExample(index)"
-            class="bg-red-500 text-white rounded p-2 disabled:opacity-50"
-            :disabled="examples.length === 1"
+            class="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700"
+            aria-label="Remove example"
         >
-          ✕
+          <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5" />
         </button>
       </div>
-      <button
-          type="button"
-          @click="addExample"
-          class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
-        + Add Example
-      </button>
       <label
           for="constraints"
           class="text-black dark:text-white text-2xl"
@@ -264,13 +266,12 @@ onBeforeUnmount(() => {
       <div class="w-full flex flex-row items-center justify-start gap-4 text-black dark:text-white text-2xl">
         <select
             v-model="difficulty"
-            class="p-2 border-2 border-primary rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+            class="p-2 border-2 border-primary rounded-md dark:bg-gray-800 text-black dark:text-white"
         >
           <option
               v-for="diff in difficulties"
               :key="diff"
               :value="diff"
-              class="bg-white dark:bg-gray-800 text-black dark:text-white"
           >
             {{ diff }}
           </option>

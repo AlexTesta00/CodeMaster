@@ -127,7 +127,7 @@ onBeforeUnmount(() => {
     >
       <div class="absolute top-4 right-4 z-10">
         <textarea-code-languages
-          :allowed-language="['Java', 'Python', 'Scala', 'Kotlin']"
+          :allowed-language="['Java', 'Scala', 'Kotlin']"
           @language-selected="currentLanguage = $event"
         />
       </div>
