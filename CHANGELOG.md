@@ -1,3 +1,27 @@
+## [2.1.0](https://github.com/AlexTesta00/CodeMaster/compare/v2.0.1...v2.1.0) (2025-06-19)
+
+### Features
+
+* **codequest-service:** add mock for publisher and consumer for testing ([5dc9a55](https://github.com/AlexTesta00/CodeMaster/commit/5dc9a55d5e9a1132bce3941de392b8b45e866d8b))
+* **codequest-service:** add rabbitmq publisher and consumer ([c7069b1](https://github.com/AlexTesta00/CodeMaster/commit/c7069b1a94d387b930e206a6a839196713fba65b))
+* **populate-db:** add codequests, comments and solutions ([de0290a](https://github.com/AlexTesta00/CodeMaster/commit/de0290afaaae495c4041a590311992029c4b3521))
+* **solution-service:** add functions to delete solution by user and codequest ([8f5642f](https://github.com/AlexTesta00/CodeMaster/commit/8f5642f053455857307008a76e455083750fea90))
+* **solution-service:** add rabbitmq consumer ([3568253](https://github.com/AlexTesta00/CodeMaster/commit/356825301dd799dfb1c33cba34c9c9cb19b73a42))
+
+### Bug Fixes
+
+* **api-gateway:** fix api-gateway nginx configuration file ([95660bb](https://github.com/AlexTesta00/CodeMaster/commit/95660bbc3c18712083ec75cf2a48dbd08fd71d57))
+* **codequest-service:** resolve eslint errors ([e6bfd6d](https://github.com/AlexTesta00/CodeMaster/commit/e6bfd6d0ce958315cfb9568c5815f976e2b767f6))
+* **community-service:** fix community service repository tests errors ([49c050d](https://github.com/AlexTesta00/CodeMaster/commit/49c050dd09b9159c35556ffba3ff4a534158787b))
+* **deps:** update node.js dependencies ([8ba32ad](https://github.com/AlexTesta00/CodeMaster/commit/8ba32ad1f677093a846a47e870bf9b3004f00b40))
+* **deps:** update node.js dependencies ([306aac8](https://github.com/AlexTesta00/CodeMaster/commit/306aac89766ac18130c2a5303436e900c53e2fd6))
+* **populate-db:** fix diffs from origin/develop ([57b7898](https://github.com/AlexTesta00/CodeMaster/commit/57b7898092c20f469c761b3f0c0871d183d355dd))
+* **solution-service:** fix bug that create tar with wrong timestamp ([36bc862](https://github.com/AlexTesta00/CodeMaster/commit/36bc8629c543b5dd9a6b961e9c40adc2f8f1c4c4))
+* **solution-service:** fix docker command error in gradle build file ([a3a83e7](https://github.com/AlexTesta00/CodeMaster/commit/a3a83e7087beb0c5b78e544303c3c315e01fdd37))
+* **solution-service:** fix rabbit consumer issues ([ee52f51](https://github.com/AlexTesta00/CodeMaster/commit/ee52f514c60c675f1c73a818d0af42b3ab47cf3c))
+* **solution-service:** resolve detekt errors ([bb776ca](https://github.com/AlexTesta00/CodeMaster/commit/bb776ca1f384fd3adaf26d015eed0ec4c50650d5))
+* **solution-service:** resolve docker command path in build gradle ([1eb8dff](https://github.com/AlexTesta00/CodeMaster/commit/1eb8dfff87dba63502a395e117227e1ed73e9251))
+
 ## [2.0.1](https://github.com/AlexTesta00/CodeMaster/compare/v2.0.0...v2.0.1) (2025-06-13)
 
 ### Bug Fixes
