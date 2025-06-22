@@ -6,15 +6,17 @@ import {
     ListboxOptions,
 } from '@headlessui/vue'
 import { ref } from 'vue'
+import type {Language} from "../utils/interface.ts";
 
-defineProps<{
-    allowedLanguage: string[]
+const props = defineProps<{
+    allowedLanguage: Language[],
+    currentLanguage: Language
 }>()
 
-const selectedLanguage = ref('Java')
+const selectedLanguage = ref<Language>(props.currentLanguage)
 
 const emit = defineEmits<{
-    (e: 'languageSelected', language: string): void
+    (e: 'languageSelected', language: Language): void
 }>()
 
 const confirmSelection = () => {
@@ -30,18 +32,18 @@ const confirmSelection = () => {
     >
       <div class="relative">
         <ListboxButton class="w-full px-4 py-2 text-left text-white">
-          {{ selectedLanguage }}
+          {{ selectedLanguage.name }}
         </ListboxButton>
         <ListboxOptions
           class="absolute mt-1 w-full border bg-white rounded shadow z-30"
         >
           <ListboxOption
             v-for="lang in allowedLanguage"
-            :key="lang"
+            :key="lang.name"
             :value="lang"
             class="cursor-pointer px-4 py-2 hover:bg-gray-100"
           >
-            {{ lang }}
+            {{ lang.name }}
           </ListboxOption>
         </ListboxOptions>
       </div>

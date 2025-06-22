@@ -1,20 +1,29 @@
 import axios from 'axios'
 import type {
-    AuthenticationResponse, CodeQuestResponse, Difficulty, Language, Problem,
+    AuthenticationResponse,
+    CodeQuest,
+    CodeQuestResponse,
+    CodeQuestsResponse,
+    Difficulty,
+    Example, ExecutionResult,
+    Language,
+    Problem, Solution, SolutionResponse,
+    SolutionsResponse,
     UserManagerResponse,
 } from './interface.ts'
 
 const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
 const USER_URL = 'http://localhost/api/v1/users/'
 const CODEQUEST_URL = 'http://localhost/api/v1/codequests/'
-// Enable sending cookies with requests
+const SOLUTION_URL = 'http://localhost/api/v1/solutions/'
+
 axios.defaults.withCredentials = true
 
 export const registerNewUser = async (
     nickname: string,
     email: string,
     password: string,
-    role: string = 'user',
+    role: string = 'user'
 ): Promise<AuthenticationResponse> => {
     const response = await axios.post(`${AUTHENTICATION_URL}register`, {
         nickname,
@@ -27,7 +36,7 @@ export const registerNewUser = async (
 
 export const loginUser = async (
     nickname: string,
-    password: string,
+    password: string
 ): Promise<AuthenticationResponse> => {
     const response = await axios.post(`${AUTHENTICATION_URL}login`, {
         nickname,
@@ -37,14 +46,11 @@ export const loginUser = async (
 }
 
 export const logoutUser = async (nickname: string): Promise<void> => {
-    const response = await axios.post(`${AUTHENTICATION_URL}logout`, {
-        nickname,
-    })
-    return response.data
+    await axios.post(`${AUTHENTICATION_URL}logout`, { nickname })
 }
 
 export const getUserByNickname = async (
-    nickname: string,
+    nickname: string
 ): Promise<UserManagerResponse> => {
     const response = await axios.get(`${USER_URL}${nickname}`)
     return response.data
@@ -52,7 +58,7 @@ export const getUserByNickname = async (
 
 export const updateProfilePicture = async (
     nickname: string,
-    newProfilePicture: { url: string; alt: string },
+    newProfilePicture: { url: string; alt: string }
 ): Promise<UserManagerResponse> => {
     const response = await axios.put(`${USER_URL}profile-picture`, {
         nickname,
@@ -63,7 +69,7 @@ export const updateProfilePicture = async (
 
 export const updateCV = async (
     nickname: string,
-    newCV: { url: string },
+    newCV: { url: string }
 ): Promise<UserManagerResponse> => {
     const response = await axios.put(`${USER_URL}cv`, {
         nickname,
@@ -74,7 +80,7 @@ export const updateCV = async (
 
 export const updateBio = async (
     nickname: string,
-    newBio: string,
+    newBio: string
 ): Promise<UserManagerResponse> => {
     const response = await axios.put(`${USER_URL}bio`, {
         nickname,
@@ -85,7 +91,7 @@ export const updateBio = async (
 
 export const updateLanguages = async (
     nickname: string,
-    newLanguages: { name: string }[],
+    newLanguages: { name: string }[]
 ): Promise<UserManagerResponse> => {
     const response = await axios.put(`${USER_URL}languages`, {
         nickname,
@@ -111,7 +117,192 @@ export const addNewCodequest = async (
     return response.data
 }
 
-export const getAllCodequests = async (): Promise<CodeQuestResponse[]> => {
-    const response = await axios.get(`${CODEQUEST_URL}`)
+export const addNewSolution = async (
+    user: String,
+    questId: String,
+    language: Language,
+    difficulty: Difficulty,
+    solved: Boolean,
+    code: String,
+    testCode: String
+): Promise<SolutionResponse> => {
+    console.log({
+        user,
+        questId,
+        language,
+        difficulty,
+        solved,
+        code,
+        testCode
+    });
+    const response = await axios.post(`${SOLUTION_URL}`, {
+        user: user,
+        questId: questId,
+        language: {
+            name: language.name,
+            fileExtension: language.fileExtension
+        },
+        difficulty: difficulty.name,
+        solved: solved,
+        code: code,
+        testCode: testCode
+    })
     return response.data
+}
+
+export const getAllCodequests = async (): Promise<CodeQuestsResponse> => {
+    const response = await axios.get(`${CODEQUEST_URL}`)
+    const codequests: CodeQuest[] = response.data.codequests.map((codequest: any) => ({
+        id: codequest.id,
+        title: codequest.title,
+        author: codequest.author,
+        problem: {
+            description: codequest.problem.description,
+            examples: codequest.problem.examples.map((ex: any): Example => ({
+                input: ex.input,
+                output: ex.output,
+                explanation: ex.explanation
+            })),
+            constraints: codequest.problem.constraints
+        },
+        timestamp: codequest.timestamp ?? null,
+        languages: codequest.languages as Language[],
+        difficulty: codequest.difficulty as Difficulty
+    }))
+
+    return {
+        message: response.data.message,
+        success: response.data.success,
+        codequests
+    }
+}
+
+export const getCodequestById = async (
+    questId: string
+): Promise<CodeQuestResponse> => {
+    const response = await axios.get(`${CODEQUEST_URL}${questId}`)
+    const cq = response.data.codequest
+
+    const codequest: CodeQuest = {
+        id: cq.id,
+        title: cq.title,
+        author: cq.author,
+        problem: {
+            description: cq.problem.description,
+            examples: cq.problem.examples.map((ex: any): Example => ({
+                input: ex.input,
+                output: ex.output,
+                explanation: ex.explanation
+            })),
+            constraints: cq.problem.constraints
+        },
+        timestamp: cq.timestamp ?? null,
+        languages: cq.languages as Language[],
+        difficulty: cq.difficulty as Difficulty
+    }
+
+    return {
+        message: response.data.message,
+        success: response.data.success,
+        codequest
+    }
+}
+
+export const getAllSolvedSolutions = async (
+    nickname: string
+): Promise<SolutionsResponse> => {
+    const response = await axios.get(`${SOLUTION_URL}solved/${nickname}`)
+
+    const solutions: Solution[] = response.data.map((sol: any): Solution => {
+        return convertSolution(sol)
+    })
+
+    return {
+        message: response.statusText,
+        success: response.status === 200,
+        solutions
+    }
+}
+
+export const getSolutionsByCodequest = async (
+    questId: string
+): Promise<SolutionsResponse> => {
+    const response = await axios.get(`${SOLUTION_URL}codequests/${questId}`)
+
+    const solutions: Solution[] = response.data.map((sol: any): Solution => {
+        return convertSolution(sol)
+    })
+
+    return {
+        message: response.statusText,
+        success: response.status === 200,
+        solutions
+    }
+}
+
+const convertSolution = (sol: any): Solution => {
+
+    const baseResult = sol.result
+    let result: ExecutionResult
+
+    switch (baseResult.type) {
+        case 'pending':
+            result = { type: 'Pending' }
+            break
+        case 'accepted':
+            result = {
+                type: 'Accepted',
+                output: baseResult.output,
+                exitCode: baseResult.exitCode
+            }
+            break
+        case 'testsFailed':
+            result = {
+                type: 'TestsFailed',
+                error: baseResult.error,
+                output: baseResult.output,
+                exitCode: baseResult.exitCode
+            }
+            break
+        case 'compileFailed':
+            result = {
+                type: 'CompileFailed',
+                error: baseResult.error,
+                stderr: baseResult.stderr,
+                exitCode: baseResult.exitCode
+            }
+            break
+        case 'runtimeError':
+            result = {
+                type: 'RuntimeError',
+                error: baseResult.error,
+                stderr: baseResult.stderr,
+                exitCode: baseResult.exitCode
+            }
+            break
+        case 'timeLimitExceeded':
+            result = {
+                type: 'TimeLimitExceeded',
+                timeout: baseResult.timeout
+            }
+            break
+        default:
+            throw new Error(`Unknown ExecutionResult type: ${baseResult.type}`)
+    }
+
+    return {
+        id: { value: sol.id.value },
+        code: sol.code,
+        questId: sol.questId,
+        user: sol.user,
+        difficulty: { name: sol.difficulty.name },
+        language: {
+            name: sol.language.name,
+            version: sol.language.version,
+            fileExtension: sol.language.fileExtension
+        },
+        result,
+        solved: sol.solved,
+        testCode: sol.testCode
+    }
 }
