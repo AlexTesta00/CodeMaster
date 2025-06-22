@@ -114,11 +114,41 @@ export interface CodeQuest {
 export interface CodeQuestResponse {
     message: string
     success: boolean
-    user: CodeQuest
+    codequest: CodeQuest
 }
 
-export interface ExecutionResult {
+export interface CodeQuestsResponse {
+    message: string
+    success: boolean
+    codequests: CodeQuest[]
+}
 
+export interface SolutionId {
+    value: string
+}
+
+export interface Solution {
+    id: SolutionId
+    code: string
+    questId: string
+    user: string
+    difficulty: Difficulty
+    language: Language
+    result: ExecutionResult
+    solved: boolean
+    testCode: string
+}
+
+export interface SolutionResponse {
+    message: string
+    success: boolean
+    solution: Solution
+}
+
+export interface SolutionsResponse {
+    message: string
+    success: boolean
+    solutions: Solution[]
 }
 
 export interface DebugResponse {
@@ -131,4 +161,34 @@ export interface ExecutionResponse {
     message: string
     success: boolean
     user: CodeQuest
+}
+
+export type ExecutionResult =
+    | { type: 'Pending' }
+    | {
+    type: 'Accepted'
+    output: string[]
+    exitCode: number
+}
+    | {
+    type: 'TestsFailed'
+    error: string
+    output: string[]
+    exitCode: number
+}
+    | {
+    type: 'CompileFailed'
+    error: string
+    stderr: string
+    exitCode: number
+}
+    | {
+    type: 'RuntimeError'
+    error: string
+    stderr?: string
+    exitCode: number
+}
+    | {
+    type: 'TimeLimitExceeded'
+    timeout: number
 }

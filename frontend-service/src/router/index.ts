@@ -32,7 +32,7 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: '/code',
+        path: '/code/:id',
         name: 'Code',
         component: CodePage,
         meta: { requiresAuth: true },

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import ButtonWithImage from '../components/ButtonWithImage.vue'
-import TestEditor from '../components/TestEditor.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
 import {addNewCodequest} from "../utils/api.ts";
 import type { Language } from "../utils/interface.ts";
 import {errorToast} from "../utils/notify.ts";
+import TestEditor from "../components/TestEditor.vue";
 
 const title = ref('')
 const description = ref('')
@@ -290,7 +290,9 @@ onBeforeUnmount(() => {
         data-aos="fade-left"
         data-aos-duration="3000"
     >
-      <test-editor />
+      <test-editor
+          :language="languages[0] || allowedLanguages[0]"
+      />
     </div>
   </section>
 

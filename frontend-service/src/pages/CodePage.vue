@@ -7,31 +7,45 @@ import SideBar from '../components/SideBar.vue'
 import TextareaCodeLanguages from '../components/TextareaCodeLanguages.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
+import {errorToast} from "../utils/notify.ts";
+import {getAllCodequests, getCodequestById, getSolutionsByCodequest} from "../utils/api.ts";
+import {useAuthStore} from "../utils/store.ts";
+import type {CodeQuest, Example, Language} from "../utils/interface.ts";
+import {useRoute} from "vue-router";
 
-const codequest = [
-    { title: '1.Reverse String', difficulty: 'easy' },
-    { title: '2.Reverse Integer', difficulty: 'medium' },
-    { title: '3.Reverse Words', difficulty: 'hard' },
-    { title: '4.Reverse Array', difficulty: 'easy' },
-    { title: '5.Reverse Linked List', difficulty: 'medium' },
-    { title: '6. Fibonacci', difficulty: 'hard' },
-]
+const currentLanguage = ref<Language>({
+  name: 'Java',
+  version: '17',
+  fileExtension: '.java'
+})
 
-const currentLanguage = ref('Java')
-
-const markdownText = `
-# 1. Reverse String
-## Problem
-Given a string, return the string reversed.
-## Example
-Input: "hello"
-Output: "olleh"
-## Constraints
-* The input string will have at most length 1000.
-* The input string will only contain printable ASCII characters.
-`
+const allowedLanguages = ref([
+  {
+    name: 'Java',
+    version: '17',
+    fileExtension: '.java'
+  },
+  {
+    name: 'Scala',
+    version: '2.11.10',
+    fileExtension: '.scala'
+  },
+  {
+    name: 'Kotlin',
+    version: '1.9.22',
+    fileExtension: '.kt'
+  }
+])
+const auth = useAuthStore()
+const codequests = ref<CodeQuest[]>([])
 
 const isBackDialogOpen = ref(false)
+const route = useRoute()
+
+const markDown = ref('')
+const code = ref('')
+
+const codequest = ref<CodeQuest | null>(null)
 
 const handleConfirm = () => {
     isBackDialogOpen.value = false
@@ -45,6 +59,7 @@ const handleClose = () => {
 const leftPanelWidth = ref(
     parseInt(localStorage.getItem('leftPanelWidth') || '500'),
 )
+
 let isDragging = false
 const isSidebarOpen = ref(false)
 
@@ -65,6 +80,94 @@ const handleMouseMove = (e: MouseEvent) => {
     const max = window.innerWidth - 200
     leftPanelWidth.value = Math.min(Math.max(e.clientX, min), max)
 }
+
+const getExamples = (examples: Example[]): string => {
+  return examples
+      .map((example, index) => {
+        const explanation = example.explanation
+            ? `Explanation: ${example.explanation}`
+            : ''
+
+        return `### ${index + 1}.
+**Input**:
+\`${example.input}\`
+
+**Output**:
+\`${example.output}\`
+
+${explanation}`
+      })
+      .join('\n\n')
+}
+
+const getConstraints = (constraints: string[]): string => {
+  return constraints.map(c => `- ${c}`).join('\n')
+}
+
+
+const buildMarkDown = (codequest: CodeQuest): string => {
+  return `# ${codequest.title}
+
+## Problem
+${codequest.problem.description}
+
+## Examples
+${getExamples(codequest.problem.examples)}
+
+## Constraints
+${getConstraints(codequest.problem.constraints)}
+
+## Difficulty
+${codequest.difficulty.name}
+
+## Author
+${codequest.author}`
+}
+
+
+onMounted(async () => {
+  const id = route.params.id?.toString()
+
+  if (auth.nickname && id) {
+    try {
+      const solRes = await getSolutionsByCodequest(id)
+      if(solRes.success){
+        const sol = solRes.solutions.find(sol => sol.user === auth.nickname)
+        if(sol) {
+          currentLanguage.value = sol.language
+          code.value = sol.code
+        }
+      }
+      const res = await getCodequestById(id)
+      if(res.success) {
+        markDown.value = buildMarkDown(res.codequest)
+        codequest.value = res.codequest
+      }
+    } catch (error) {
+      await errorToast('Impossible to load codequests')
+      console.log(error)
+    }
+  } else {
+    await errorToast('Impossible to load codequest')
+  }
+})
+
+onMounted( async () => {
+  if(auth.nickname) {
+    try{
+      const res = await getAllCodequests()
+      if(res.success) {
+        for (const quest of res.codequests) {
+          codequests.value.push(quest)
+        }
+      }
+    } catch (error) {
+      await errorToast('Impossible to load codequests')
+      console.log(error)
+    }
+  }
+})
+
 onMounted(() => {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', stopDragging)
@@ -98,7 +201,7 @@ onBeforeUnmount(() => {
     <!-- Sidebar Overlay -->
     <side-bar
       v-if="isSidebarOpen"
-      :codequest="codequest"
+      :codequest="codequests"
     />
 
     <!-- Markdown Section -->
@@ -109,7 +212,7 @@ onBeforeUnmount(() => {
       data-aos-duration="1600"
     >
       <markdown-viewer
-        :content="markdownText"
+        :content="markDown"
         class="w-full h-full"
       />
     </div>
@@ -127,13 +230,18 @@ onBeforeUnmount(() => {
     >
       <div class="absolute top-4 right-4 z-10">
         <textarea-code-languages
-          :allowed-language="['Java', 'Scala', 'Kotlin']"
+          :allowed-language="allowedLanguages"
+          :current-language="currentLanguage"
           @language-selected="currentLanguage = $event"
         />
       </div>
       <code-editor
+        v-if="auth.nickname && codequest"
         class="w-full h-full"
         :current-language="currentLanguage"
+        :codequest="codequest"
+        :old-code="code"
+        :user="auth.nickname"
       />
     </div>
   </section>
@@ -148,7 +256,7 @@ onBeforeUnmount(() => {
       <clickable-text-with-image
         title="Codequest"
         url="/icons/dot.svg"
-        alt="Open sidebar to view all codequest"
+        alt="Open sidebar to view all codequests"
         @click="isSidebarOpen = true"
       />
       <clickable-text-with-image

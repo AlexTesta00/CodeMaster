@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import DifficultyButton from './DifficultyButton.vue'
-
-export type CodeQuest = {
-    title: string
-    difficulty: string
-}
+import type {CodeQuest} from "../utils/interface.ts";
 
 defineProps<{
     codequest: CodeQuest[]
@@ -33,7 +29,7 @@ defineProps<{
         <li class="mt-6 cursor-pointer">
           {{ quest.title }}
         </li>
-        <difficulty-button :difficulty="quest.difficulty" />
+        <difficulty-button :difficulty="quest.difficulty.name" />
       </div>
     </ul>
   </aside>

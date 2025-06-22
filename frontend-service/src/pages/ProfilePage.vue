@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import CodeQuest from '../components/CodeQuest.vue'
 import { onMounted, ref } from 'vue'
 import LanguageButton from '../components/LanguageButton.vue'
 import TextareaLanguage from '../components/TextareaLanguage.vue'
-import ButtonWithImage from '../components/ButtonWithImage.vue'
 import LoadingPage from './LoadingPage.vue'
 import router from '../router'
 import { useAuthStore } from '../utils/store.ts'
 import {
-    getUserByNickname,
-    logoutUser,
-    updateBio,
-    updateCV,
-    updateLanguages,
+  getAllSolvedSolutions, getCodequestById,
+  getUserByNickname,
+  logoutUser,
+  updateBio,
+  updateCV,
+  updateLanguages,
 } from '../utils/api.ts'
 import { isSome } from 'fp-ts/Option'
 import { errorToast, successToast } from '../utils/notify.ts'
-
+import type {CodeQuest} from "../utils/interface.ts";
+import ButtonWithImage from "../components/ButtonWithImage.vue";
+import CodeQuestComp from "../components/CodeQuestComp.vue";
 const bioIsEditing = ref(false)
 const languageIsEditing = ref(false)
 const cvIsEditing = ref(false)
@@ -27,6 +28,7 @@ const cv = ref('')
 const profilePicture = ref('')
 const altProfilePicture = ref('')
 const loading = ref(false)
+const codequests = ref<CodeQuest[]>([])
 
 const redirectToCVPage = () => {
     if (cv.value) {
@@ -34,6 +36,13 @@ const redirectToCVPage = () => {
     } else {
         errorToast('No CV URL provided')
     }
+}
+
+const expandCodequest = (id: string) => {
+  router.push({
+    name: 'Code',
+    params: { id: id }
+  })
 }
 
 const removeLanguage = async (lang: string) => {
@@ -112,6 +121,24 @@ const logout = async () => {
         loading.value = false
     }
 }
+
+onMounted(async () => {
+  if (!auth.nickname) return
+  try {
+    const response = await getAllSolvedSolutions(auth.nickname)
+    if(response.success && response.solutions.length > 0) {
+      for (const sol of response.solutions) {
+        const res = await getCodequestById(sol.questId)
+        if (res.success) {
+          codequests.value.push(res.codequest)
+        }
+      }
+    }
+  } catch (error) {
+    await errorToast('Impossible to load user data')
+    console.log(error)
+  }
+})
 
 onMounted(async () => {
     if (auth.nickname) {
@@ -350,57 +377,27 @@ onMounted(async () => {
         </button>
       </div>
     </div>
-    <!-- CodeQuest Resolved -->
+    <!-- CodeQuests Resolved -->
     <div
       class="flex flex-col lg:flex-row justify-center items-center lg:justify-evenly lg:items-stretch gap-10 w-full mt-8"
       data-aos="zoom-in"
       data-aos-duration="1400"
     >
       <div
-        id="questcontainer"
-        class="w-full lg:w-2/5 h-4/5 lg:h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4 mb-24"
-        data-aos="zoom-in"
-        data-aos-duration="600"
+          id="questcontainer"
+          class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4"
+          data-aos="zoom-in"
+          data-aos-duration="600"
       >
-        <code-quest
-          :key="1"
-          :index="1"
-          title="Reverse string"
-          difficulty="easy"
-          :is-solved="true"
-          data-aos-anchor="#questcontainer"
-        />
-        <code-quest
-          :key="2"
-          :index="2"
-          title="Reverse string"
-          difficulty="Medium"
-          :is-solved="true"
-          data-aos-anchor=".questcontainer"
-        />
-        <code-quest
-          :key="3"
-          :index="3"
-          title="Reverse string"
-          difficulty="Easy"
-          :is-solved="true"
-          data-aos-anchor="questcontainer"
-        />
-        <code-quest
-          :key="4"
-          :index="4"
-          title="Reverse string"
-          difficulty="Medium"
-          :is-solved="true"
-          data-aos-anchor="#questcontainer"
-        />
-        <code-quest
-          :key="5"
-          :index="5"
-          title="Reverse string"
-          difficulty="Hard"
-          :is-solved="true"
-          data-aos-anchor=".questcontainer"
+        <code-quest-comp
+            v-for="(codequest, index) in codequests"
+            :quest-id="codequest.id"
+            :key="codequest.id || index"
+            :index="index + 1"
+            :title="codequest.title"
+            :difficulty="codequest.difficulty.name"
+            :is-solved="true"
+            @expand="expandCodequest(codequest.id)"
         />
       </div>
     </div>
