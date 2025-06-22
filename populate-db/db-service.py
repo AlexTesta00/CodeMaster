@@ -4,7 +4,6 @@ AUTH_URL = "http://codemaster-authentication-service:4004/api/v1/authentication/
 LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create/"
 TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create/"
 CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests/"
-SOLUTIONS_URL = "http://codemaster-solution-service:4006/api/v1/solutions/"
 COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments/"
 
 def get_existing_levels():
@@ -28,11 +27,11 @@ if __name__ == "__main__":
     codequests = [
         {
             'title': 'Hello World',
-            'author': 'fausto99',
+            'author': 'rambo',
             'problem': {
                 'description': 'Scrivi un programma che stampi "Hello, World!" sulla console.',
                 'examples': [
-                    {'input': '', 'output': 'Hello, World!', 'explanation': 'Output statico'}
+                    {'input': '""', 'output': 'Hello, World!', 'explanation': 'Output statico'}
                 ],
                 'constraints': []
             },
@@ -65,7 +64,7 @@ if __name__ == "__main__":
         },
         {
             'title': 'Numero Pari o Dispari',
-            'author': 'giacomo',
+            'author': 'rambo',
             'problem': {
                 'description': 'Dato un numero intero, stampa "Pari" se è pari, altrimenti "Dispari".',
                 'examples': [
@@ -120,7 +119,7 @@ if __name__ == "__main__":
         },
         {
             'title': 'Fibonacci fino a N',
-            'author': 'stevejobs',
+            'author': 'rambo',
             'problem': {
                 'description': 'Stampa la sequenza di Fibonacci fino al valore N (incluso), separati da spazi.',
                 'examples': [
@@ -140,51 +139,12 @@ if __name__ == "__main__":
 
     comments = [
         {'author': 'markzuck', 'questId': 'Hello World', 'content': 'Questo esercizio è perfetto per iniziare!'},
-        {'author': 'giovanni', 'questId': 'Somma di due numeri', 'content': 'Attenzione ai numeri negativi, funziona tutto bene.'},
+        {'author': 'rambo', 'questId': 'Somma di due numeri', 'content': 'Attenzione ai numeri negativi, funziona tutto bene.'},
         {'author': 'fausto99', 'questId': 'Numero Pari o Dispari', 'content': 'Mi è piaciuto risolverlo con Scala!'},
         {'author': 'aldo', 'questId': 'Fattoriale', 'content': 'Il limite a 20 è perfetto per evitare overflow del long.'},
         {'author': 'marcob', 'questId': 'Palindromo', 'content': 'Molto interessante usare la funzione reverse per la soluzione.'},
         {'author': 'stevejobs', 'questId': 'Fibonacci fino a N', 'content': 'Ho ottimizzato la soluzione con programmazione dinamica.'},
         {'author': 'giacomo', 'questId': 'Fibonacci fino a N', 'content': 'Attenzione ai grandi input per non superare i tempi.'},
-    ]
-
-    solutions = [
-        {
-            "user": "fausto99",
-            "questId": "HELLO_WORLD_ID",
-            "language": {
-                "name": "Java",
-                "fileExtension": ".java"
-            },
-            "difficulty": "EASY",
-            "solved": False,
-            "code": "static String myPrint() { return \"Hello, World!\"; }",
-            "testCode": "@Test void testHelloWorld() { assertEquals(\"Hello, World!\", Main.myPrint()); }"
-        },
-        {
-            "user": "giovanni",
-            "questId": "SOMMA_ID",
-            "language": {
-                "name": "Kotlin",
-                "fileExtension": ".kt"
-            },
-            "difficulty": "EASY",
-            "solved": False,
-            "code": "private fun sum(a: Int, b: Int): Int = a + b",
-            "testCode": "@Test fun testSum() { assertEquals(8, Main.sum(3, 5)) }"
-        },
-        {
-            "user": "giacomo",
-            "questId": "PARI_DISPARI_ID",
-            "language": {
-                "name": "Scala",
-                "fileExtension": ".scala"
-            },
-            "difficulty": "EASY",
-            "solved": False,
-            "code": "private def isEven(n: Int): String = if (n % 2 == 0) \"Pari\" else \"Dispari\"",
-            "testCode": "@Test def testIsEven(): Unit = { assertEquals(\"Pari\", Main.isEven(4)); assertEquals(\"Dispari\", Main.isEven(7)) }"
-        }
     ]
 
     users = [
@@ -293,12 +253,3 @@ if __name__ == "__main__":
         else:
             print(f"[X] Failed to create comment by '{comment['author']}' for '{comment['questId']}': {res.status_code} - {res.text}")
     print("[✅] Comments creation completed.\n")
-
-    print("[⏳] Creating solutions...")
-    for solution in solutions:
-        res = requests.post(SOLUTIONS_URL, json=solution)
-        if res.status_code in (200, 201):
-            print(f"[✅] Solution by '{solution['user']}' for '{solution['questId']}' created successfully.")
-        else:
-            print(f"[X] Failed to create solution by '{solution['user']}' for '{solution['questId']}': {res.status_code} - {res.text}")
-    print("[✅] Solutions creation completed.\n")
