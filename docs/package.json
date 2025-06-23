@@ -1,0 +1,28 @@
+{
+  "name": "docs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node swagger-server.js",
+    "validate": "swagger-cli validate '*/openapi.yml'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexTesta00/CodeMaster.git"
+  },
+  "keywords": [],
+  "author": "Alex Testa",
+  "license": "MIT",
+  "description": "",
+  "bugs": {
+    "url": "https://github.com/AlexTesta00/CodeMaster/issues"
+  },
+  "homepage": "https://github.com/AlexTesta00/CodeMaster#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-cli": "^4.0.4"
+  }
+}

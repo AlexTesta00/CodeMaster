@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: User Service API
+  version: 1.0.0
+  description: API per la gestione degli utenti, trofei e livelli nel sistema.
+servers:
+  - url: /api/v1
+paths:
+  /users/status:
+    get:
+      summary: Verifica lo stato del servizio
+      responses:
+        '200':
+          description: Tutti i servizi sono attivi
+        '500':
+          description: Servizi esterni non raggiungibili
+
+  /users/register:
+    post:
+      summary: Registra un nuovo utente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+      responses:
+        '200':
+          description: Utente registrato con successo
+        '400':
+          description: Errore di validazione
+
+  /users/{nickname}:
+    get:
+      summary: Ottiene tutte le informazioni su un utente
+      parameters:
+        - name: nickname
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Info utente
+        '404':
+          description: Utente non trovato
+
+    delete:
+      summary: Cancella un utente
+      parameters:
+        - name: nickname
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Utente eliminato
+        '404':
+          description: Utente non trovato
+
+  /users/bio:
+    put:
+      summary: Aggiorna la biografia dell'utente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newBio:
+                  type: string
+      responses:
+        '200':
+          description: Biografia aggiornata
+        '404':
+          description: Utente non trovato
+
+  /users/profile-picture:
+    put:
+      summary: Aggiorna l'immagine profilo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newProfilePicture:
+                  type: string
+      responses:
+        '200':
+          description: Immagine aggiornata
+        '404':
+          description: Utente non trovato
+
+  /users/cv:
+    put:
+      summary: Aggiorna il CV
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newCV:
+                  type: string
+      responses:
+        '200':
+          description: CV aggiornato
+        '404':
+          description: Utente non trovato
+
+  /users/languages:
+    put:
+      summary: Aggiorna le lingue conosciute dall'utente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newLanguages:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Lingue aggiornate
+        '404':
+          description: Utente non trovato
+
+  /users/trophies:
+    put:
+      summary: Aggiorna i trofei dell'utente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newTrophies:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Trofei aggiornati
+        '404':
+          description: Utente non trovato
+
+  /users/level/{nickname}:
+    get:
+      summary: Calcola il livello utente
+      parameters:
+        - name: nickname
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Livello calcolato
+        '404':
+          description: Utente non trovato
+
+  /trophies/create:
+    post:
+      summary: Crea un nuovo trofeo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                xp:
+                  type: integer
+      responses:
+        '200':
+          description: Trofeo creato
+        '400':
+          description: Errore nei dati
+
+  /trophies/trophies/{trophyId}:
+    delete:
+      summary: Elimina un trofeo
+      parameters:
+        - name: trophyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trofeo eliminato
+        '404':
+          description: Trofeo non trovato
+
+  /trophies/:
+    get:
+      summary: Ottieni tutti i trofei
+      responses:
+        '200':
+          description: Lista dei trofei
+        '400':
+          description: Errore
+
+  /levels/create:
+    post:
+      summary: Crea un nuovo livello
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade:
+                  type: integer
+                title:
+                  type: string
+                xpLevel:
+                  type: integer
+                url:
+                  type: string
+      responses:
+        '200':
+          description: Livello creato
+        '404':
+          description: Errore
+
+  /levels/{grade}:
+    delete:
+      summary: Elimina un livello
+      parameters:
+        - name: grade
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Livello eliminato
+        '404':
+          description: Non trovato
+
+  /levels/:
+    get:
+      summary: Ottieni tutti i livelli
+      responses:
+        '200':
+          description: Lista livelli
+        '404':
+          description: Errore

@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: Authentication Service API
+  version: 1.0.0
+  description: API for handling user authentication and authorization
+
+servers:
+  - url: /api/v1/authentication
+    description: Local development server
+
+paths:
+  /:
+    get:
+      summary: Retrieve all users
+      responses:
+        '200':
+          description: List of users retrieved
+        '500':
+          description: Internal server error
+
+  /status:
+    get:
+      summary: Check authentication service status
+      responses:
+        '200':
+          description: Service is available
+        '500':
+          description: Service unavailable
+
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+        '400':
+          description: Invalid request
+        '409':
+          description: User already exists
+
+  /login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+        '400':
+          description: Invalid credentials
+
+  /logout:
+    post:
+      summary: Log out a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: Logout successful
+        '400':
+          description: Error
+
+  /refresh-access-token:
+    post:
+      summary: Refresh user's access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NicknameOnly'
+      responses:
+        '200':
+          description: Token refreshed
+        '400':
+          description: Invalid refresh token
+
+  /update-email:
+    patch:
+      summary: Update user email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailRequest'
+      responses:
+        '200':
+          description: Email updated
+        '400':
+          description: Error
+
+  /update-password:
+    patch:
+      summary: Update user password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+      responses:
+        '200':
+          description: Password updated
+        '400':
+          description: Error
+
+  /ban:
+    patch:
+      summary: Ban a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BanRequest'
+      responses:
+        '200':
+          description: User banned
+        '400':
+          description: Error or user not found
+        '401':
+          description: Unauthorized
+
+  /unban:
+    patch:
+      summary: Unban a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BanRequest'
+      responses:
+        '200':
+          description: User unbanned
+        '400':
+          description: Error or user not found
+        '401':
+          description: Unauthorized
+
+  /{id}:
+    delete:
+      summary: Delete a user by nickname
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted
+        '400':
+          description: Error
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - nickname
+        - email
+        - password
+        - role
+      properties:
+        nickname:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - nickname
+        - password
+      properties:
+        nickname:
+          type: string
+        password:
+          type: string
+
+    LogoutRequest:
+      type: object
+      required:
+        - nickname
+      properties:
+        nickname:
+          type: string
+
+    NicknameOnly:
+      type: object
+      required:
+        - nickname
+      properties:
+        nickname:
+          type: string
+
+    UpdateEmailRequest:
+      type: object
+      required:
+        - nickname
+        - newEmail
+      properties:
+        nickname:
+          type: string
+        newEmail:
+          type: string
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - nickname
+        - oldPassword
+        - newPassword
+      properties:
+        nickname:
+          type: string
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+
+    BanRequest:
+      type: object
+      required:
+        - nicknameFrom
+        - nicknameTo
+      properties:
+        nicknameFrom:
+          type: string
+        nicknameTo:
+          type: string
