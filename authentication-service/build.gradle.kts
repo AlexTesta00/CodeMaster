@@ -1,5 +1,6 @@
 import com.github.gradle.node.npm.task.NpmTask
 import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 plugins {
     id("com.github.node-gradle.node") version "7.1.0"
@@ -12,9 +13,14 @@ node{
     download.set(true)
 }
 
+val pullRabbitMQImage = tasks.register<DockerPullImage>("pullRabbitMQImage") {
+    image.set("rabbitmq:4-management")
+}
+
 // Task per creare il container RabbitMQ
 val createRabbitMQContainer = tasks.register<DockerCreateContainer>("createRabbitMQContainer") {
-    targetImageId("rabbitmq:3-management")
+    dependsOn(pullRabbitMQImage)
+    targetImageId("rabbitmq:4-management")
     containerName.set("test-rabbitmq")
     hostConfig.portBindings.set(listOf("5672:5672", "15672:15672"))
 }
