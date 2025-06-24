@@ -1,16 +1,13 @@
 package codemaster.servicies.generator.domain
 
-sealed class Language(val name: String) {
-    object Kotlin : Language("kotlin")
-    object Java : Language("java")
-    object Scala : Language("scala")
+enum class Language(val code: String) {
+    Kotlin("kotlin"),
+    Java("java"),
+    Scala("scala");
 
     companion object {
-        fun fromString(value: String): Language = when (value.lowercase()) {
-            "kotlin" -> Kotlin
-            "java" -> Java
-            "scala" -> Scala
-            else -> throw IllegalArgumentException("Unsupported language: $value")
-        }
+        fun fromCode(code: String): Language =
+            Language.entries.find { it.code.equals(code, ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unsupported language: $code")
     }
 }
