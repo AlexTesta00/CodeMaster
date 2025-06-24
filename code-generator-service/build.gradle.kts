@@ -57,7 +57,6 @@ dependencies {
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
-
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
