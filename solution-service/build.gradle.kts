@@ -113,32 +113,41 @@ tasks.koverXmlReport {
 }
 
 fun findDockerCommand(): String {
-    val osName = System.getProperty("os.name").lowercase()
+    val os = System.getProperty("os.name").lowercase()
 
-    return if (osName.contains("windows")) {
-        val output = ProcessBuilder("cmd", "/c", "where", "docker")
+    val command = if (os.contains("windows")) {
+        listOf("cmd", "/c", "where", "docker")
+    } else {
+        listOf("which", "docker")
+    }
+
+    val process = try {
+        ProcessBuilder(command)
             .redirectErrorStream(true)
             .start()
             .inputStream.bufferedReader().readText().trim()
-
-        val dockerPath = output.lines().firstOrNull { it.endsWith(".exe") }
-            ?: throw GradleException("Docker not found in PATH on Windows.")
-
-        dockerPath
-    } else {
-        "docker"
+    } catch (e: Exception) {
+        throw GradleException("Failed to locate 'docker' executable: ${e.message}", e)
     }
+
+    if (process.isEmpty()) {
+        throw GradleException("Docker not found in PATH. Make sure it's installed and accessible.")
+    }
+
+    return process.lines().first()
 }
 
 tasks.register<Exec>("buildMultiLangRunnerImage") {
-    group = "docker"
-    description = "Build Docker image for multi-lang-runner"
-
     val dockerContextDir = File(project.projectDir, "../multi-lang-runner")
         .toPath().toAbsolutePath().toString().replace("\\", "/")
 
     val dockerExecutable = findDockerCommand()
+
     commandLine(dockerExecutable, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
+    isIgnoreExitValue = false
+    doLast {
+        println("Docker build completed")
+    }
 }
 
 tasks.test {

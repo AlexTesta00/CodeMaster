@@ -7,12 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Solution(
     @Id
     val id: SolutionId,
-    val code: String,
+    val codes: List<Code>,
     val questId: String,
     val user: String,
-    val difficulty: Difficulty,
-    val language: Language,
     val result: ExecutionResult = ExecutionResult.Pending,
-    val solved: Boolean,
-    val testCode: String
+    val solved: Boolean
 )
