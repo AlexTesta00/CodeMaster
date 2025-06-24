@@ -1,0 +1,7 @@
+{
+  "urls": [
+    { "url": "openapi/user.yaml", "name": "User Service" },
+    { "url": "openapi/authentication.yaml", "name": "Authentication Service" }
+  ],
+  "validatorUrl": null
+}

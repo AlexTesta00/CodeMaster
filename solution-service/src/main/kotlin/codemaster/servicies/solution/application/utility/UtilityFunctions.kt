@@ -52,10 +52,10 @@ object UtilityFunctions {
             .replace("// USER_CODE_HERE", code)
     }
 
-    suspend fun prepareCodeDir(solution: Solution): Path {
+    suspend fun prepareCodeDir(language: Language, code: String, testCode: String): Path {
         val codeDir = resolveRunnerPath()
-        val sourceMainFile = codeDir.resolve("Main${solution.language.fileExtension}")
-        val sourceTestFile = codeDir.resolve("MainTest${solution.language.fileExtension}")
+        val sourceMainFile = codeDir.resolve("Main${language.fileExtension}")
+        val sourceTestFile = codeDir.resolve("MainTest${language.fileExtension}")
 
         withContext(Dispatchers.IO) {
             if (Files.exists(codeDir)) {
@@ -69,11 +69,11 @@ object UtilityFunctions {
 
             Files.writeString(
                 sourceMainFile,
-                generateSource(solution.code, solution.testCode, solution.language, "main")
+                generateSource(code, testCode, language, "main")
             )
             Files.writeString(
                 sourceTestFile,
-                generateSource(solution.code, solution.testCode, solution.language, "test")
+                generateSource(code, testCode, language, "test")
             )
         }
 

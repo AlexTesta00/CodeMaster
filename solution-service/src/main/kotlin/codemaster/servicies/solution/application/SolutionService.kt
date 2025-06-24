@@ -2,7 +2,6 @@ package codemaster.servicies.solution.application
 
 import codemaster.servicies.solution.application.errors.EmptyCodeException
 import codemaster.servicies.solution.application.errors.EmptyLanguageException
-import codemaster.servicies.solution.application.errors.EmptyTestCodeException
 import codemaster.servicies.solution.application.utility.LanguageCommandProvider
 import codemaster.servicies.solution.application.utility.UtilityFunctions.parseJUnitConsoleOutput
 import codemaster.servicies.solution.application.utility.UtilityFunctions.prepareCodeDir
@@ -29,13 +28,10 @@ class SolutionService(
         id: SolutionId,
         user: String,
         questId: String,
-        language: Language,
-        difficulty: Difficulty,
         solved: Boolean,
-        code: String,
-        testCode: String
+        codes: List<Code>
     ): Solution {
-        val newSolution = SolutionFactoryImpl().create(id, user, questId, language, difficulty, solved, code, testCode)
+        val newSolution = SolutionFactoryImpl().create(id, user, questId, solved, codes)
         val solution = repository.addNewSolution(newSolution).awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("Error while inserting new solution")
     }
@@ -55,55 +51,16 @@ class SolutionService(
         return solution ?: throw NoSuchElementException("No solution found in DB created by \"$user\"")
     }
 
-    suspend fun getSolutionsByUserAndDifficulty(user: String, difficulty: Difficulty): List<Solution> {
-        val solution = repository
-            .findSolutionsByUserAndDifficulty(user, difficulty)
-            .collectList()
-            .awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException(
-            "No solved solution found in DB created by $user or with difficulty \"${difficulty.name}\""
-        )
-    }
-
     suspend fun getSolutionsByUser(user: String): List<Solution> {
         val solution = repository.findSolutionsByUser(user).collectList().awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("No solution found in DB submitted by \"$user\"")
     }
 
-    suspend fun getSolutionsByLanguage(language: Language, questId: String): List<Solution> {
-        if (language.name.isBlank() || language.fileExtension.isBlank()) {
-            throw EmptyLanguageException()
-        }
-        val solution = repository.findSolutionsByLanguage(language, questId).collectList().awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB")
-    }
-
-    suspend fun modifySolutionCode(id: SolutionId, code: String): Solution {
+    suspend fun modifySolutionCode(id: SolutionId, code: String, language: Language): Solution {
         if (code.isBlank()) {
             throw EmptyCodeException()
         }
-        val solution = repository.updateCode(id, code).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
-    }
-
-    suspend fun modifySolutionLanguage(id: SolutionId, language: Language): Solution {
-        if (language.name.isBlank() || language.fileExtension.isBlank()) {
-            throw EmptyLanguageException()
-        }
-        val solution = repository.updateLanguage(id, language).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
-    }
-
-    suspend fun modifySolutionTestCode(id: SolutionId, testCode: String): Solution {
-        if (testCode.isBlank()) {
-            throw EmptyTestCodeException()
-        }
-        val solution = repository.updateTestCode(id, testCode).awaitSingleOrNull()
-        return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
-    }
-
-    suspend fun modifySolutionDifficulty(id: SolutionId, difficulty: Difficulty): Solution {
-        val solution = repository.updateDifficulty(id, difficulty).awaitSingleOrNull()
+        val solution = repository.updateCode(id, code, language).awaitSingleOrNull()
         return solution ?: throw NoSuchElementException("No solution found in DB for id = $id")
     }
 
@@ -122,12 +79,17 @@ class SolutionService(
         return solutions ?: throw NoSuchElementException("No solution created by user '$questId' founded")
     }
 
-    suspend fun compileSolution(id: SolutionId, newCode: String): ExecutionResult {
-        val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
+    suspend fun compileSolution(
+        id: SolutionId,
+        language: Language,
+        newCode: String,
+        testCode: String
+    ): ExecutionResult {
+        val solution = repository.updateCode(id, newCode, language).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
-        val commands = LanguageCommandProvider.getCommandsFor(solution.language)
-        val codeDir = prepareCodeDir(solution)
+        val commands = LanguageCommandProvider.getCommandsFor(language)
+        val codeDir = prepareCodeDir(language, newCode, testCode)
 
         return runDocker(
             id,
@@ -140,12 +102,12 @@ class SolutionService(
         }
     }
 
-    suspend fun executeSolution(id: SolutionId, newCode: String): Solution {
-        val solution = repository.updateCode(id, newCode).awaitSingleOrNull()
+    suspend fun executeSolution(id: SolutionId, language: Language, newCode: String, testCode: String): Solution {
+        val solution = repository.updateCode(id, newCode, language).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
-        val commands = LanguageCommandProvider.getCommandsFor(solution.language)
-        val codeDir = prepareCodeDir(solution)
+        val commands = LanguageCommandProvider.getCommandsFor(language)
+        val codeDir = prepareCodeDir(language, newCode, testCode)
 
         val compileResult = runDocker(
             id,

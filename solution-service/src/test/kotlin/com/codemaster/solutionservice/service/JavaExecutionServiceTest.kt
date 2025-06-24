@@ -36,7 +36,6 @@ class JavaExecutionServiceTest : DescribeSpec() {
     private val user = "user"
     private val questId = "test"
     private val javaLanguage = Language("Java", ".java")
-    private val medium = Difficulty.Medium
     private val notSolved = false
     private val testCode =
         """
@@ -56,6 +55,13 @@ class JavaExecutionServiceTest : DescribeSpec() {
                 return "Hello World! " + s;
             }
         """.trimIndent()
+
+    private val codes = listOf<Code>(
+        Code(
+            language = javaLanguage,
+            code = code
+        )
+    )
 
     init {
         beforeSpec {
@@ -131,18 +137,18 @@ class JavaExecutionServiceTest : DescribeSpec() {
                 """.trimIndent()
 
                 beforeTest {
-                    service.addSolution(id, user, questId, javaLanguage, medium, notSolved, code, testCode)
+                    service.addSolution(id, user, questId, notSolved, codes)
                 }
 
                 it("should compile code successfully") {
-                    val result = service.compileSolution(id, code)
+                    val result = service.compileSolution(id, javaLanguage, code, testCode)
                     val output = emptyList<String>()
 
                     result shouldBe ExecutionResult.Accepted(output, 0)
                 }
 
                 it("should execute code and return all test function passed") {
-                    val solution = service.executeSolution(id, code)
+                    val solution = service.executeSolution(id,  javaLanguage, code, testCode)
                     val output = listOf("testFunction1() [OK]", "testFunction2() [OK]")
 
                     solution.result shouldBe ExecutionResult.Accepted(output, 0)
@@ -150,8 +156,7 @@ class JavaExecutionServiceTest : DescribeSpec() {
                 }
 
                 it("should execute code and return some test function failed") {
-                    service.modifySolutionTestCode(id, failingTests)
-                    val solution = service.executeSolution(id, code)
+                    val solution = service.executeSolution(id,  javaLanguage, code, failingTests)
                     val output = listOf(
                         "testFunction1() [OK]",
                         "testFunction2() [X] expected: <Hello World! test> but was: <Hello World! >"
@@ -166,7 +171,7 @@ class JavaExecutionServiceTest : DescribeSpec() {
                 }
 
                 it("should fail if the compilation is not successful") {
-                    val result = service.compileSolution(id, nonCompilingCode)
+                    val result = service.compileSolution(id, javaLanguage, nonCompilingCode, testCode)
 
                     result.shouldBeTypeOf<ExecutionResult.CompileFailed>().also {
                         it.error shouldContain "Compilation failed"
@@ -187,14 +192,11 @@ class JavaExecutionServiceTest : DescribeSpec() {
                         newId,
                         user,
                         questId,
-                        javaLanguage,
-                        medium,
                         notSolved,
-                        newCode,
-                        runtimeException
+                        codes
                     )
                     repository.addNewSolution(failingSolution).awaitSingleOrNull()
-                    val solution = service.executeSolution(newId, newCode)
+                    val solution = service.executeSolution(newId, javaLanguage, newCode, runtimeException)
                     val output = listOf(
                         "testFunction1() [X] Cannot invoke \"String.toUpperCase()\" because \"<parameter1>\" is null"
                     )
@@ -207,7 +209,7 @@ class JavaExecutionServiceTest : DescribeSpec() {
                 }
 
                 it("should exceed timeout if execution is too heavy") {
-                    val solution = service.executeSolution(id, loop)
+                    val solution = service.executeSolution(id,  javaLanguage, loop, testCode)
 
                     solution.result shouldBe ExecutionResult.TimeLimitExceeded(20_000)
                 }
@@ -216,10 +218,10 @@ class JavaExecutionServiceTest : DescribeSpec() {
                     val fakeId = SolutionId.generate()
 
                     shouldThrow<NoSuchElementException> {
-                        service.executeSolution(fakeId, code)
+                        service.executeSolution(fakeId, javaLanguage, code, testCode)
                     }
                     shouldThrow<NoSuchElementException> {
-                        service.compileSolution(fakeId, code)
+                        service.compileSolution(fakeId, javaLanguage, code, testCode)
                     }
                 }
             }

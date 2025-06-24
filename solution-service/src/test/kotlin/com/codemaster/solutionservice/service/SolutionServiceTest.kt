@@ -10,6 +10,7 @@ import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -39,22 +40,8 @@ class SolutionServiceTest : DescribeSpec() {
     private val user = "user"
     private val questId = "test"
     private val language = Language("Kotlin", ".kt")
-    private val medium = Difficulty.Medium
-    private val easy = Difficulty.Easy
     private val notSolved = false
     private val solved = true
-    private val testCode =
-        """
-            @Test
-            fun testFunction1() {
-                assertEquals("Hello World! test", Main.myPrint("test"))
-            }
-        
-            @Test
-            fun testFunction2() {
-                assertEquals("Hello World! test", Main.myPrint("test"))
-            }
-        """.trimIndent()
     private val code =
         """
         companion object {
@@ -64,6 +51,12 @@ class SolutionServiceTest : DescribeSpec() {
             }
         }
         """.trimIndent()
+    private val codes = listOf<Code>(
+        Code(
+            language,
+            code
+        )
+    )
 
     init {
         beforeSpec {
@@ -106,10 +99,12 @@ class SolutionServiceTest : DescribeSpec() {
 
         fun checkSolution(solution: Solution) {
             solution.id shouldBe id1
-            solution.code shouldBe code
             solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
             solution.questId shouldBe questId
-            solution.language shouldBe language
+            for (cd in codes) {
+                cd.code shouldBe code
+                cd.language shouldBe language
+            }
         }
 
         describe("SolutionServiceTest") {
@@ -117,26 +112,14 @@ class SolutionServiceTest : DescribeSpec() {
             context("Add new solution") {
 
                 it("should save and retrieve solution correctly") {
-                    val saved = service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                    val saved = service.addSolution(id1, user, questId, notSolved, codes)
 
                     checkSolution(saved)
                 }
 
-                it("should throw exception if code is empty") {
-                    shouldThrow<EmptyCodeException> {
-                        service.addSolution(id1, user, questId, language, medium, notSolved,"", testCode)
-                    }
-                }
-
-                it("should throw exception if test code is empty") {
-                    shouldThrow<EmptyCodeException> {
-                        service.addSolution(id1, user, questId, language, medium, notSolved, code, "")
-                    }
-                }
-
                 it("should throw exception if username is invalid") {
                     shouldThrow<InvalidUserException> {
-                        service.addSolution(id1, "", questId, language, medium, notSolved, code, testCode)
+                        service.addSolution(id1, "", questId,  notSolved, codes)
                     }
                 }
             }
@@ -144,8 +127,8 @@ class SolutionServiceTest : DescribeSpec() {
             context("Find solution") {
 
                 beforeTest {
-                    service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
-                    service.addSolution(id2, user, questId, language, easy, solved, code, testCode)
+                    service.addSolution(id1, user, questId, notSolved, codes)
+                    service.addSolution(id2, user, questId, solved, codes)
                 }
 
                 it("should retrieve solution by his id") {
@@ -162,23 +145,12 @@ class SolutionServiceTest : DescribeSpec() {
                     checkSolution(list.first())
 
                     list.last().id shouldBe id2
-                    list.last().code shouldBe code
                     list.last().questId shouldBe questId
                     list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    list.last().language shouldBe language
-                }
-
-                it("should retrieve all solutions with the same user name") {
-                    val list = service.getSolutionsByLanguage(language, questId)
-
-                    list.size shouldBe 2
-                    checkSolution(list.first())
-
-                    list.last().id shouldBe id2
-                    list.last().code shouldBe code
-                    list.last().language shouldBe language
-                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    list.last().questId shouldBe questId
+                    for (cd in list.last().codes) {
+                        cd.code shouldBe code
+                        cd.language shouldBe language
+                    }
                 }
 
                 it("should retrieve all solutions solved by a user") {
@@ -191,17 +163,6 @@ class SolutionServiceTest : DescribeSpec() {
                     list.last().user shouldBe user
                 }
 
-                it("should retrieve all solutions solved by user with given difficulty") {
-                    val list = service.getSolutionsByUserAndDifficulty(user, easy)
-
-                    list.size shouldBe 1
-
-                    list.last().id shouldBe id2
-                    list.last().solved shouldBe true
-                    list.last().user shouldBe user
-                    list.last().difficulty shouldBe easy
-                }
-
                 it("should retrieve all solutions submitted by a user") {
                     val list = service.getSolutionsByUser(user)
 
@@ -210,10 +171,12 @@ class SolutionServiceTest : DescribeSpec() {
 
                     list.last().id shouldBe id2
                     list.last().user shouldBe user
-                    list.last().code shouldBe code
-                    list.last().language shouldBe language
                     list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     list.last().questId shouldBe questId
+                    for (cd in list.last().codes) {
+                        cd.code shouldBe code
+                        cd.language shouldBe language
+                    }
                 }
 
                 it("should throw exception if there is no solution with given id") {
@@ -229,89 +192,41 @@ class SolutionServiceTest : DescribeSpec() {
 
                     service.getSolutionsByQuestId(fakeQuestId).isEmpty() shouldBe true
                 }
-
-                it("should be empty if there are no solutions with given language") {
-                    val fakeLanguage = Language("Scala", ".scala")
-
-                    service.getSolutionsByLanguage(fakeLanguage, questId).isEmpty() shouldBe true
-                }
-
-                it("should be empty if there are no solutions by language of given codequest") {
-                    val fakeQuestId = "fakeId"
-
-                    service.getSolutionsByLanguage(language, fakeQuestId).isEmpty() shouldBe true
-                }
             }
         }
 
         describe("Modify solution") {
 
             val fakeId = SolutionId.generate()
-            val newLanguage = Language("Scala", ".scala")
-            val newTestCode = """
-                        @Test
-                        void testFunction1() {
-                            assertEquals("Hello World! new test", Main.myPrint("new test"));
-                        }
-                    """.trimIndent()
             val newCode = """
                         private String print(String s) {
                             return s;
                         }
                     """.trimIndent()
-            val newDifficulty = Difficulty.Easy
 
             beforeTest {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
-            }
-
-            it("should modify solution language correctly") {
-                val modifiedSolution = service.modifySolutionLanguage(id1, newLanguage)
-
-                modifiedSolution.id shouldBe id1
-                modifiedSolution.language shouldBe newLanguage
+                service.addSolution(id1, user, questId,  notSolved, codes)
             }
 
             it("should modify solution code correctly") {
-                val modifiedSolution = service.modifySolutionCode(id1, newCode)
+                val modifiedSolution = service.modifySolutionCode(id1, newCode, language)
 
                 modifiedSolution.id shouldBe id1
-                modifiedSolution.code shouldBe newCode
-            }
-
-            it("should modify solution test code correctly") {
-                val modifiedSolution = service.modifySolutionTestCode(id1, newTestCode)
-
-                modifiedSolution.id shouldBe id1
-                modifiedSolution.testCode shouldBe newTestCode
-            }
-
-            it("should modify solution difficulty correctly") {
-                val modifiedSolution = service.modifySolutionDifficulty(id1, newDifficulty)
-
-                modifiedSolution.id shouldBe id1
-                modifiedSolution.difficulty shouldBe newDifficulty
+                modifiedSolution.codes.first {
+                    it.language == language
+                }.code shouldBe newCode
             }
 
             it("should throw exception if there is no solution with given id") {
                 shouldThrow<NoSuchElementException> {
-                    service.modifySolutionLanguage(fakeId, newLanguage)
-                }
-                shouldThrow<NoSuchElementException> {
-                    service.modifySolutionCode(fakeId, newCode)
-                }
-                shouldThrow<NoSuchElementException> {
-                    service.modifySolutionTestCode(fakeId, newTestCode)
-                }
-                shouldThrow<NoSuchElementException> {
-                    service.modifySolutionDifficulty(fakeId, newDifficulty)
+                    service.modifySolutionCode(fakeId, newCode, language)
                 }
             }
         }
 
         describe("Delete solution") {
             it("should delete solution correctly by id") {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.addSolution(id1, user, questId,  notSolved, codes)
                 service.deleteSolution(id1)
 
                 shouldThrow<NoSuchElementException> {
@@ -320,14 +235,14 @@ class SolutionServiceTest : DescribeSpec() {
             }
 
             it("should delete all solutions created by a user") {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.addSolution(id1, user, questId,  notSolved, codes)
                 service.deleteSolutionsByUser(user)
 
                 service.getSolutionsByUser(user) shouldBe emptyList()
             }
 
             it("should delete all solutions of a codequest") {
-                service.addSolution(id1, user, questId, language, medium, notSolved, code, testCode)
+                service.addSolution(id1, user, questId,  notSolved, codes)
                 service.deleteSolutionsByCodequest(questId)
 
                 service.getSolutionsByQuestId(questId) shouldBe emptyList()

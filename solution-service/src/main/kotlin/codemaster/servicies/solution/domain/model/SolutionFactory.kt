@@ -5,10 +5,7 @@ interface SolutionFactory {
         id: SolutionId,
         user: String,
         questId: String,
-        language: Language,
-        difficulty: Difficulty,
         solved: Boolean,
-        code: String,
-        testCode: String
+        codes: List<Code>
     ): Solution
 }

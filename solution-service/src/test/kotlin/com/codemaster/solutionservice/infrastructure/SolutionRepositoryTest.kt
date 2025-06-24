@@ -40,31 +40,23 @@ class SolutionRepositoryTest : DescribeSpec() {
     private val user = "user"
     private val questId = "test"
     private val language = Language("Java", ".java")
-    private val difficulty = Difficulty.Medium
     private val solved = false
-    private val testCode = """
-            @Test
-            void testFunction1() {
-                assertEquals("Hello World! test", Main.myPrint("test"));
-            }
-            
-            @Test
-            void testFunction2() {
-                assertEquals("Hello World! test", Main.myPrint("test"));
-            }
-        """.trimIndent()
-    private val code = """
+    private val code = Code(
+        language,
+        """
             static String myPrint(String s) {
                 return "Hello World! " + s;
             }
         """.trimIndent()
+        )
+    private val codes = listOf(code)
 
     private val newSolution1 = SolutionFactoryImpl()
-        .create(id1, user, questId, language, difficulty, solved, code, testCode)
+        .create(id1, user, questId, solved, codes)
     private val newSolution2 = SolutionFactoryImpl()
-        .create(id2, user, questId, language, difficulty, solved, code, testCode)
+        .create(id2, user, questId,  solved, codes)
     private val solvedSolution = SolutionFactoryImpl()
-        .create(id3, user, questId, language, difficulty, true, code, testCode)
+        .create(id3, user, questId, true, codes)
 
 
     init {
@@ -112,12 +104,13 @@ class SolutionRepositoryTest : DescribeSpec() {
 
         fun checkSolution(solution: Solution) {
             solution.id shouldBe id1
-            solution.code shouldBe code
             solution.user shouldBe user
             solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
             solution.questId shouldBe questId
-            solution.language shouldBe language
-            solution.testCode shouldBe testCode
+            for (code in solution.codes) {
+                code shouldBe code
+                language shouldBe language
+            }
         }
 
         describe("SolutionRepositoryTest") {
@@ -152,30 +145,13 @@ class SolutionRepositoryTest : DescribeSpec() {
                     checkSolution(source.first())
 
                     source.last().id shouldBe id2
-                    source.last().code shouldBe code
                     source.last().user shouldBe user
                     source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     source.last().questId shouldBe questId
-                    source.last().language shouldBe language
-                    source.last().testCode shouldBe testCode
-                }
-
-                it("should get all solutions of codequest by language") {
-                    val source = repository
-                        .findSolutionsByLanguage(language, questId)
-                        .collectList()
-                        .awaitSingle()
-
-                    source.size shouldBe 2
-                    checkSolution(source.first())
-
-                    source.last().id shouldBe id2
-                    source.last().code shouldBe code
-                    source.last().user shouldBe user
-                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    source.last().questId shouldBe questId
-                    source.last().language shouldBe language
-                    source.last().testCode shouldBe testCode
+                    for (code in source.last().codes) {
+                        code shouldBe code
+                        language shouldBe language
+                    }
                 }
 
                 it("should find solved solution by author") {
@@ -192,31 +168,6 @@ class SolutionRepositoryTest : DescribeSpec() {
                     source.first().id shouldBe id3
                 }
 
-                it("should find all solutions by author and difficulty level") {
-                    val newId = SolutionId.generate()
-                    val easySolution = SolutionFactoryImpl().create(
-                        newId,
-                        user,
-                        questId,
-                        language,
-                        Difficulty.Easy,
-                        true,
-                        testCode,
-                        code)
-
-                    repository.addNewSolution(easySolution).awaitSingleOrNull()
-
-                    val source = repository
-                        .findSolutionsByUserAndDifficulty(user, Difficulty.Easy)
-                        .collectList()
-                        .awaitSingle()
-
-                    source.size shouldBe 1
-
-                    source.first().difficulty shouldBe Difficulty.Easy
-                    source.first().id shouldBe newId
-                }
-
                 it("should find all solutions submitted by a user") {
                     val source = repository
                         .findSolutionsByUser(user)
@@ -227,12 +178,13 @@ class SolutionRepositoryTest : DescribeSpec() {
                     checkSolution(source.first())
 
                     source.last().id shouldBe id2
-                    source.last().code shouldBe code
                     source.last().user shouldBe user
                     source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
                     source.last().questId shouldBe questId
-                    source.last().language shouldBe language
-                    source.last().testCode shouldBe testCode
+                    for (code in source.last().codes) {
+                        code shouldBe code
+                        language shouldBe language
+                    }
                 }
 
                 it("should throw exception if there is no solution with given id") {
@@ -253,39 +205,10 @@ class SolutionRepositoryTest : DescribeSpec() {
                     solutions.isEmpty() shouldBe true
                 }
 
-                it("should be empty if there are no solutions with given language") {
-                    val fakeLanguage = Language("Scala", ".scala")
-                    val solutions = repository
-                        .findSolutionsByLanguage(fakeLanguage, questId)
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
-                it("should be empty if there are no solutions by language with given questId") {
-                    val fakeQuestId = ObjectId()
-                    val solutions = repository
-                        .findSolutionsByLanguage(language, fakeQuestId.toString())
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
                 it("should be empty if there are no solutions solved by a user") {
                     val fakeUser = "fakeUser"
                     val solutions = repository
                         .findSolvedSolutionsByUser(fakeUser)
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
-                it("should be empty if there are no solutions solved by user with given difficulty") {
-                    val solutions = repository
-                        .findSolutionsByUserAndDifficulty(user, Difficulty.Hard)
                         .collectList()
                         .awaitSingle()
 
@@ -309,35 +232,15 @@ class SolutionRepositoryTest : DescribeSpec() {
                     repository.addNewSolution(newSolution1).awaitSingleOrNull()
                 }
 
-                it("should update the language correctly") {
-                    val newLanguage = Language("Scala", ".scala")
-
-                    val modified = repository.updateLanguage(id1, newLanguage).awaitSingle()
-
-                    modified.language shouldBe newLanguage
-                }
-
                 it("should update the code correctly") {
                     val newCode = """
                         private String print(String s) {
                             return s;
                         }
                     """.trimIndent()
-                    val modified = repository.updateCode(id1, newCode).awaitSingle()
+                    val modified = repository.updateCode(id1, newCode, language).awaitSingle()
 
-                    modified.code shouldBe newCode
-                }
-
-                it("should update the test code correctly") {
-                    val newTestCode = """
-                        @Test
-                        void testFunction1() {
-                            assertEquals("Hello World! test", Main.myPrint("test"));
-                        }
-                    """.trimIndent()
-                    val modified = repository.updateCode(id1, newTestCode).awaitSingle()
-
-                    modified.code shouldBe newTestCode
+                    modified.codes.first { it.language.name == language.name }.code shouldBe newCode
                 }
 
                 it("should update the result correctly") {
@@ -346,13 +249,6 @@ class SolutionRepositoryTest : DescribeSpec() {
                     val modified = repository.updateResult(id1, newResult).awaitSingle()
 
                     modified.result shouldBe newResult
-                }
-
-                it("should update the difficulty correctly") {
-                    val newDifficulty = Difficulty.Easy
-                    val modified = repository.updateDifficulty(id1, newDifficulty).awaitSingle()
-
-                    modified.difficulty shouldBe newDifficulty
                 }
 
                 it("should update solved correctly") {
@@ -364,16 +260,8 @@ class SolutionRepositoryTest : DescribeSpec() {
 
                 it("should fail if the solution with given id does not exist in the database") {
                     val fakeId = SolutionId.generate()
-                    val newLanguage = Language("Scala", ".scala")
                     val newResult = ExecutionResult.Accepted(listOf("1","2","3","4"), 0)
-                    val newDifficulty = Difficulty.Easy
                     val newSolved = true
-                    val newTestCode = """
-                        @Test
-                        void testFunction1() {
-                            assertEquals("Hello World! test", Main.myPrint("test"));
-                        }
-                    """.trimIndent()
                     val newCode = """
                         private String print(String s) {
                             return s;
@@ -381,11 +269,8 @@ class SolutionRepositoryTest : DescribeSpec() {
                     """.trimIndent()
 
                     repository.updateResult(fakeId, newResult).awaitSingleOrNull() shouldBe null
-                    repository.updateCode(fakeId, newCode).awaitSingleOrNull() shouldBe null
-                    repository.updateLanguage(fakeId, newLanguage).awaitSingleOrNull() shouldBe null
-                    repository.updateTestCode(fakeId, newTestCode).awaitSingleOrNull() shouldBe null
+                    repository.updateCode(fakeId, newCode, language).awaitSingleOrNull() shouldBe null
                     repository.updateSolved(fakeId, newSolved).awaitSingleOrNull() shouldBe null
-                    repository.updateDifficulty(fakeId, newDifficulty).awaitSingleOrNull() shouldBe null
                 }
             }
 

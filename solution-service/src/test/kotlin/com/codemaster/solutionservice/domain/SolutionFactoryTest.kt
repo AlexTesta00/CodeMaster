@@ -13,57 +13,43 @@ internal class SolutionFactoryTest : DescribeSpec() {
         val user = "user"
         val questId = "test"
         val language = Language("Java", ".java")
-        val difficulty = Difficulty.Medium
         val solved = false
-        val testCode = """
-            @Test
-            void testFunction1() {
-                assertEquals("Hello World! test", Main.myPrint("test"));
-            }
-        """.trimIndent()
-        val code = """
+        val codes = listOf((Code(
+            language = language,
+            code = """
             static String myPrint(String s) {
                 return "Hello World! " + s;
             }
         """.trimIndent()
+        )))
 
         val factory = SolutionFactoryImpl()
 
         describe("TestSolutionFactory") {
             it("should create a new solution correctly") {
-                val solution = factory.create(id, user, questId, language, difficulty, solved, code, testCode)
-
+                val solution = factory.create(id, user, questId, solved, codes)
                 solution.id shouldBe id
-                solution.code shouldBe code
+                for (code in codes) {
+                    code shouldBe code
+                    code.language shouldBe language
+                }
+                solution.codes.first() shouldBe codes.first()
                 solution.result shouldBe ExecutionResult.Pending
                 solution.questId shouldBe questId
-                solution.testCode shouldBe testCode
-                solution.difficulty shouldBe difficulty
                 solution.solved shouldBe false
-                solution.language shouldBe language
             }
 
             it("should fail if the username is invalid") {
                 shouldThrow<InvalidUserException> {
-                    factory.create(id, "", questId, language, difficulty, solved, code, testCode)
+                    factory.create(id, "", questId, solved, codes)
                 }
             }
 
             it("should fail if execution code is invalid") {
-                shouldThrow<EmptyCodeException> {
-                    factory.create(id, user, questId, language, difficulty, solved,"", testCode)
-                }
-            }
+                val invalidCode = listOf(Code(language, ""))
 
-            it("should fail if test code is invalid") {
                 shouldThrow<EmptyCodeException> {
-                    factory.create(id, user, questId, language, difficulty, solved, code, "")
-                }
-            }
-
-            it("should fail if the difficulty does not exist") {
-                shouldThrow<IllegalArgumentException> {
-                    factory.create(id, user, questId, language, Difficulty.from("ultra"), solved, code, testCode)
+                    factory.create(id, user, questId, solved, invalidCode)
                 }
             }
         }

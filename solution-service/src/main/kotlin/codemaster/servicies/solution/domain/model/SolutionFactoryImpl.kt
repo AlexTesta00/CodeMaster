@@ -11,33 +11,29 @@ class SolutionFactoryImpl : SolutionFactory {
         id: SolutionId,
         user: String,
         questId: String,
-        language: Language,
-        difficulty: Difficulty,
         solved: Boolean,
-        code: String,
-        testCode: String
+        codes: List<Code>
     ): Solution {
-        if(language.name.isBlank() || language.fileExtension.isBlank()){
-            throw InvalidLanguageException()
-        }
 
         if (user.isBlank()) {
             throw InvalidUserException()
         }
 
-        if (code.isBlank() || testCode.isBlank()) {
-            throw EmptyCodeException()
+        for (code in codes) {
+            if(code.language.name.isBlank() || code.language.fileExtension.isBlank()){
+                throw InvalidLanguageException()
+            }
+            if (code.code.isBlank()) {
+                throw EmptyCodeException()
+            }
         }
 
         return Solution(
             id = id,
             user = user,
             questId = questId,
-            language = language,
-            difficulty = difficulty,
             solved = solved,
-            code = code,
-            testCode = testCode
+            codes = codes
         )
     }
 }
