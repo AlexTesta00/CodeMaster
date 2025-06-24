@@ -138,7 +138,11 @@ class SolutionController(private val service: SolutionService) {
     ): ResponseEntity<Solution?> {
         val solution : Solution
         try {
-            solution = service.modifySolutionCode(id, newCode.code, Language(newCode.language.name, newCode.language.fileExtension))
+            solution = service.modifySolutionCode(
+                id,
+                newCode.code,
+                Language(newCode.language.name, newCode.language.fileExtension)
+            )
         } catch (ex: Exception) {
             return when(ex) {
                 is NoSuchElementException -> ResponseEntity.notFound().build()

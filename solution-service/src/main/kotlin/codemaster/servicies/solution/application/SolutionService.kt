@@ -79,7 +79,12 @@ class SolutionService(
         return solutions ?: throw NoSuchElementException("No solution created by user '$questId' founded")
     }
 
-    suspend fun compileSolution(id: SolutionId, language: Language, newCode: String, testCode: String): ExecutionResult {
+    suspend fun compileSolution(
+        id: SolutionId,
+        language: Language,
+        newCode: String,
+        testCode: String
+    ): ExecutionResult {
         val solution = repository.updateCode(id, newCode, language).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
