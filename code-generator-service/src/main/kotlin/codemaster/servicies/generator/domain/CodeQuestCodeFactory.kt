@@ -2,7 +2,9 @@ package codemaster.servicies.generator.domain
 
 import codemaster.servicies.generator.domain.codegen.GeneratedCodeEntry
 import codemaster.servicies.generator.domain.codegen.LanguageGenerator
+import org.springframework.stereotype.Component
 
+@Component
 class CodeQuestCodeFactory(
     private val generators: Map<Language, LanguageGenerator>
 ) {

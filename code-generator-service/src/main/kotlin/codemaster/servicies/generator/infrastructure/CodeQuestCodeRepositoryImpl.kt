@@ -4,6 +4,7 @@ import codemaster.servicies.generator.domain.CodeQuestCode
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -14,11 +15,12 @@ class CodeQuestCodeRepositoryImpl(private val mongoTemplate: ReactiveMongoTempla
     }
 
     override fun findByQuestId(questId: String): Mono<CodeQuestCode> {
-        return mongoTemplate.findById(questId, CodeQuestCode::class.java)
+        val query = Query(Criteria.where("questId").`is`(questId))
+        return mongoTemplate.findOne(query, CodeQuestCode::class.java)
     }
 
     override fun deleteByQuestId(questId: String): Flux<CodeQuestCode> {
         val query = Query(Criteria.where("questId").`is`(questId))
-        return mongoTemplate.findAllAndRemove<CodeQuestCode>(query, CodeQuestCode::class.java)
+        return mongoTemplate.findAllAndRemove(query, CodeQuestCode::class.java)
     }
 }
