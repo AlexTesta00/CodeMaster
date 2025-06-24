@@ -1,10 +1,18 @@
-import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.shouldBe
-import codemaster.servicies.generator.domain.*
+package domain
+
+import codemaster.servicies.generator.domain.CodeQuestCodeFactory
+import codemaster.servicies.generator.domain.ExampleCase
+import codemaster.servicies.generator.domain.FunctionParameter
+import codemaster.servicies.generator.domain.FunctionSignature
+import codemaster.servicies.generator.domain.Language
+import codemaster.servicies.generator.domain.TypeName
 import codemaster.servicies.generator.domain.codegen.JavaLanguageGenerator
 import codemaster.servicies.generator.domain.codegen.KotlinLanguageGenerator
 import codemaster.servicies.generator.domain.codegen.ScalaLanguageGenerator
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import kotlin.collections.forEach
 
 class TestCodeQuestCodeFactory : DescribeSpec({
 
