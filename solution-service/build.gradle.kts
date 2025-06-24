@@ -1,6 +1,9 @@
 import kotlinx.kover.gradle.plugin.dsl.AggregationType
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import java.io.File
+import org.gradle.api.tasks.Exec
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -112,39 +115,36 @@ tasks.koverXmlReport {
     dependsOn(tasks.test)
 }
 
-fun findDockerCommand(): String {
-    val os = System.getProperty("os.name").lowercase()
+tasks.register<Exec>("printEnv") {
+    commandLine("sh", "-c", "echo \$PATH")
 
-    val command = if (os.contains("windows")) {
-        listOf("cmd", "/c", "where", "docker")
-    } else {
-        listOf("which", "docker")
+    doLast {
+        println("PATH printed")
     }
+}
 
-    val process = try {
-        ProcessBuilder(command)
-            .redirectErrorStream(true)
-            .start()
-            .inputStream.bufferedReader().readText().trim()
-    } catch (e: Exception) {
-        throw GradleException("Failed to locate 'docker' executable: ${e.message}", e)
+fun findExecutableInPath(executable: String): String? {
+    val path = System.getenv("PATH") ?: return null
+    val paths = path.split(File.pathSeparator)
+    val execName = if (System.getProperty("os.name").lowercase().contains("windows")) "$executable.exe" else executable
+    for (dir in paths) {
+        val file = File(dir, execName)
+        if (file.exists() && file.canExecute()) {
+            return file.absolutePath
+        }
     }
-
-    if (process.isEmpty()) {
-        throw GradleException("Docker not found in PATH. Make sure it's installed and accessible.")
-    }
-
-    return process.lines().first()
+    return null
 }
 
 tasks.register<Exec>("buildMultiLangRunnerImage") {
-    val dockerContextDir = File(project.projectDir, "../multi-lang-runner")
-        .toPath().toAbsolutePath().toString().replace("\\", "/")
+    val dockerCmd = findExecutableInPath("docker")
+        ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
 
-    val dockerExecutable = findDockerCommand()
+    println("Using docker executable: $dockerCmd")
 
-    commandLine(dockerExecutable, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
-    isIgnoreExitValue = false
+    val dockerContextDir = File(project.projectDir, "../multi-lang-runner").absolutePath
+    commandLine(dockerCmd, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
+
     doLast {
         println("Docker build completed")
     }
