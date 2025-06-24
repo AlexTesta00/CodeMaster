@@ -12,18 +12,9 @@ interface SolutionRepository {
 
     fun findSolutionsByQuestId(questId: String): Flux<Solution>
 
-    fun findSolutionsByLanguage(language: Language, questId: String): Flux<Solution>
-
     fun findSolvedSolutionsByUser(user: String): Flux<Solution>
 
-    fun findSolutionsByUserAndDifficulty(user: String, difficulty: Difficulty): Flux<Solution>
-
     fun findSolutionsByUser(user: String): Flux<Solution>
-
-    fun updateLanguage(
-        id: SolutionId,
-        language: Language,
-    ): Mono<Solution>
 
     fun updateResult(
         id: SolutionId,
@@ -33,16 +24,7 @@ interface SolutionRepository {
     fun updateCode(
         id: SolutionId,
         code: String,
-    ): Mono<Solution>
-
-    fun updateTestCode(
-        id: SolutionId,
-        testCode: String
-    ): Mono<Solution>
-
-    fun updateDifficulty(
-        id: SolutionId,
-        difficulty: Difficulty
+        language: Language
     ): Mono<Solution>
 
     fun updateSolved(

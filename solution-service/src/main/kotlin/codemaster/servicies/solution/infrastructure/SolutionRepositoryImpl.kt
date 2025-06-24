@@ -1,8 +1,16 @@
 package codemaster.servicies.solution.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Filters.eq
+import com.mongodb.client.model.ReturnDocument
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
+import com.mongodb.client.model.Updates.set
+import org.bson.conversions.Bson
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -26,45 +34,14 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
         return mongoTemplate.find(query, Solution::class.java)
     }
 
-    override fun findSolutionsByLanguage(language: Language, questId: String): Flux<Solution> {
-        val query = Query(Criteria.where("language").`is`(language).and("questId").`is`(questId))
-        return mongoTemplate.find(query, Solution::class.java)
-    }
-
     override fun findSolvedSolutionsByUser(user: String): Flux<Solution> {
         val query = Query(Criteria.where("user").`is`(user).and("solved").`is`(true))
-        return mongoTemplate.find(query, Solution::class.java)
-    }
-
-    override fun findSolutionsByUserAndDifficulty(user: String, difficulty: Difficulty): Flux<Solution> {
-        val query = Query(Criteria
-            .where("difficulty").`is`(difficulty)
-            .and("user").`is`(user)
-            .and("solved").`is`(true)
-        )
         return mongoTemplate.find(query, Solution::class.java)
     }
 
     override fun findSolutionsByUser(user: String): Flux<Solution> {
         val query = Query(Criteria.where("user").`is`(user))
         return mongoTemplate.find(query, Solution::class.java)
-    }
-
-    override fun updateLanguage(
-        id: SolutionId,
-        language: Language,
-    ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id.value))
-        val update =
-            Update()
-                .set("language", language)
-
-        return mongoTemplate.findAndModify(
-            query,
-            update,
-            FindAndModifyOptions.options().returnNew(true),
-            Solution::class.java
-        )
     }
 
     override fun updateResult(
@@ -87,52 +64,16 @@ class SolutionRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate) :
     override fun updateCode(
         id: SolutionId,
         code: String,
+        language: Language
     ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id.value))
-        val update =
-            Update()
-                .set("code", code)
-
-        return mongoTemplate.findAndModify(
-            query,
-            update,
-            FindAndModifyOptions.options().returnNew(true),
-            Solution::class.java
-        )
-    }
-
-    override fun updateTestCode(
-        id: SolutionId,
-        testCode: String
-    ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id.value))
-        val update =
-            Update()
-                .set("testCode", testCode)
-
-        return mongoTemplate.findAndModify(
-            query,
-            update,
-            FindAndModifyOptions.options().returnNew(true),
-            Solution::class.java
-        )
-    }
-
-    override fun updateDifficulty(
-        id: SolutionId,
-        difficulty: Difficulty
-    ): Mono<Solution> {
-        val query = Query(Criteria.where("_id").`is`(id.value))
-        val update =
-            Update()
-                .set("difficulty", difficulty)
-
-        return mongoTemplate.findAndModify(
-            query,
-            update,
-            FindAndModifyOptions.options().returnNew(true),
-            Solution::class.java
-        )
+        return mongoTemplate.findById(id.value, Solution::class.java)
+            .flatMap { solution ->
+                val updatedCodes = solution.codes.map {
+                    if (it.language == language) it.copy(code = code) else it
+                }
+                val updatedSolution = solution.copy(codes = updatedCodes)
+                mongoTemplate.save(updatedSolution)
+            }
     }
 
     override fun updateSolved(id: SolutionId, solved: Boolean): Mono<Solution> {
