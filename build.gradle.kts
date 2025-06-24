@@ -20,6 +20,7 @@ tasks.register("build"){
     dependsOn(":authentication-service:build")
     dependsOn(":user-service:build")
     dependsOn(":solution-service:build")
+    dependsOn(":frontend-service:build")
     dependsOn(":community-service:build")
     dependsOn(":frontend-service:build")
 }
