@@ -279,3 +279,6 @@ export const unbanUser = async (
 
 export const findAllUsers = async (): Promise<Either<Error, Iterable<UserManager>>> =>
   await findAllUsersFromRepo()
+
+export const findUserByNicknameService = async (nickname: UserId): Promise<Either<Error, UserManager>> =>
+  await findUserByNickname(nickname)

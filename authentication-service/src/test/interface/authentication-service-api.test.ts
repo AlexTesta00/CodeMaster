@@ -158,6 +158,11 @@ describe('Test API', () => {
       expect(response.body.success).toBe(true)
       expect(response.body.token).toBeDefined()
       expect(response.headers['set-cookie']).toBeDefined()
+      expect(response.body.user.info.nickname.value).toBe(existUserNickname.nickname)
+      expect(response.body.user.info.email).toBe(newUser.email)
+      expect(response.body.user.info).toHaveProperty('password')
+      expect(response.body.user.info.role).toEqual({ name: 'user' })
+      expect(response.body.user).toHaveProperty('banned', false)
     })
 
     it('should return 200 and user is already logged in', async () => {
