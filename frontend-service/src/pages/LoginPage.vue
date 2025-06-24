@@ -16,8 +16,14 @@ const page = ref<'login' | 'register'>('login')
 const isLoading = ref(false)
 const authStore = useAuthStore()
 
-const goToDahsboardPage = () => {
-    router.push('/dashboard')
+const goToCorrectPage = (role: string) => {
+    if (role === 'admin') {
+        router.push('/admin')
+        return
+    }else{
+        router.push('/dashboard')
+        return
+    }
 }
 
 const handleSubmit = async () => {
@@ -25,11 +31,13 @@ const handleSubmit = async () => {
         if (page.value === 'login') {
             isLoading.value = true
             const response = await loginUser(nickname.value, password.value)
+          console.log('Login response:', response.user?.info)
             if (response.success) {
                 await successToast('Login Successful')
                 isLoading.value = false
                 authStore.setNickname(nickname.value)
-                goToDahsboardPage()
+                authStore.setRole(response.user!.info.role.name)
+                goToCorrectPage(response.user!.info.role.name)
             } else {
                 await errorToast(authenticationTraductor(response.message))
                 isLoading.value = false
@@ -54,7 +62,8 @@ const handleSubmit = async () => {
                   await assignTrophyByTitle(authStore.nickname, 'Welcome')
                 }
                 isLoading.value = false
-                goToDahsboardPage()
+                authStore.setRole(response.user!.info.role.name)
+                goToCorrectPage(response.user!.info.role.name)
             } else {
                 await errorToast(authenticationTraductor(response.message))
                 isLoading.value = false

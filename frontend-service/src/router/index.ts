@@ -9,6 +9,7 @@ import ErrorPage from '../pages/ErrorPage.vue'
 import NewCodeQuestPage from '../pages/NewCodeQuestPage.vue'
 import ChoicePage from '../pages/ChoicePage.vue'
 import { useAuthStore } from '../utils/store.ts'
+import AdminPage from '../pages/AdminPage.vue'
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
@@ -56,11 +57,17 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/admin',
+        name: 'Admin',
+        component: AdminPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: ErrorPage,
         props: { title: 'Ops..this is not the right place', errorCode: '404' },
-    },
+    }
 ]
 
 const router = createRouter({
@@ -71,15 +78,28 @@ const router = createRouter({
 router.beforeEach(async (to, _, next) => {
     const auth = useAuthStore()
     auth.loadNickname()
+    auth.loadRole()
 
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+    const isLoggedIn = auth.isLoggedIn()
+    const userRole = auth.getUserRole()
 
-    if (requiresAuth && !auth.isLoggedIn()) {
+    console.log(`requiresAuth: ${requiresAuth}, isLoggedIn: ${isLoggedIn}, userRole: ${userRole}`)
+
+    if (requiresAuth && !isLoggedIn) {
         return next({ name: 'Login' })
     }
 
-    if (to.name === 'Login' && auth.isLoggedIn()) {
-        return next({ name: 'Dashboard' })
+    if (to.name === 'Dashboard' && userRole === 'admin') {
+        return next({ name: 'Admin' })
+    }
+
+    if (to.name === 'Login' && isLoggedIn) {
+        return next({ name: userRole === 'admin' ? 'Admin' : 'Dashboard' })
+    }
+
+    if (to.meta.requiresAdmin && userRole !== 'admin') {
+        return next({ name: 'Error', params: { title: 'Forbidden', errorCode: '403' } })
     }
 
     next()

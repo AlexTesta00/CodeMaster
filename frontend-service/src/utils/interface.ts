@@ -14,10 +14,10 @@ export interface AuthenticationResponse {
     token?: string
     user?: {
         info: {
-            nickname: string
+            nickname: {value: string}
             email: string
             password: string
-            role: 'admin' | 'user'
+            role: {name: 'admin' | 'user'}
         }
         banned: boolean
         refreshToken: string
