@@ -56,6 +56,10 @@ paths:
       responses:
         '200':
           description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Invalid credentials
 
@@ -198,6 +202,21 @@ components:
         password:
           type: string
 
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User LoggedIn
+        success:
+          type: boolean
+          example: true
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/UserManager'
+
     LogoutRequest:
       type: object
       required:
@@ -249,3 +268,32 @@ components:
           type: string
         nicknameTo:
           type: string
+
+    UserManager:
+      type: object
+      properties:
+        info:
+          $ref: '#/components/schemas/User'
+        banned:
+          type: boolean
+          example: false
+        refreshToken:
+          type: string
+          example: ""
+
+    User:
+      type: object
+      properties:
+        nickname:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          example: johndoe@example.com
+        password:
+          type: string
+          writeOnly: true
+        role:
+          type: string
+          enum: [admin, user]
+          example: user
