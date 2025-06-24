@@ -1,3 +1,11 @@
+## [2.1.1](https://github.com/AlexTesta00/CodeMaster/compare/v2.1.0...v2.1.1) (2025-06-24)
+
+### Bug Fixes
+
+* **api-gateway:** remove duplicate declaration ([cc132a4](https://github.com/AlexTesta00/CodeMaster/commit/cc132a42e7b5bcb987ce507d8b80d3d5bfeaced8))
+* **solution-service:** fix gradle buildMultiLangRunner task ([33a1d42](https://github.com/AlexTesta00/CodeMaster/commit/33a1d42443d57fa3c38482473f9054d63b9f9b35))
+* **solution-service:** resolve detekt warnings ([88c02b6](https://github.com/AlexTesta00/CodeMaster/commit/88c02b6f094b832a603c9e6016e2c22e41219124))
+
 ## [2.1.0](https://github.com/AlexTesta00/CodeMaster/compare/v2.0.1...v2.1.0) (2025-06-19)
 
 ### Features
