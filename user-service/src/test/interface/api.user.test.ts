@@ -121,6 +121,21 @@ describe('Test User API', () => {
       },
       timeout
     )
+
+    it('should correctly return all users', async () => {
+      const response = await request
+        .get('/api/v1/users/')
+        .set('Accept', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(response.body).toHaveProperty('message', 'All users retrieved')
+      expect(response.body).toHaveProperty('success', true)
+      expect(Array.isArray(response.body.user)).toBe(true)
+      expect(response.body.user.length).toBeGreaterThan(0)
+      const user = response.body.user.find((user: any) => user.userInfo.nickname.value === nickname)
+      expect(user).toBeDefined()
+      expect(user.userInfo.nickname.value).toBe(nickname)
+    })
   })
 
   describe('Test /bio', () => {
