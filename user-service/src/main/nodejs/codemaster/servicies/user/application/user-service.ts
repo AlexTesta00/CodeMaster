@@ -6,7 +6,7 @@ import {
   findUser,
   saveDefaultUser,
   updateUserInfo,
-  deleteUser as deleteUserFromRepo,
+  deleteUser as deleteUserFromRepo, getAllUsersFromRepo,
 } from '../infrastructure/user-repository'
 import { isNone, isSome, none, some } from 'fp-ts/Option'
 import { ProfilePicture } from '../domain/profile-picture'
@@ -39,6 +39,9 @@ export const registerNewUser = async (
 export const getAllUserInfo = async (
   nickname: UserId
 ): Promise<Either<Error, UserManager>> => await findUser(nickname)
+
+export const getAllUsers = async (): Promise<Either<Error, Iterable<UserManager>>> =>
+  await getAllUsersFromRepo()
 
 export const changeUserBio = async (
   nickname: UserId,

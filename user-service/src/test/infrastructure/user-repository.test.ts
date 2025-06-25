@@ -11,7 +11,7 @@ import { createDefaultLevel } from '../../main/nodejs/codemaster/servicies/user/
 import { isSome, none } from 'fp-ts/Option'
 import {
   deleteUser,
-  findUser,
+  findUser, getAllUsersFromRepo,
   saveAdvancedUser,
   saveDefaultUser,
   updateUserInfo,
@@ -147,6 +147,21 @@ describe('Test user repository', () => {
         expect(error.message).toBe('User not found')
       },
       timeout
+    )
+
+    it(
+      'should correctly return all users',
+      async () => {
+        await saveAdvancedUser(newUserManager!)
+        const result = await getAllUsersFromRepo()
+        expect(isRight(result)).toBeTruthy()
+        if(isRight(result)){
+          const array = Array.from(result.right)
+          expect(array.length).toBe(1)
+          expect(array[0].userInfo.nickname.value).toEqual(nickname)
+          expect(isSome(array[0].userInfo.bio)).toBeTruthy()
+        }
+      }
     )
   })
 
