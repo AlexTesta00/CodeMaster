@@ -9,6 +9,7 @@ import {
   deleteUser,
   getAllUserInfo,
   registerNewUser,
+  getAllUsers as getAllUsersFromService
 } from '../application/user-service'
 import { Either, isLeft } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
@@ -83,6 +84,11 @@ export const removeUser = async (req: Request, res: Response): Promise<void> =>
 export const computeLevel = async (req: Request, res: Response): Promise<void> =>
   pipe(await computeUserLevel({ value: req.params.nickname }), (result) =>
     handleResult(res, result, OK, NOT_FOUND, 'User level computed')
+  )
+
+export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
+  pipe(await getAllUsersFromService(), (result) =>
+    handleResult(res, result, OK, NOT_FOUND, 'All users retrieved')
   )
 
 export const healthCheck = async (req: Request, res: Response): Promise<void> => {

@@ -10,6 +10,7 @@ import {
   updateUserLanguages,
   updateUserProfilePicture,
   updateUserTrophies,
+  getAllUsers
 } from './user-controller'
 
 const userRouter: Router = Router()
@@ -17,6 +18,7 @@ const userRouter: Router = Router()
 userRouter.get('/status', healthCheck)
 userRouter.post('/register', registerUser)
 userRouter.get('/:nickname', getUser)
+userRouter.get('/', getAllUsers)
 userRouter.put('/bio', updateUserBio)
 userRouter.put('/profile-picture', updateUserProfilePicture)
 userRouter.put('/cv', updateUserCV)

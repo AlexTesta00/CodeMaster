@@ -1,12 +1,12 @@
 import { UserManager } from '../domain/user-manager'
 import { User, UserId } from '../domain/user'
-import { chain, Either, left, right } from 'fp-ts/Either'
+import { chain, Either, isRight, left, right } from 'fp-ts/Either'
 import { createDefaultUser } from '../domain/user-factory'
 import { UserManagerModel } from './schema'
 import { UnknownError, UserNotFound } from './repository-error'
 import { toUserManager, toUserManagerModel } from './conversion'
 import { pipe } from 'fp-ts/function'
-import { tryCatch, fromEither, chainW } from 'fp-ts/TaskEither'
+import { tryCatch, fromEither, chainW, sequenceArray } from 'fp-ts/TaskEither'
 
 export const saveDefaultUser = async (
   userInfo: User
@@ -57,6 +57,18 @@ export const findUser = async (nickname: UserId): Promise<Either<Error, UserMana
     chain((either) => either),
     chain((userDoc) => toUserManager(userDoc))
   )
+
+export const getAllUsersFromRepo = async (): Promise<Either<Error, Iterable<UserManager>>> => {
+  try {
+    const userDocuments = await UserManagerModel.find().exec()
+    if (userDocuments.length === 0) {
+      return left(new UserNotFound('No users found'))
+    }
+    return right(userDocuments.map(toUserManager).filter(isRight).map((user) => user.right))
+  }catch (error) {
+    return left(error instanceof Error ? error : new UnknownError('Unknown error'))
+  }
+}
 
 export const updateUserInfo = async (
   nickname: UserId,
