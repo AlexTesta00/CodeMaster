@@ -1,6 +1,6 @@
-package codemaster.servicies.generator.domain.codegen
+package codemaster.services.generator.domain.codegen
 
-import codemaster.servicies.generator.domain.Language
+import codemaster.services.generator.domain.Language
 
 data class GeneratedCodeEntry(
     val language: Language,

@@ -1,8 +1,7 @@
-package codemaster.servicies.generator.domain.codegen
-
-import codemaster.servicies.generator.domain.ExampleCase
-import codemaster.servicies.generator.domain.FunctionSignature
-import codemaster.servicies.generator.domain.Language
+import codemaster.services.generator.domain.ExampleCase
+import codemaster.services.generator.domain.FunctionSignature
+import codemaster.services.generator.domain.Language
+import codemaster.services.generator.domain.codegen.LanguageGenerator
 
 class ScalaLanguageGenerator : LanguageGenerator {
 
@@ -22,8 +21,8 @@ class ScalaLanguageGenerator : LanguageGenerator {
 
     override fun generateTests(signature: FunctionSignature, examples: List<ExampleCase>): String {
         return examples.mapIndexed { index, example ->
-            val inputArgs = example.inputs.joinToString(", ") { toScalaLiteral(it) }
-            val expected = toScalaLiteral(example.output)
+            val inputArgs = example.inputs.joinToString(", ") { toLiteral(it, Language.Scala) }
+            val expected = toLiteral(example.output, Language.Scala)
 
             """
             test("test${index + 1}") {
@@ -34,12 +33,15 @@ class ScalaLanguageGenerator : LanguageGenerator {
         }.joinToString("\n\n")
     }
 
-    private fun toScalaLiteral(value: Any): String {
+    fun toLiteral(value: Any?, language: Language): String {
         return when (value) {
             is String -> "\"$value\""
-            is Int -> value.toString()
-            is List<*> -> value.joinToString(", ", "List(", ")") { toScalaLiteral(it!!) }
-            is Array<*> -> value.joinToString(", ", "Array(", ")") { toScalaLiteral(it!!) }
+            is Int, is Double, is Boolean -> value.toString()
+            is List<*> -> value.joinToString(", ", "List(", ")") { toLiteral(it, language) }
+            is Map<*, *> -> value.entries.joinToString(", ", "Map(", ")") {
+                "${toLiteral(it.key, language)} -> ${toLiteral(it.value, language)}"
+            }
+            is Array<*> -> value.joinToString(", ", "Array(", ")") { toLiteral(it, language) }
             else -> value.toString()
         }
     }

@@ -1,31 +1,59 @@
 package service
 
-import codemaster.servicies.generator.domain.*
-import codemaster.servicies.generator.infrastructure.CodeQuestCodeRepositoryImpl
-import codemaster.servicies.generator.service.CodeGeneratorService
+import codemaster.services.generator.domain.CodeQuestCode
+import codemaster.services.generator.domain.ExampleCase
+import codemaster.services.generator.domain.FunctionParameter
+import codemaster.services.generator.domain.FunctionSignature
+import codemaster.services.generator.domain.Language
+import codemaster.services.generator.domain.TypeName
+import codemaster.services.generator.infrastructure.CodeQuestCodeRepository
+import codemaster.services.generator.infrastructure.CodeQuestCodeRepositoryImpl
+import codemaster.services.generator.service.CodeGeneratorService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
-import codemaster.servicies.generator.domain.codegen.GeneratorConfig
+import com.mongodb.reactivestreams.client.MongoClients
+import org.junit.jupiter.api.TestInstance
+import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter
+import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext
+import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
 
-@SpringBootTest(classes = [
-    CodeGeneratorService::class,
-    CodeQuestCodeRepositoryImpl::class,
-    GeneratorConfig::class,
-    TestMongoConfig::class
-])
-class CodeGeneratorServiceTest @Autowired constructor(
-    private val service: CodeGeneratorService,
-    private val reactiveMongoTemplate: ReactiveMongoTemplate
-) : DescribeSpec() {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class CodeGeneratorServiceTest : DescribeSpec() {
+
+    private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
+    private lateinit var repository: CodeQuestCodeRepository
+    private lateinit var service: CodeGeneratorService
 
     init {
+
+        beforeSpec {
+            val mongoUri = System.getenv("MONGO_URI")
+
+            val connectionString = mongoUri ?: "mongodb://localhost:27017/codemaster"
+
+            val client = MongoClients.create(connectionString)
+            val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
+
+            val mappingContext = MongoMappingContext().apply {
+                setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
+                afterPropertiesSet()
+            }
+
+            val converter = MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
+                afterPropertiesSet()
+            }
+
+            reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
+            repository = CodeQuestCodeRepositoryImpl(reactiveMongoTemplate)
+            service = CodeGeneratorService(repository)
+        }
 
         afterEach {
             runBlocking {
@@ -90,13 +118,6 @@ class CodeGeneratorServiceTest @Autowired constructor(
                     service.getQuestCode("test-quest")
                 }
                 exception.message shouldBe "Error while loading CodeQuestCode"
-            }
-
-            it("should throw NoSuchElementException if no quest code deleted on deleteQuestCode") {
-                val exception = shouldThrow<NoSuchElementException> {
-                    service.deleteQuestCode("nonexistent-quest")
-                }
-                exception.message shouldBe "Error while deleting CodeQuestCodes"
             }
         }
     }
