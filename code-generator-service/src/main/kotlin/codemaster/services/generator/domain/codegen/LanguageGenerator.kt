@@ -1,7 +1,7 @@
-package codemaster.servicies.generator.domain.codegen
+package codemaster.services.generator.domain.codegen
 
-import codemaster.servicies.generator.domain.ExampleCase
-import codemaster.servicies.generator.domain.FunctionSignature
+import codemaster.services.generator.domain.ExampleCase
+import codemaster.services.generator.domain.FunctionSignature
 
 interface LanguageGenerator {
     fun generateTemplate(signature: FunctionSignature): String

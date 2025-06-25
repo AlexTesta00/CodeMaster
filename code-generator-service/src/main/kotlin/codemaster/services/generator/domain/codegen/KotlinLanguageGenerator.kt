@@ -1,10 +1,10 @@
-package codemaster.servicies.generator.domain.codegen
-
-import codemaster.servicies.generator.domain.ExampleCase
-import codemaster.servicies.generator.domain.FunctionSignature
-import codemaster.servicies.generator.domain.Language
+import codemaster.services.generator.domain.ExampleCase
+import codemaster.services.generator.domain.FunctionSignature
+import codemaster.services.generator.domain.Language
+import codemaster.services.generator.domain.codegen.LanguageGenerator
 
 class KotlinLanguageGenerator : LanguageGenerator {
+
     override fun generateTemplate(signature: FunctionSignature): String {
         val params = signature.parameters.joinToString(", ") {
             "${it.name}: ${it.type.mapTo(Language.Kotlin)}"
@@ -20,8 +20,8 @@ class KotlinLanguageGenerator : LanguageGenerator {
 
     override fun generateTests(signature: FunctionSignature, examples: List<ExampleCase>): String {
         return examples.mapIndexed { index, example ->
-            val inputArgs = example.inputs.joinToString(", ") { toKotlinLiteral(it) }
-            val expected = toKotlinLiteral(example.output)
+            val inputArgs = example.inputs.joinToString(", ") { toLiteral(it, Language.Kotlin) }
+            val expected = toLiteral(example.output, Language.Kotlin)
 
             """
             @Test
@@ -33,13 +33,16 @@ class KotlinLanguageGenerator : LanguageGenerator {
         }.joinToString("\n\n")
     }
 
-    private fun toKotlinLiteral(value: Any): String {
+    fun toLiteral(value: Any?, language: Language): String {
         return when (value) {
             is String -> "\"$value\""
-            is Int -> value.toString()
-            is List<*> -> value.joinToString(", ", "listOf(", ")") { toKotlinLiteral(it!!) }
-            is Array<*> -> value.joinToString(", ", "arrayOf(", ")") { toKotlinLiteral(it!!) }
-            else -> value.toString() // fallback
+            is Int, is Double, is Boolean -> value.toString()
+            is List<*> -> value.joinToString(", ", "listOf(", ")") { toLiteral(it, language) }
+            is Map<*, *> -> value.entries.joinToString(", ", "mapOf(", ")") {
+                "${toLiteral(it.key, language)} to ${toLiteral(it.value, language)}"
+            }
+            is Array<*> -> value.joinToString(", ", "arrayOf(", ")") { toLiteral(it, language) }
+            else -> value.toString()
         }
     }
 }

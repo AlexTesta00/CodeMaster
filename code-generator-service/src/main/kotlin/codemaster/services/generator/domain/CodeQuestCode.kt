@@ -1,6 +1,6 @@
-package codemaster.servicies.generator.domain
+package codemaster.services.generator.domain
 
-import codemaster.servicies.generator.domain.codegen.GeneratedCodeEntry
+import codemaster.services.generator.domain.codegen.GeneratedCodeEntry
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 

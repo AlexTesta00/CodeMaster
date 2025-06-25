@@ -1,4 +1,4 @@
-package codemaster.servicies.generator.domain
+package codemaster.services.generator.domain
 
 data class FunctionParameter(
     val name: String,

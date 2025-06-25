@@ -1,11 +1,11 @@
 package infrastructure
 
-import codemaster.servicies.generator.Application
-import codemaster.servicies.generator.domain.CodeQuestCode
-import codemaster.servicies.generator.domain.Language
-import codemaster.servicies.generator.domain.codegen.GeneratedCodeEntry
-import codemaster.servicies.generator.infrastructure.CodeQuestCodeRepository
-import codemaster.servicies.generator.infrastructure.CodeQuestCodeRepositoryImpl
+import codemaster.services.generator.Application
+import codemaster.services.generator.domain.CodeQuestCode
+import codemaster.services.generator.domain.Language
+import codemaster.services.generator.domain.codegen.GeneratedCodeEntry
+import codemaster.services.generator.infrastructure.CodeQuestCodeRepository
+import codemaster.services.generator.infrastructure.CodeQuestCodeRepositoryImpl
 import com.mongodb.reactivestreams.client.MongoClients
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.transitions.Mongod
@@ -25,9 +25,7 @@ import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
 import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.test.context.ActiveProfiles
 
-@ActiveProfiles("test")
 @SpringBootTest(classes = [Application::class])
 class CodeQuestCodeRepositoryTest : DescribeSpec(){
 
@@ -35,7 +33,6 @@ class CodeQuestCodeRepositoryTest : DescribeSpec(){
     private var startedEmbeddedMongo = false
     private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
     private lateinit var repository: CodeQuestCodeRepository
-
 
     init {
         beforeSpec {

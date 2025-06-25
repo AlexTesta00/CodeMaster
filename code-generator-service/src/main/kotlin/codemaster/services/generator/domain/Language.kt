@@ -1,4 +1,4 @@
-package codemaster.servicies.generator.domain
+package codemaster.services.generator.domain
 
 enum class Language(val code: String) {
     Kotlin("kotlin"),
