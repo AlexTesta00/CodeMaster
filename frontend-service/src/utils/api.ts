@@ -5,10 +5,10 @@ import type {
     CodeQuestResponse,
     CodeQuestsResponse,
     Difficulty,
-    Example, ExecutionResult,
+    Example, ExecutionResult, GetAllUserResponse,
     Language,
     Problem, Solution, SolutionResponse,
-    SolutionsResponse,
+    SolutionsResponse, UserManager,
     UserManagerResponse,
 } from './interface.ts'
 
@@ -305,4 +305,35 @@ const convertSolution = (sol: any): Solution => {
         solved: sol.solved,
         testCode: sol.testCode
     }
+}
+
+export const getAllUsers = async (): Promise<GetAllUserResponse> => {
+    const response = await axios.get(`${USER_URL}`)
+    return {
+        message: response.data.message,
+        success: response.data.success,
+        user: response.data.user as UserManager[]
+    }
+}
+
+export const banUser = async (
+  nicknameFrom: string,
+  nicknameTo: string
+): Promise<{ message: string; success: boolean }> => {
+    const response = await axios.patch(`${AUTHENTICATION_URL}ban`, {
+        nicknameFrom,
+        nicknameTo
+    })
+    return response.data
+}
+
+export const unbanUser = async (
+  nicknameFrom: string,
+  nicknameTo: string
+): Promise<{ message: string; success: boolean }> => {
+    const response = await axios.patch(`${AUTHENTICATION_URL}unban`, {
+        nicknameFrom,
+        nicknameTo
+    })
+    return response.data
 }

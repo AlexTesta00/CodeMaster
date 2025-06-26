@@ -85,6 +85,12 @@ export interface UserManagerResponse {
     user: UserManager
 }
 
+export interface GetAllUserResponse {
+    message: string
+    success: boolean
+    user: UserManager[]
+}
+
 export interface Example {
     input: string
     output: string

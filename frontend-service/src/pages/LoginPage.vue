@@ -31,12 +31,12 @@ const handleSubmit = async () => {
         if (page.value === 'login') {
             isLoading.value = true
             const response = await loginUser(nickname.value, password.value)
-          console.log('Login response:', response.user?.info)
             if (response.success) {
                 await successToast('Login Successful')
                 isLoading.value = false
                 authStore.setNickname(nickname.value)
                 authStore.setRole(response.user!.info.role.name)
+                authStore.setBanned(response.user!.banned)
                 goToCorrectPage(response.user!.info.role.name)
             } else {
                 await errorToast(authenticationTraductor(response.message))
