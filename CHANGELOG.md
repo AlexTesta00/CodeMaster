@@ -1,3 +1,18 @@
+## [3.0.0](https://github.com/AlexTesta00/CodeMaster/compare/v2.1.1...v3.0.0) (2025-06-26)
+
+### ⚠ BREAKING CHANGES
+
+* **authentication:** now when user logged in, the response return a user information
+
+### Features
+
+* **authentication:** now when user logged in, the response return a user information ([2f483bb](https://github.com/AlexTesta00/CodeMaster/commit/2f483bb86ffa994e001f10c84ab353c4551dc775))
+* **code-generator:** add code generation api routes and container ([a71ce75](https://github.com/AlexTesta00/CodeMaster/commit/a71ce75cf4677ce89e575e5b4421028d5cb4b731))
+* **generator-service:** add generator service model and infrastructure ([08cd527](https://github.com/AlexTesta00/CodeMaster/commit/08cd527354da23e5b8a434235cd67771566b2f22))
+* **generator-service:** add generator-service service and tests ([7794436](https://github.com/AlexTesta00/CodeMaster/commit/7794436b181e9098a2ce6c1c33b01287a39b75c9))
+* **generator-service:** add new service generatore service ([1b25e73](https://github.com/AlexTesta00/CodeMaster/commit/1b25e73c0fbdee8ec466b1d2ff497d99d3d2d5fb))
+* **user:** now it's possible to get all users info ([92046b9](https://github.com/AlexTesta00/CodeMaster/commit/92046b93a7035c6890689264eaf9f4d5ff63f1b9))
+
 ## [2.1.1](https://github.com/AlexTesta00/CodeMaster/compare/v2.1.0...v2.1.1) (2025-06-24)
 
 ### Bug Fixes
