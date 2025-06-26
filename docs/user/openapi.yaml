@@ -2,22 +2,39 @@ openapi: 3.0.3
 info:
   title: User Service API
   version: 1.0.0
-  description: API per la gestione degli utenti, trofei e livelli nel sistema.
+  description: API for managing users, trophies, and levels in the system.
+
 servers:
   - url: /api/v1
+
 paths:
-  /users/status:
+  /users:
     get:
-      summary: Verifica lo stato del servizio
+      summary: Retrieve the list of all users
       responses:
         '200':
-          description: Tutti i servizi sono attivi
+          description: All users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: No users found
+
+  /users/status:
+    get:
+      summary: Check the service status
+      responses:
+        '200':
+          description: All services are up
         '500':
-          description: Servizi esterni non raggiungibili
+          description: External services are unreachable
 
   /users/register:
     post:
-      summary: Registra un nuovo utente
+      summary: Register a new user
       requestBody:
         required: true
         content:
@@ -29,13 +46,13 @@ paths:
                   type: string
       responses:
         '200':
-          description: Utente registrato con successo
+          description: User successfully registered
         '400':
-          description: Errore di validazione
+          description: Validation error
 
   /users/{nickname}:
     get:
-      summary: Ottiene tutte le informazioni su un utente
+      summary: Get all information about a user
       parameters:
         - name: nickname
           in: path
@@ -44,12 +61,16 @@ paths:
             type: string
       responses:
         '200':
-          description: Info utente
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '404':
-          description: Utente non trovato
+          description: User not found
 
     delete:
-      summary: Cancella un utente
+      summary: Delete a user
       parameters:
         - name: nickname
           in: path
@@ -58,13 +79,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Utente eliminato
+          description: User deleted
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/bio:
     put:
-      summary: Aggiorna la biografia dell'utente
+      summary: Update user bio
       requestBody:
         required: true
         content:
@@ -78,13 +99,13 @@ paths:
                   type: string
       responses:
         '200':
-          description: Biografia aggiornata
+          description: Bio updated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/profile-picture:
     put:
-      summary: Aggiorna l'immagine profilo
+      summary: Update user profile picture
       requestBody:
         required: true
         content:
@@ -98,13 +119,13 @@ paths:
                   type: string
       responses:
         '200':
-          description: Immagine aggiornata
+          description: Profile picture updated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/cv:
     put:
-      summary: Aggiorna il CV
+      summary: Update user CV
       requestBody:
         required: true
         content:
@@ -118,13 +139,13 @@ paths:
                   type: string
       responses:
         '200':
-          description: CV aggiornato
+          description: CV updated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/languages:
     put:
-      summary: Aggiorna le lingue conosciute dall'utente
+      summary: Update known languages for the user
       requestBody:
         required: true
         content:
@@ -140,13 +161,13 @@ paths:
                     type: string
       responses:
         '200':
-          description: Lingue aggiornate
+          description: Languages updated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/trophies:
     put:
-      summary: Aggiorna i trofei dell'utente
+      summary: Update user trophies
       requestBody:
         required: true
         content:
@@ -162,13 +183,13 @@ paths:
                     type: string
       responses:
         '200':
-          description: Trofei aggiornati
+          description: Trophies updated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /users/level/{nickname}:
     get:
-      summary: Calcola il livello utente
+      summary: Calculate user level
       parameters:
         - name: nickname
           in: path
@@ -177,13 +198,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Livello calcolato
+          description: User level calculated
         '404':
-          description: Utente non trovato
+          description: User not found
 
   /trophies/create:
     post:
-      summary: Crea un nuovo trofeo
+      summary: Create a new trophy
       requestBody:
         required: true
         content:
@@ -201,13 +222,13 @@ paths:
                   type: integer
       responses:
         '200':
-          description: Trofeo creato
+          description: Trophy created
         '400':
-          description: Errore nei dati
+          description: Invalid data
 
   /trophies/trophies/{trophyId}:
     delete:
-      summary: Elimina un trofeo
+      summary: Delete a trophy
       parameters:
         - name: trophyId
           in: path
@@ -216,22 +237,22 @@ paths:
             type: string
       responses:
         '200':
-          description: Trofeo eliminato
+          description: Trophy deleted
         '404':
-          description: Trofeo non trovato
+          description: Trophy not found
 
   /trophies/:
     get:
-      summary: Ottieni tutti i trofei
+      summary: Retrieve all trophies
       responses:
         '200':
-          description: Lista dei trofei
+          description: Trophy list
         '400':
-          description: Errore
+          description: Error retrieving trophies
 
   /levels/create:
     post:
-      summary: Crea un nuovo livello
+      summary: Create a new level
       requestBody:
         required: true
         content:
@@ -249,13 +270,13 @@ paths:
                   type: string
       responses:
         '200':
-          description: Livello creato
+          description: Level created
         '404':
-          description: Errore
+          description: Error
 
   /levels/{grade}:
     delete:
-      summary: Elimina un livello
+      summary: Delete a level
       parameters:
         - name: grade
           in: path
@@ -264,15 +285,43 @@ paths:
             type: integer
       responses:
         '200':
-          description: Livello eliminato
+          description: Level deleted
         '404':
-          description: Non trovato
+          description: Level not found
 
   /levels/:
     get:
-      summary: Ottieni tutti i livelli
+      summary: Retrieve all levels
       responses:
         '200':
-          description: Lista livelli
+          description: List of levels
         '404':
-          description: Errore
+          description: Error
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        nickname:
+          type: string
+          example: johndoe
+        bio:
+          type: string
+          example: Developer, gamer, linguist.
+        profilePicture:
+          type: string
+          example: https://example.com/img/profile.jpg
+        cv:
+          type: string
+          example: https://example.com/cv/johndoe.pdf
+        languages:
+          type: array
+          items:
+            type: string
+          example: [ "English", "Italian", "French" ]
+        trophies:
+          type: array
+          items:
+            type: string
+          example: [ "trophy123", "trophy456" ]

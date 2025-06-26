@@ -10,7 +10,7 @@ import {
 import {
   banUser as banUserFromService,
   deleteUser as deleteUserFromService,
-  findAllUsers as getAllUsersFromService,
+  findAllUsers as getAllUsersFromService, findUserByNicknameService,
   loginUser as login,
   logoutUser as logout,
   refreshAccessUserToken,
@@ -19,7 +19,7 @@ import {
   updateUserEmail,
   updateUserPassword,
 } from '../application/authentication-service'
-import { isRight } from 'fp-ts/Either'
+import { isLeft, isRight } from 'fp-ts/Either'
 import {
   isRabbitConnected,
   publishUserDeleted,
@@ -52,8 +52,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { nickname, password } = req.body
 
   const token = await login({ value: nickname }, password)
+  const user = await findUserByNicknameService({value: nickname})
 
-  if (isRight(token)) {
+  if (isRight(token) && isRight(user)) {
     res.cookie('auth_token', token.right, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -62,11 +63,14 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     })
     res
       .status(OK)
-      .json({ message: 'User LoggedIn', success: true, token: token.right })
+      .json({ message: 'User LoggedIn', success: true, token: token.right, user: user.right })
       .end()
   } else {
-    const error = token.left
-    res.status(BAD_REQUEST).json({ message: error.message, success: false })
+    if (isLeft(token)) {
+      res.status(BAD_REQUEST).json({ message: token.left.message, success: false })
+    }else if(isLeft(user)) {
+      res.status(BAD_REQUEST).json({ message: user.left.message, success: false })
+    }
   }
 }
 

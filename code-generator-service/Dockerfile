@@ -1,0 +1,20 @@
+FROM eclipse-temurin:21.0.7_6-jdk AS builder
+WORKDIR /codemaster-generator-service
+
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts ./
+COPY . .
+
+RUN chmod +x ./gradlew
+RUN ./gradlew clean build --no-daemon --stacktrace -x test
+
+FROM eclipse-temurin:21.0.7_6-jre
+WORKDIR /codemaster-generator-service
+
+COPY --from=builder /codemaster-generator-service/build/libs/codemaster-generator-service.jar codemaster-generator-service.jar
+
+EXPOSE 4008
+
+ENTRYPOINT ["java", "-jar", "codemaster-generator-service.jar"]
+
