@@ -198,6 +198,40 @@ services:
       - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
+  mongo-generator:
+    image: mongo
+    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
+    ports:
+      - '27022:27017'
+    volumes:
+      - mongo_data_generator:/codemaster/generator/db
+
+  mongo-express-generator:
+    image: mongo-express
+    restart: always
+    ports:
+      - '8086:8081'
+    depends_on:
+      mongo-generator:
+        condition: service_started
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo-generator:27017/codemaster-generator-db"
+
+  codemaster-generator-service:
+    build:
+      context: ./code-generator-service
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '4008:4008'
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo-generator:
+        condition: service_started
+    env_file:
+      - ./code-generator-service/.env
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -214,6 +248,8 @@ services:
       codemaster-solution-service:
         condition: service_started
       codemaster-community-service:
+        condition: service_started
+      codemaster-generator-service:
         condition: service_started
 
   codemaster-docs:
@@ -238,6 +274,8 @@ services:
       codemaster-solution-service:
         condition: service_started
       codemaster-community-service:
+        condition: service_started
+      codemaster-generator-service:
         condition: service_started
     volumes:
       - ./populate-db:/app
@@ -268,5 +306,6 @@ volumes:
   mongo_data_codequest:
   mongo_data_solution:
   mongo_data_community:
+  mongo_data_generator:
   runner-cache:
   rabbitmq_data:

@@ -21,5 +21,5 @@ tasks.register("build"){
     dependsOn(":user-service:build")
     dependsOn(":solution-service:build")
     dependsOn(":community-service:build")
-    dependsOn(":frontend-service:build")
+    dependsOn(":code-generator-service:build")
 }

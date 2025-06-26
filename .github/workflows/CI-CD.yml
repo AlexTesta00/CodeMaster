@@ -95,6 +95,15 @@ jobs:
           flags: solution-service
           name: codecov-umbrella
           fail_ci_if_error: true
+      - name: Upload coverage for generator-service
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: code-generator-service/build/reports/kover/report.xml
+          flags: code-generator-service
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
   release:
     needs: build-and-test
@@ -129,7 +138,7 @@ jobs:
       IMAGE_PREFIX: wealecs
     strategy:
       matrix:
-        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service, frontend-service]
+        service: [authentication-service, codequest-service, user-service, multi-lang-runner, solution-service, community-service, code-generator-service]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
