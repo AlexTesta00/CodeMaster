@@ -1,3 +1,9 @@
+## [3.0.2](https://github.com/AlexTesta00/CodeMaster/compare/v3.0.1...v3.0.2) (2025-06-28)
+
+### Bug Fixes
+
+* **deps:** update node.js dependencies ([#156](https://github.com/AlexTesta00/CodeMaster/issues/156)) ([8b2aabf](https://github.com/AlexTesta00/CodeMaster/commit/8b2aabf517f13e925d9f0847b27aab6e1a8ff4e9))
+
 ## [3.0.1](https://github.com/AlexTesta00/CodeMaster/compare/v3.0.0...v3.0.1) (2025-06-27)
 
 ### Bug Fixes
