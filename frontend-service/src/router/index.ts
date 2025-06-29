@@ -11,6 +11,8 @@ import ChoicePage from '../pages/ChoicePage.vue'
 import { useAuthStore } from '../utils/store.ts'
 import AdminPage from '../pages/AdminPage.vue'
 import FunctionExamplesPage from "../pages/FunctionExamplesPage.vue";
+import { logoutUser } from '../utils/api.ts'
+import { errorToast, successToast } from '../utils/notify.ts'
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
@@ -64,6 +66,12 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
+        path: '/banned',
+        name: 'Banned',
+        component: ErrorPage,
+        props: { title: 'You are banned', errorCode: '403' },
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: ErrorPage,
@@ -86,6 +94,7 @@ router.beforeEach(async (to, _, next) => {
     const auth = useAuthStore()
     auth.loadNickname()
     auth.loadRole()
+    auth.loadBanned()
 
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
     const isLoggedIn = auth.isLoggedIn()
@@ -95,6 +104,19 @@ router.beforeEach(async (to, _, next) => {
 
     if (requiresAuth && !isLoggedIn) {
         return next({ name: 'Login' })
+    }
+
+    if(requiresAuth && auth.banned){
+        if (!auth.nickname) return
+        try {
+            await logoutUser(auth.nickname)
+            auth.clearNickname()
+            await successToast('User logged out successfully')
+            await router.push('/')
+        } catch {
+            await errorToast('User not logged out')
+        }
+        return next({ name: 'Banned' })
     }
 
     if (to.name === 'Dashboard' && userRole === 'admin') {

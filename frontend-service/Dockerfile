@@ -1,9 +1,13 @@
-FROM node:20-slim
+FROM node:20-slim AS builder
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
-WORKDIR /codemaster-frontend-service
+WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
+FROM node:20-slim
+RUN npm install -g serve
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+EXPOSE 5173
+CMD ["serve", "dist", "--listen", "5173", "--single"]

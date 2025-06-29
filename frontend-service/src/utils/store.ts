@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useAuthStore = defineStore('auth', () => {
     const nickname = ref<string | null>(null)
     const userRole = ref<'admin' | 'user'>('user')
+    const banned = ref<boolean>(false)
 
     const setNickname = (newNickname: string) => {
         nickname.value = newNickname
@@ -13,6 +14,11 @@ export const useAuthStore = defineStore('auth', () => {
     const setRole = (role: 'admin' | 'user') => {
         userRole.value = role
         sessionStorage.setItem('userRole', role)
+    }
+
+    const setBanned = (isBanned: boolean) => {
+        banned.value = isBanned
+        sessionStorage.setItem('banned', JSON.stringify(isBanned))
     }
 
     const loadNickname = () => {
@@ -26,6 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
         const storedRole = sessionStorage.getItem('userRole')
         if (storedRole) {
             userRole.value = storedRole as 'admin' | 'user'
+        }
+    }
+
+    const loadBanned = () => {
+        const storedBanned = sessionStorage.getItem('banned')
+        if (storedBanned) {
+            banned.value = JSON.parse(storedBanned)
         }
     }
 
@@ -48,5 +61,8 @@ export const useAuthStore = defineStore('auth', () => {
         loadNickname,
         clearNickname,
         isLoggedIn,
+        banned,
+        setBanned,
+        loadBanned
     }
 })
