@@ -51,10 +51,10 @@ class ApiTest (
     val request = GenerateRequestDto(
         questId = questId,
         functionName = "foo",
-        parameters = listOf(FunctionParameterDto(name = "x", typeName = "int")),
-        returnType = "int",
+        parameters = listOf(FunctionParameterDto(name = "x", typeName = "Map<string, string>")),
+        returnType = "Map<int, int>",
         examples = listOf(
-            ExampleCaseDto(inputs = listOf("1"), output = "2")
+            ExampleCaseDto(inputs = listOf("{si:no}"), output = "{2:1}")
         ),
         languages = listOf("Kotlin", "Java")
     )

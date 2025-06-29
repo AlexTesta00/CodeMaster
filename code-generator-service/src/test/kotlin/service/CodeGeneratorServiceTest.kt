@@ -61,15 +61,15 @@ class CodeGeneratorServiceTest : DescribeSpec() {
             }
         }
 
-        describe("CodeGeneratorService") {
+        describe("CodeGeneratorServiceTest") {
 
             it("should generate and save quest code") {
                 val signature = FunctionSignature(
                     name = "foo",
                     parameters = listOf(FunctionParameter("x", TypeName("Int"))),
-                    returnType = TypeName("Int")
+                    returnType = TypeName("Map<Int,Int>")
                 )
-                val examples = listOf(ExampleCase(inputs = listOf(1), output = 2))
+                val examples = listOf(ExampleCase(inputs = listOf(1), output = mapOf(1 to 2, 2 to 3)))
                 val languages = listOf(Language.Kotlin, Language.Java)
 
                 val codeQuestCode = service.generateQuestCode("test-quest", signature, examples, languages)

@@ -59,10 +59,7 @@ data class TypeName(val raw: String) {
     }
 
     private fun mapBaseToJava(base: String): String = when (base) {
-        "int" -> "int"
-        "double" -> "double"
         "string" -> "String"
-        "boolean" -> "boolean"
         else -> base
     }
 
