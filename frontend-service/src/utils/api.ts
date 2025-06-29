@@ -1,11 +1,12 @@
 import axios from 'axios'
 import type {
-    AuthenticationResponse,
+    AllowedTypeName,
+    AuthenticationResponse, CodeGeneratorResponse,
     CodeQuest,
     CodeQuestResponse,
     CodeQuestsResponse,
     Difficulty,
-    Example, ExecutionResult,
+    Example, ExecutionResult, FunctionExample, FunctionParameter, GeneratorCodeRequest,
     Language,
     Problem, Solution, SolutionResponse,
     SolutionsResponse,
@@ -16,6 +17,7 @@ const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
 const USER_URL = 'http://localhost/api/v1/users/'
 const CODEQUEST_URL = 'http://localhost/api/v1/codequests/'
 const SOLUTION_URL = 'http://localhost/api/v1/solutions/'
+const GENERATOR_URL = 'http://localhost/api/v1/code-generator/'
 
 axios.defaults.withCredentials = true
 
@@ -237,6 +239,31 @@ export const getSolutionsByCodequest = async (
         message: response.statusText,
         success: response.status === 200,
         solutions
+    }
+}
+
+export const generateCodequestCodes = async (
+    questId: string,
+    functionName: string,
+    parameters: FunctionParameter[],
+    returnType: AllowedTypeName,
+    examples: FunctionExample[],
+    languages: string[]
+): Promise<CodeGeneratorResponse> => {
+    const payload: GeneratorCodeRequest = {
+        questId,
+        functionName,
+        parameters,
+        returnType,
+        examples,
+        languages
+    }
+
+    const response = await axios.post(`${GENERATOR_URL}generate`, payload)
+    return {
+        generatedCodes: response.data,
+        message: response.statusText,
+        success: response.status == 200,
     }
 }
 

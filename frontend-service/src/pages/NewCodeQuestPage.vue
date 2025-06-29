@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
 import ButtonWithImage from '../components/ButtonWithImage.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
-import router from '../router'
-import {addNewCodequest} from "../utils/api.ts";
-import type { Language } from "../utils/interface.ts";
-import {errorToast} from "../utils/notify.ts";
-import TestEditor from "../components/TestEditor.vue";
+import type {AllowedTypeName, FunctionParameter, Language} from "../utils/interface.ts";
+import FunctionEditor from "../components/FunctionEditor.vue";
+import {useRouter} from "vue-router";
+import {codequestStore} from "../utils/codequest-store.ts";
+
+const router = useRouter()
+const codeQuestStore = codequestStore()
 
 const title = ref('')
 const description = ref('')
 const languages = ref<Language[]>([])
-const examples = ref([
-  { input: '', output: '', explanation: '' }
-])
 const constraints = ref('')
+const functionName = ref('')
+const parameters = ref<FunctionParameter[]>([])
+const returnType = ref<AllowedTypeName>('int')
 
 const isBackDialogOpen = ref(false)
 const isQuestDialogOpen = ref(false)
@@ -47,16 +49,6 @@ const isLanguageSelected = (lang: Language): boolean => {
   return languages.value.some(l => l.name === lang.name)
 }
 
-const addExample = () => {
-  examples.value.push({ input: '', output: '', explanation: '' })
-}
-
-const removeExample = (index: number) => {
-  if (examples.value.length > 1) {
-    examples.value.splice(index, 1)
-  }
-}
-
 const toggleLanguage = (lang: Language) => {
   const exists = isLanguageSelected(lang)
   if (exists) {
@@ -66,14 +58,19 @@ const toggleLanguage = (lang: Language) => {
   }
 }
 
-const startDragging = (e: MouseEvent) => {
-  e.preventDefault()
-  isDragging = true
-}
-
 const stopDragging = () => {
   isDragging = false
   localStorage.setItem('leftPanelWidth', leftPanelWidth.value.toString())
+}
+
+const handleFunctionUpdate = (data: {
+  functionName: string
+  parameters: FunctionParameter[]
+  returnType: AllowedTypeName
+}) => {
+  functionName.value = data.functionName
+  parameters.value = data.parameters
+  returnType.value = data.returnType
 }
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -86,36 +83,21 @@ const handleMouseMove = (e: MouseEvent) => {
 
 const handleConfirm = () => {
   isBackDialogOpen.value = false
-  router.push('/profile')
+  codeQuestStore.setCodeQuestData({
+    title: title.value,
+    description: description.value,
+    difficulty: difficulty.value,
+    constraints: constraints.value,
+    languages: languages.value,
+    functionName: functionName.value,
+    parameters: parameters.value,
+    returnType: returnType.value,
+  })
+  router.push('/examples')
 }
 
 const handleClose = () => {
   isBackDialogOpen.value = false
-}
-
-const handleQuestConfirm = async () => {
-  const nickname = sessionStorage.getItem('nickname')
-
-  const response = await addNewCodequest(
-      title.value,
-      nickname,
-      {
-        description: description.value,
-        examples: examples.value,
-        constraints: [constraints.value]
-      },
-      languages.value,
-      {
-        name: difficulty.value
-      }
-  )
-
-  if (!response.success) {
-    await errorToast("Can't save codequest")
-  }
-
-  isQuestDialogOpen.value = false
-  await router.push('/profile')
 }
 
 const handleQuestClose = () => {
@@ -150,7 +132,7 @@ onBeforeUnmount(() => {
         title="Are you sure?"
         message="The codequest will be forwarded"
         :is-open-dialog="isQuestDialogOpen"
-        @confirm="handleQuestConfirm"
+        @confirm="handleConfirm"
         @close="handleQuestClose"
     />
 
@@ -184,51 +166,7 @@ onBeforeUnmount(() => {
           name="description"
           v-model="description"
           placeholder="Example: I want to get the reverse of a string"
-          required
-      />
-      <label
-          class="text-black dark:text-white text-2xl"
-      >Examples*
-        <button
-            type="button"
-            @click="addExample"
-            class="inline-flex items-center p-2 rounded bg-primary hover:bg-blue-600 text-white w-auto min-w-[40px]"
-            aria-label="Add example"
-        >
-          <img src="/icons/add.svg" alt="Add" class="w-5 h-5" />
-        </button>
-      </label>
-      <div
-          v-for="(example, index) in examples"
-          :key="index"
-          class="flex flex-row items-center gap-2"
-      >
-        <input
-            v-model="example.input"
-            placeholder="Input"
-            class="border-2 border-primary rounded-l p-2 w-[30%]"
-            required
-        />
-        <input
-            v-model="example.output"
-            placeholder="Output"
-            class="border-2 border-primary rounded-l p-2 w-[30%]"
-            required
-        />
-        <input
-            v-model="example.explanation"
-            placeholder="Explanation"
-            class="border-2 border-primary rounded-l p-2 w-[30%]"
-        />
-        <button
-            type="button"
-            @click="removeExample(index)"
-            class="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700"
-            aria-label="Remove example"
-        >
-          <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5" />
-        </button>
-      </div>
+          required/>
       <label
           for="constraints"
           class="text-black dark:text-white text-2xl"
@@ -279,19 +217,22 @@ onBeforeUnmount(() => {
       </div>
     </form>
 
-    <!-- Code section -->
+    <!-- Code section
     <div
         class="w-1 cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 transition-all"
         @mousedown="startDragging"
-    />
+    />-->
 
     <div
         class="flex-1 h-full min-w-[200px] relative"
         data-aos="fade-left"
         data-aos-duration="3000"
     >
-      <test-editor
+      <!-- <test-editor
           :language="languages[0] || allowedLanguages[0]"
+      /> -->
+      <function-editor
+          @update:function="handleFunctionUpdate"
       />
     </div>
   </section>
@@ -307,9 +248,9 @@ onBeforeUnmount(() => {
         @click="isBackDialogOpen = true"
     />
     <button-with-image
-        title="Submit"
+        title="Next"
         image-url="/icons/upload.svg"
-        alt-text="Submit codequest"
+        alt-text="Go Next"
         @click="isQuestDialogOpen = true"
     />
   </footer>

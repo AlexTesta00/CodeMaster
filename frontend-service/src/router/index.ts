@@ -10,6 +10,7 @@ import NewCodeQuestPage from '../pages/NewCodeQuestPage.vue'
 import ChoicePage from '../pages/ChoicePage.vue'
 import { useAuthStore } from '../utils/store.ts'
 import AdminPage from '../pages/AdminPage.vue'
+import FunctionExamplesPage from "../pages/FunctionExamplesPage.vue";
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
@@ -67,6 +68,12 @@ const routes = [
         name: 'NotFound',
         component: ErrorPage,
         props: { title: 'Ops..this is not the right place', errorCode: '404' },
+    },
+    {
+        path: '/examples',
+        name: 'SubmitExamples',
+        component: FunctionExamplesPage,
+        meta: { requiresAuth: true }
     }
 ]
 

@@ -8,6 +8,25 @@ export type Person = {
     link: [Link]
 }
 
+export type SimpleTypeName = 'int' | 'string' | 'boolean' | 'double' | 'long' | 'float'
+
+type Primitive = SimpleTypeName
+
+type ListTypes = `List<${Primitive}>`
+
+type MapTypes =
+    | `Map<int,int>` | `Map<int,string>` | `Map<int,boolean>` | `Map<int,double>` | `Map<int,long>` | `Map<int,float>`
+    | `Map<string,int>` | `Map<string,string>` | `Map<string,boolean>` | `Map<string,double>` | `Map<string,long>` | `Map<string,float>`
+    | `Map<boolean,int>` | `Map<boolean,string>` | `Map<boolean,boolean>` | `Map<boolean,double>` | `Map<boolean,long>` | `Map<boolean,float>`
+    | `Map<double,int>` | `Map<double,string>` | `Map<double,boolean>` | `Map<double,double>` | `Map<double,long>` | `Map<double,float>`
+    | `Map<long,int>` | `Map<long,string>` | `Map<long,boolean>` | `Map<long,double>` | `Map<long,long>` | `Map<long,float>`
+    | `Map<float,int>` | `Map<float,string>` | `Map<float,boolean>` | `Map<float,double>` | `Map<float,long>` | `Map<float,float>`
+
+export type ComplexTypeName = ListTypes | MapTypes
+
+export type AllowedTypeName = SimpleTypeName | ComplexTypeName
+
+
 export interface AuthenticationResponse {
     message: string
     success: boolean
@@ -191,4 +210,40 @@ export type ExecutionResult =
     | {
     type: 'TimeLimitExceeded'
     timeout: number
+}
+
+export interface FunctionParameter {
+    name: string
+    typeName: AllowedTypeName
+}
+
+export interface FunctionExample {
+    inputs: string[]
+    output: string
+}
+
+export interface GeneratorCodeRequest {
+    questId: string
+    functionName: string
+    parameters: FunctionParameter[]
+    returnType: AllowedTypeName
+    examples: FunctionExample[]
+    languages: string[]
+}
+
+export interface CodeGeneratorResponse {
+    message: string
+    success: boolean
+    generatedCodes: GeneratedCode
+}
+
+export interface GeneratedCode {
+    questId: string
+    entries: LanguageCodes[]
+}
+
+export interface LanguageCodes {
+    language: Language
+    code: string
+    testCode: string
 }
