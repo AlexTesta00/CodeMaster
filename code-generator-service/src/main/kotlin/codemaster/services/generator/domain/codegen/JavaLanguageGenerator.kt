@@ -2,6 +2,8 @@ package codemaster.services.generator.domain.codegen
 import codemaster.services.generator.domain.ExampleCase
 import codemaster.services.generator.domain.FunctionSignature
 import codemaster.services.generator.domain.Language
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 
 class JavaLanguageGenerator : LanguageGenerator {
 
@@ -23,8 +25,8 @@ class JavaLanguageGenerator : LanguageGenerator {
 
     override fun generateTests(signature: FunctionSignature, examples: List<ExampleCase>): String {
         return examples.mapIndexed { index, example ->
-            val inputArgs = example.inputs.joinToString(", ") { toLiteral(it) }
-            val expected = toLiteral(example.output)
+            val inputArgs = example.inputs.joinToString(", ") { toLiteralFromJson(it) }
+            val expected = toLiteralFromJson(example.output)
 
             """
             @Test
@@ -36,14 +38,17 @@ class JavaLanguageGenerator : LanguageGenerator {
         }.joinToString("\n\n")
     }
 
-    fun toLiteral(value: Any?): String = when (value) {
-        is String -> "\"$value\""
+    private fun toLiteral(value: Any?): String = when (value) {
+        null -> "null"
+        is String -> "\"${value.replace("\"", "\\\"")}\""
         is Int, is Double, is Boolean -> value.toString()
-        is List<*> -> "List.of(${value.joinToString(", ") { toLiteral(it!!) }})"
-        is Map<*, *> -> value.entries.joinToString(
-            ", ", "Map.ofEntries(", ")"
-        ) { "Map.entry(${toLiteral(it.key)}, ${toLiteral(it.value)})" }
-        is Array<*> -> "new ${inferJavaArrayType(value)}{${value.joinToString(", ") { toLiteral(it!!) }}}"
+        is List<*> -> "List.of(${value.joinToString(", ") { toLiteral(it) }})"
+        is Map<*, *> -> {
+            val entries = value.entries
+                .map { "Map.entry(${toLiteral(it.key)}, ${toLiteral(it.value)})" }
+            "Map.ofEntries(${entries.joinToString(", ")})"
+        }
+        is Array<*> -> "new ${inferJavaArrayType(value)}{${value.joinToString(", ") { toLiteral(it) }}}"
         else -> value.toString()
     }
 
@@ -52,4 +57,18 @@ class JavaLanguageGenerator : LanguageGenerator {
         array.all { it is String } -> "String[]"
         else -> "Object[]"
     }
+
+    fun toLiteralFromJson(raw: Any?): String {
+        val value = if (raw is String) {
+            try {
+                ObjectMapper().readValue(raw, object : TypeReference<Any>() {})
+            } catch (e: Exception) {
+                raw
+            }
+        } else {
+            raw
+        }
+        return toLiteral(value)
+    }
 }
+

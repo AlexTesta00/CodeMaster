@@ -2,7 +2,12 @@ package infrastructure
 
 import codemaster.services.generator.Application
 import codemaster.services.generator.domain.CodeQuestCode
+import codemaster.services.generator.domain.CodeQuestCodeFactory
+import codemaster.services.generator.domain.ExampleCase
+import codemaster.services.generator.domain.FunctionParameter
+import codemaster.services.generator.domain.FunctionSignature
 import codemaster.services.generator.domain.Language
+import codemaster.services.generator.domain.TypeName
 import codemaster.services.generator.domain.codegen.GeneratedCodeEntry
 import codemaster.services.generator.infrastructure.CodeQuestCodeRepository
 import codemaster.services.generator.infrastructure.CodeQuestCodeRepositoryImpl
@@ -69,23 +74,22 @@ class CodeQuestCodeRepositoryTest : DescribeSpec(){
         describe("CodeQuestCodeRepository") {
 
             it("should save and find by questId") {
-                val codeQuestCode = CodeQuestCode(
-                    questId = "quest-find",
-                    entries = listOf(
-                        GeneratedCodeEntry(
-                            language = Language.Kotlin,
-                            templateCode = "fun foo() = TODO()",
-                            testCode = "test case"
-                        )
-                    )
+                val signature = FunctionSignature(
+                    name = "foo",
+                    parameters = listOf(FunctionParameter("x", TypeName("Int"))),
+                    returnType = TypeName("Map<Int,Int>")
                 )
+                val examples = listOf(ExampleCase(inputs = listOf(1), output = mapOf(1 to 2, 2 to 3)))
+                val languages = listOf(Language.Kotlin, Language.Java)
+
+                val codeQuestCode = CodeQuestCodeFactory().create("test-quest", signature, examples, languages)
 
                 val saved = repository.save(codeQuestCode).awaitSingle()
-                saved.questId shouldBe "quest-find"
+                saved.questId shouldBe "test-quest"
                 saved.entries.any { it.language == Language.Kotlin && it.templateCode.contains("TODO") } shouldBe true
 
-                val found = repository.findByQuestId("quest-find").awaitSingle()
-                found.questId shouldBe "quest-find"
+                val found = repository.findByQuestId("test-quest").awaitSingle()
+                found.questId shouldBe "test-quest"
                 found.entries.any { it.language == Language.Kotlin && it.templateCode.contains("TODO") } shouldBe true
             }
 
