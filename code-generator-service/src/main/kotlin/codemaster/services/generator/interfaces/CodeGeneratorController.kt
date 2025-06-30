@@ -7,6 +7,7 @@ import codemaster.services.generator.domain.FunctionSignature
 import codemaster.services.generator.domain.Language
 import codemaster.services.generator.domain.TypeName
 import codemaster.services.generator.interfaces.dto.GenerateRequestDto
+import codemaster.services.generator.interfaces.parser.Parser.parseValue
 import codemaster.services.generator.service.CodeGeneratorService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -17,29 +18,6 @@ import org.springframework.web.bind.annotation.*
 class CodeGeneratorController(
     private val service: CodeGeneratorService,
 ) {
-
-    private fun parseValue(value: String, expectedType: TypeName): Any? {
-        if (value == "null") return null
-
-        return when (expectedType.raw) {
-            "int", "Int" -> value.toInt()
-            "double", "Double" -> value.toDouble()
-            "string", "String" -> value.removeSurrounding("\"")
-            else -> {
-                if (expectedType.raw.startsWith("List<") && value.startsWith("[") && value.endsWith("]")) {
-                    val innerTypeName = expectedType.raw.removePrefix("List<").removeSuffix(">")
-                    val elements = value.removeSurrounding("[", "]")
-                        .split(",")
-                        .map { it.trim() }
-                        .filter { it.isNotEmpty() }
-                    elements.map { parseValue(it, TypeName(innerTypeName)) }
-                } else {
-                    value.removeSurrounding("\"")
-                }
-            }
-        }
-    }
-
 
     @GetMapping("/health", produces = ["application/json"])
     suspend fun healthCheck(): ResponseEntity<Map<String, Any>> {
@@ -71,9 +49,6 @@ class CodeGeneratorController(
     @PostMapping("/generate")
     suspend fun generateCode(@RequestBody request: GenerateRequestDto): ResponseEntity<CodeQuestCode?> {
 
-        println("Generating code")
-        println(request)
-
         val signature = FunctionSignature(
             name = request.functionName,
             parameters = request.parameters.map {
@@ -96,11 +71,6 @@ class CodeGeneratorController(
         }
 
         val langs = request.languages.map { Language.valueOf(it) }
-
-        println(signature)
-        println(signature.returnType)
-        println(langs)
-        println(parsedExamples)
 
         val savedCode = service.generateQuestCode(
             questId = request.questId,

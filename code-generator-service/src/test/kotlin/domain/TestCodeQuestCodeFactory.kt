@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.TestInstance
+import kotlin.collections.emptyMap
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestCodeQuestCodeFactory : DescribeSpec({
@@ -39,8 +40,8 @@ class TestCodeQuestCodeFactory : DescribeSpec({
                     returnType = TypeName("int")
                 ),
                 listOf(
-                    ExampleCase(inputs = listOf(listOf(1, 2, 3)), output = 6),
-                    ExampleCase(inputs = listOf(listOf(10, -5)), output = 5)
+                    ExampleCase(inputs = listOf("[1, 2, 3]"), output = 6),
+                    ExampleCase(inputs = listOf("[10, -5]"), output = 5)
                 )
             ),
             Triple(
@@ -52,7 +53,7 @@ class TestCodeQuestCodeFactory : DescribeSpec({
                 ),
                 listOf(
                     ExampleCase(inputs = listOf(mapOf("a" to 1, "b" to 2)), output = 2),
-                    ExampleCase(inputs = listOf(mapOf<String, Int>()), output = 0)
+                    ExampleCase(inputs = listOf(emptyMap<String, Int>()), output = 0)
                 )
             ),
             Triple(
@@ -63,8 +64,8 @@ class TestCodeQuestCodeFactory : DescribeSpec({
                     returnType = TypeName("int")
                 ),
                 listOf(
-                    ExampleCase(inputs = listOf(mapOf("a" to listOf(1, 2))), output = 2),
-                    ExampleCase(inputs = listOf(mapOf("a" to listOf(), "b" to listOf(5))), output = 1)
+                    ExampleCase(inputs = listOf(mapOf( "a" to listOf(1, 2))), output = 2),
+                    ExampleCase(inputs = listOf(mapOf("a" to emptyList(), "b" to listOf(5))), output = 1)
                 )
             )
         ).forEach { (name, signature, examples) ->
@@ -103,11 +104,11 @@ class TestCodeQuestCodeFactory : DescribeSpec({
                     val testCode = entry.testCode
 
                     val containsList = examples.any { ex ->
-                        ex.inputs.any { it is List<*> } || ex.output is List<*>
+                        ex.inputs.any { it is String && it.trimStart().startsWith("[") } || ex.output is List<*>
                     }
 
                     val containsMap = examples.any { ex ->
-                        ex.inputs.any { it is Map<*, *> } || ex.output is Map<*, *>
+                        ex.inputs.any { it is String && it.trimStart().startsWith("{") } || ex.output is Map<*, *>
                     }
 
                     when (lang) {
@@ -131,7 +132,7 @@ class TestCodeQuestCodeFactory : DescribeSpec({
 })
 
 private fun toExpectedLiteral(value: Any?, lang: Language): String = when (lang) {
-    Language.Kotlin -> KotlinLanguageGenerator().run { toLiteral(value, Language.Kotlin) }
-    Language.Java -> JavaLanguageGenerator().run { toLiteral(value) }
-    Language.Scala -> ScalaLanguageGenerator().run { toLiteral(value, Language.Scala) }
+    Language.Kotlin -> KotlinLanguageGenerator().run { toLiteralFromJson(value) }
+    Language.Java -> JavaLanguageGenerator().run { toLiteralFromJson(value) }
+    Language.Scala -> ScalaLanguageGenerator().run { toLiteralFromJson(value) }
 }
