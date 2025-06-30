@@ -34,6 +34,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-user:27017/codemaster-user-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-user-service:
     build:
@@ -70,6 +72,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-authentication:27017/codemaster-authentication-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-authentication-service:
     build:
@@ -108,6 +112,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-codequest:27017/codemaster-codequest-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-codequest-service:
     build:
@@ -144,6 +150,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-community:27017/codemaster-community-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-community-service:
     build:
@@ -180,6 +188,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-solution:27017/codemaster-solution-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-solution-service:
     build:
@@ -220,6 +230,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-generator:27017/codemaster-generator-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-generator-service:
     build:
