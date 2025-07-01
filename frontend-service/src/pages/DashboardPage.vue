@@ -152,17 +152,29 @@ onMounted(async () => {
       <dashboard-card>
         <progress-bar
             difficulty="Easy"
-            :current-value="34"
+            :current-value="allCodequests
+              .filter(
+                quest => quest.codequest.difficulty.name == 'easy' &&
+                quest.isSolved
+              ).length"
             :max-value="200"
         />
         <progress-bar
             difficulty="Medium"
-            :current-value="100"
+            :current-value="allCodequests
+              .filter(
+                  quest => quest.codequest.difficulty.name == 'medium' &&
+                  quest.isSolved
+              ).length"
             :max-value="250"
         />
         <progress-bar
             difficulty="Hard"
-            :current-value="80"
+            :current-value="allCodequests
+              .filter(
+                  quest => quest.codequest.difficulty.name == 'hard' &&
+                  quest.isSolved
+              ).length"
             :max-value="100"
         />
       </dashboard-card>
@@ -260,6 +272,7 @@ onMounted(async () => {
               :title="entry.codequest.title"
               :difficulty="entry.codequest.difficulty.name"
               :is-solved="entry.isSolved"
+              :deletable="false"
               @expand="expandCodequest(entry.codequest.id)"
           />
         </div>

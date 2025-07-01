@@ -3,16 +3,40 @@ import LoadingPage from './LoadingPage.vue'
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '../utils/store.ts'
 import UserCard from '../components/UserCard.vue'
-import type { UserManager } from '../utils/interface.ts'
-import { banUser, getAllUsers, logoutUser, unbanUser } from '../utils/api.ts'
+import type {CodeQuest, UserManager} from '../utils/interface.ts'
+import {banUser, deleteCodequestById, getAllCodequests, getAllUsers, logoutUser, unbanUser} from '../utils/api.ts'
 import { isSome } from 'fp-ts/Option'
 import { errorToast, successToast } from '../utils/notify.ts'
 import router from '../router'
+import CodeQuestComp from "../components/CodeQuestComp.vue";
+import YesOrNoDialog from "../components/YesOrNoDialog.vue";
 
 const isLoading = ref(false)
 const auth = useAuthStore()
 
 const users = ref<UserManager[]>([])
+const codequests = ref<CodeQuest[]>([])
+const codequestToDelete = ref('')
+
+const isQuestDeleteOpen = ref(false)
+
+const handleClose = () => {
+  isQuestDeleteOpen.value = false
+  codequestToDelete.value = ''
+}
+
+const handleConfirm = async () => {
+  isQuestDeleteOpen.value = false
+  if(codequestToDelete) {
+    await deleteCodequestById(codequestToDelete.value)
+    codequests.value = codequests.value.filter(q => q.id !== codequestToDelete.value)
+  }
+}
+
+const openDeleteDialog = (questId: string) => {
+  isQuestDeleteOpen.value = true
+  codequestToDelete.value = questId
+}
 
 const handleBan = async (name: string) => {
   if(auth.nickname){
@@ -90,7 +114,20 @@ onMounted(async () => {
   }else{
     await errorToast('You are not logged in')
   }
+  try{
+    const questRes = await getAllCodequests()
+    if(questRes.success) {
+      codequests.value = questRes.codequests
+    }
+  } catch (error) {
+    console.error('Error fetching codequests:', error)
+    await errorToast('Failed to retrieve all codequests')
+  }finally {
+    isLoading.value = false
+  }
 })
+
+
 </script>
 
 <template>
@@ -98,6 +135,13 @@ onMounted(async () => {
     class="lg:ml-16 min-h-screen bg-background dark:bg-bgdark animate-fade-in overflow-y-hidden"
     v-if="isLoading === false"
   >
+    <yes-or-no-dialog
+        title="Are you sure?"
+        message="This Codequest will be deleted permanently"
+        :is-open-dialog="isQuestDeleteOpen"
+        @confirm="handleConfirm"
+        @close="handleClose"
+    />
     <!-- Title welcome back -->
     <header>
       <h1
@@ -148,7 +192,17 @@ onMounted(async () => {
         CodeQuest
       </h1>
       <div class="bg-gray-400 w-4/5 rounded-3xl p-6 mb-8 min-h-[200px]">
-        <!-- Placeholder for CodeQuest content -->
+        <code-quest-comp
+            v-for="(codequest, index) in codequests"
+            :quest-id="codequest.id"
+            :key="codequest.id || index"
+            :index="index + 1"
+            :title="codequest.title"
+            :difficulty="codequest.difficulty.name"
+            :is-solved="true"
+            :deletable="true"
+            @deletd="openDeleteDialog(codequest.id)"
+        />
       </div>
     </div>
 

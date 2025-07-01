@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { FunctionExample, FunctionParameter } from "../utils/interface.ts";
+import {isValidIdentifier, primitiveTypes} from "../utils/type-utils.ts";
 
 const emit = defineEmits<{
   (e: 'update:function', value: {
@@ -8,6 +9,7 @@ const emit = defineEmits<{
     parameters: FunctionParameter[]
     returnType: AllowedTypeName
   }): void
+  (e: 'update:valid', valid: boolean): void
 }>()
 
 const functionName = ref('')
@@ -19,26 +21,52 @@ const examples = ref<FunctionExample[]>([
   { inputs: [], output: '' }
 ])
 
-const simpleTypes = ['int', 'string', 'boolean', 'double', 'long', 'float'] as const
-
-const listTypes = simpleTypes.map(t => `List<${t}>` as const)
-const mapTypes = simpleTypes.flatMap(keyType =>
-    simpleTypes.map(valueType => `Map<${keyType},${valueType}>` as const)
+const listTypes = primitiveTypes.map(t => `List<${t}>` as const)
+const mapTypes = primitiveTypes.flatMap(keyType =>
+    primitiveTypes.map(valueType => `Map<${keyType},${valueType}>` as const)
 )
 
 const allowedTypes = [
-  ...simpleTypes,
+  ...primitiveTypes,
   ...listTypes,
   ...mapTypes,
 ] as const
 type AllowedTypeName = (typeof allowedTypes)[number]
 
-const addParameter = () => {
-  parameters.value.push({ name: '', typeName: 'int' })
-}
+const errors = ref<{
+  functionName?: string
+  parameters: (string | undefined)[]
+}>({
+  parameters: [],
+})
 
-const removeParameter = (index: number) => {
-  parameters.value.splice(index, 1)
+const validate = () => {
+  let valid = true
+
+  if (!functionName.value.trim()) {
+    errors.value.functionName = 'Function name is required.'
+    valid = false
+  } else if (!isValidIdentifier(functionName.value)) {
+    errors.value.functionName = 'Invalid function name. CamelCase, no spaces, no digits first.'
+    valid = false
+  } else {
+    errors.value.functionName = undefined
+  }
+
+  if (parameters.value.length === 0) {
+    errors.value.parameters = ['At least one parameter is required.']
+    valid = false
+  } else {
+    errors.value.parameters = parameters.value.map(param => {
+      if (!param.name.trim()) return 'Parameter name is required.'
+      if (!isValidIdentifier(param.name)) return 'Invalid parameter name. CamelCase, no spaces, no digits first.'
+      return undefined
+    })
+    if (errors.value.parameters.some(e => e !== undefined)) valid = false
+  }
+
+  emit('update:valid', valid)
+  return valid
 }
 
 watch(parameters, () => {
@@ -56,14 +84,25 @@ watch(parameters, () => {
   })
 }, { deep: true })
 
-watch([functionName, parameters, returnType, examples], () => {
+watch([functionName, parameters, returnType], () => {
+  validate()
   emit('update:function', {
     functionName: functionName.value,
     parameters: parameters.value,
     returnType: returnType.value
   })
 }, { deep: true })
+
+const addParameter = () => {
+  parameters.value.push({ name: '', typeName: 'int' })
+}
+
+const removeParameter = (index: number) => {
+  parameters.value.splice(index, 1)
+}
+
 </script>
+
 <template>
   <div class="flex flex-col gap-4 text-black dark:text-white">
     <label class="text-black dark:text-white text-2xl">Function Signature*</label>
@@ -72,8 +111,9 @@ watch([functionName, parameters, returnType, examples], () => {
         placeholder="Function name"
         class="p-2 border-2 border-primary rounded-md bg-white text-black"
         required
+        :class="{ 'border-red-500': errors.functionName }"
     />
-
+    <p v-if="errors.functionName" class="text-error text-base">{{ errors.functionName }}</p>
     <label class="text-black dark:text-white text-2xl">Parameters*</label>
     <div v-for="(param, index) in parameters" :key="index" class="flex gap-2 items-center">
       <input
@@ -81,7 +121,9 @@ watch([functionName, parameters, returnType, examples], () => {
           placeholder="Parameter name"
           class="p-2 border-2 border-primary rounded-md bg-white text-black"
           required
+          :class="{ 'border-red-500': errors.parameters[index] }"
       />
+      <p v-if="errors.parameters[index]" class="text-error text-base">{{ errors.parameters[index] }}</p>
       <select
           v-model="param.typeName"
           class="p-2 border-2 border-primary rounded-md bg-white text-black"
@@ -91,6 +133,7 @@ watch([functionName, parameters, returnType, examples], () => {
         </option>
       </select>
       <button
+          v-if="parameters.length > 1"
           type="button"
           @click="removeParameter(index)"
           class="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700"
@@ -99,7 +142,6 @@ watch([functionName, parameters, returnType, examples], () => {
         <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5" />
       </button>
     </div>
-
     <button
         type="button"
         @click="addParameter"
@@ -108,7 +150,6 @@ watch([functionName, parameters, returnType, examples], () => {
     >
       <img src="/icons/add.svg" alt="Add" class="w-5 h-5" />
     </button>
-
     <label for="allowedTypes" class="text-black dark:text-white text-2xl">Return Type*</label>
     <div class="w-full flex flex-row items-center justify-start gap-4 text-black dark:text-white text-2xl">
       <select
@@ -122,5 +163,3 @@ watch([functionName, parameters, returnType, examples], () => {
     </div>
   </div>
 </template>
-
-

@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import ButtonWithImage from '../components/ButtonWithImage.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import type {AllowedTypeName, FunctionParameter, Language} from "../utils/interface.ts";
 import FunctionEditor from "../components/FunctionEditor.vue";
 import {useRouter} from "vue-router";
 import {codequestStore} from "../utils/codequest-store.ts";
+import {errorToast} from "../utils/notify.ts";
 
 const router = useRouter()
 const codeQuestStore = codequestStore()
 
-const title = ref('')
-const description = ref('')
-const languages = ref<Language[]>([])
-const constraints = ref('')
-const functionName = ref('')
-const parameters = ref<FunctionParameter[]>([])
-const returnType = ref<AllowedTypeName>('int')
+const title = ref(codeQuestStore.title || '')
+const description = ref(codeQuestStore.description || '')
+const constraints = ref(codeQuestStore.constraints ||'')
+const titleError = ref<string | null>(null)
+const descriptionError = ref<string | null>(null)
+const constraintsError = ref<string | null>(null)
+const functionName = ref(codeQuestStore.functionName ||'')
+const parameters = ref<FunctionParameter[]>(codeQuestStore.parameters)
+const returnType = ref<AllowedTypeName>(codeQuestStore.returnType || 'int')
+const isFunctionValid = ref(false)
 
 const isBackDialogOpen = ref(false)
 const isQuestDialogOpen = ref(false)
 
-const allowedLanguages = ref([
+const allowedLanguages = ref<Language[]>([
     {
       name: 'Java',
       version: '17',
@@ -38,12 +42,12 @@ const allowedLanguages = ref([
       fileExtension: '.kt'
     }
     ])
+const languages = ref<Language[]>([allowedLanguages.value[0]])
 const difficulties = ref(['EASY', 'MEDIUM', 'HARD'])
 const difficulty = ref(difficulties.value[0])
 const leftPanelWidth = ref(
     parseInt(localStorage.getItem('leftPanelWidth') || '500'),
 )
-let isDragging = false
 
 const isLanguageSelected = (lang: Language): boolean => {
   return languages.value.some(l => l.name === lang.name)
@@ -58,9 +62,16 @@ const toggleLanguage = (lang: Language) => {
   }
 }
 
-const stopDragging = () => {
-  isDragging = false
-  localStorage.setItem('leftPanelWidth', leftPanelWidth.value.toString())
+const validateTitle = () => {
+  titleError.value = title.value.trim() === '' ? 'Title can\'t be empty' : null
+}
+
+const validateDescription = () => {
+  descriptionError.value = description.value.trim() === '' ? 'Description can\'t be empty' : null
+}
+
+const validateConstraints = () => {
+  constraintsError.value = constraints.value.trim() === '' ? 'Constraints can\'t be empty' : null
 }
 
 const handleFunctionUpdate = (data: {
@@ -73,15 +84,25 @@ const handleFunctionUpdate = (data: {
   returnType.value = data.returnType
 }
 
-const handleMouseMove = (e: MouseEvent) => {
-  if (!isDragging) return
+const handleConfirm = async () => {
+  validateTitle()
+  validateDescription()
+  validateConstraints()
 
-  const min = 200
-  const max = window.innerWidth - 200
-  leftPanelWidth.value = Math.min(Math.max(e.clientX, min), max)
-}
+  if (titleError.value || descriptionError.value || constraintsError.value || !isFunctionValid.value) {
+    return
+  }
 
-const handleConfirm = () => {
+  if (!isFunctionValid.value) {
+    await errorToast('Function signature contains errors')
+    return
+  }
+
+  if (languages.value.length === 0) {
+    await errorToast('At least one language must be selected')
+    return
+  }
+
   isBackDialogOpen.value = false
   codeQuestStore.setCodeQuestData({
     title: title.value,
@@ -93,7 +114,13 @@ const handleConfirm = () => {
     parameters: parameters.value,
     returnType: returnType.value,
   })
-  router.push('/examples')
+  await router.push('/examples')
+}
+
+const handleBack = () => {
+  codeQuestStore.$reset();
+  isBackDialogOpen.value = false
+  router.push('/dashboard')
 }
 
 const handleClose = () => {
@@ -104,39 +131,49 @@ const handleQuestClose = () => {
   isQuestDialogOpen.value = false
 }
 
+const validateForm = (): boolean => {
+  return (
+      title.value.trim() !== '' &&
+      description.value.trim() !== '' &&
+      constraints.value.trim() !== '' &&
+      languages.value.length > 0 &&
+      isFunctionValid.value
+  )
+}
+
 onMounted(() => {
-  window.addEventListener('mousemove', handleMouseMove)
-  window.addEventListener('mouseup', stopDragging)
+  if (codeQuestStore.title) title.value = codeQuestStore.title
+  if (codeQuestStore.description) description.value = codeQuestStore.description
+  if (codeQuestStore.constraints) constraints.value = codeQuestStore.constraints
+  if (codeQuestStore.languages.length > 0) languages.value = [...codeQuestStore.languages]
+  if (codeQuestStore.functionName) functionName.value = codeQuestStore.functionName
+  if (codeQuestStore.parameters.length > 0) parameters.value = [...codeQuestStore.parameters]
+  if (codeQuestStore.returnType) returnType.value = codeQuestStore.returnType
+  if (codeQuestStore.difficulty) difficulty.value = codeQuestStore.difficulty
 })
-onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', handleMouseMove)
-  window.removeEventListener('mouseup', stopDragging)
-})
+
 </script>
 
 <template>
   <section
       class="h-[100vh] flex flex-row bg-background dark:bg-bgdark animate-fade-in overflow-hidden"
   >
-    <!-- Dialog for return back -->
     <yes-or-no-dialog
         title="Are you sure?"
         message="Changes will not be saved and the codequest will not be forwarded"
         :is-open-dialog="isBackDialogOpen"
-        @confirm="handleConfirm"
+        @confirm="handleBack"
         @close="handleClose"
     />
 
-    <!-- Dialog for send codequest -->
     <yes-or-no-dialog
         title="Are you sure?"
-        message="The codequest will be forwarded"
+        message="You will proceed to examples page"
         :is-open-dialog="isQuestDialogOpen"
         @confirm="handleConfirm"
         @close="handleQuestClose"
     />
 
-    <!-- Form Section -->
     <form
         :style="{ width: leftPanelWidth + 'px' }"
         class="flex h-full flex-col overflow-auto min-w-[200px] max-w-[calc(100%-200px)] gap-4 pb-16 ml-4"
@@ -153,10 +190,13 @@ onBeforeUnmount(() => {
           type="text"
           name="title"
           v-model="title"
+          @blur="validateTitle"
+          :aria-invalid="!!titleError"
           class="border-2 border-primary w-2/5 rounded-l"
           placeholder="Example: Reverse string"
           required
       >
+      <p v-if="titleError" class="text-red-500 text-sm mt-1">{{ titleError }}</p>
       <label
           for="description"
           class="text-black dark:text-white text-2xl"
@@ -165,8 +205,13 @@ onBeforeUnmount(() => {
           id="description"
           name="description"
           v-model="description"
+          @blur="validateDescription"
+          :aria-invalid="!!descriptionError"
           placeholder="Example: I want to get the reverse of a string"
-          required/>
+          class="border-2 border-primary w-2/5 rounded-l"
+          required
+      />
+      <p v-if="descriptionError" class="text-red-500 text-sm mt-1">{{ descriptionError }}</p>
       <label
           for="constraints"
           class="text-black dark:text-white text-2xl"
@@ -175,8 +220,12 @@ onBeforeUnmount(() => {
           id="constraints"
           name="constraints"
           v-model="constraints"
+          @blur="validateConstraints"
+          :aria-invalid="!!constraintsError"
           placeholder="Example: The input string will have at most length 1000"
+          required
       />
+      <p v-if="constraintsError" class="text-red-500 text-sm mt-1">{{ constraintsError }}</p>
       <label
           for="languages"
           class="text-black dark:text-white text-2xl"
@@ -217,7 +266,7 @@ onBeforeUnmount(() => {
       </div>
     </form>
 
-    <!-- Code section
+    <!--
     <div
         class="w-1 cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 transition-all"
         @mousedown="startDragging"
@@ -233,11 +282,11 @@ onBeforeUnmount(() => {
       /> -->
       <function-editor
           @update:function="handleFunctionUpdate"
+          v-model:valid="isFunctionValid"
       />
     </div>
   </section>
 
-  <!-- Bottom NavBar -->
   <footer
       class="flex flex-row justify-center items-center w-full fixed h-16 bottom-0 bg-background dark:bg-bgdark gap-4"
   >
@@ -251,7 +300,7 @@ onBeforeUnmount(() => {
         title="Next"
         image-url="/icons/upload.svg"
         alt-text="Go Next"
-        @click="isQuestDialogOpen = true"
+        @click="() => { if (validateForm()) isQuestDialogOpen = true }"
     />
   </footer>
 </template>

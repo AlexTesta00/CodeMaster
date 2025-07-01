@@ -6,7 +6,8 @@ import LoadingPage from './LoadingPage.vue'
 import router from '../router'
 import { useAuthStore } from '../utils/store.ts'
 import {
-  getAllSolvedSolutions, getCodequestById,
+  deleteCodequestById,
+  getAllCodequests,
   getUserByNickname,
   logoutUser,
   updateBio,
@@ -18,6 +19,7 @@ import { errorToast, successToast } from '../utils/notify.ts'
 import type {CodeQuest} from "../utils/interface.ts";
 import ButtonWithImage from "../components/ButtonWithImage.vue";
 import CodeQuestComp from "../components/CodeQuestComp.vue";
+import YesOrNoDialog from "../components/YesOrNoDialog.vue";
 const bioIsEditing = ref(false)
 const languageIsEditing = ref(false)
 const cvIsEditing = ref(false)
@@ -29,6 +31,9 @@ const profilePicture = ref('')
 const altProfilePicture = ref('')
 const loading = ref(false)
 const codequests = ref<CodeQuest[]>([])
+const codequestToDelete = ref('')
+
+const isQuestDeleteOpen = ref(false)
 
 const redirectToCVPage = () => {
     if (cv.value) {
@@ -122,20 +127,38 @@ const logout = async () => {
     }
 }
 
+const handleClose = () => {
+  isQuestDeleteOpen.value = false
+  codequestToDelete.value = ''
+}
+
+const handleConfirm = async () => {
+  isQuestDeleteOpen.value = false
+  if(codequestToDelete) {
+    const response = await deleteCodequestById(codequestToDelete.value)
+    if(response.success) {
+      codequests.value = codequests.value.filter(q => q.id !== codequestToDelete.value)
+      await successToast('Codequest deleted successfully')
+    } else {
+      await errorToast('Error while deleting codequest')
+    }
+  }
+}
+
+const openDeleteDialog = (questId: string) => {
+  isQuestDeleteOpen.value = true
+  codequestToDelete.value = questId
+}
+
 onMounted(async () => {
   if (!auth.nickname) return
   try {
-    const response = await getAllSolvedSolutions(auth.nickname)
-    if(response.success && response.solutions.length > 0) {
-      for (const sol of response.solutions) {
-        const res = await getCodequestById(sol.questId)
-        if (res.success) {
-          codequests.value.push(res.codequest)
-        }
-      }
+    const response = await getAllCodequests()
+    if(response.success) {
+      codequests.value = response.codequests.filter(quest => quest.author == auth.nickname)
     }
   } catch (error) {
-    await errorToast('Impossible to load user data')
+    await errorToast('Impossible to load codequests')
     console.log(error)
   }
 })
@@ -190,6 +213,13 @@ onMounted(async () => {
     v-if="loading == false"
     class="flex flex-col items-center justify-center mx-4 animate-fade-in bg-background dark:bg-bgdark min-h-screen"
   >
+    <yes-or-no-dialog
+        title="Are you sure?"
+        message="This Codequest will be deleted permanently"
+        :is-open-dialog="isQuestDeleteOpen"
+        @confirm="handleConfirm"
+        @close="handleClose"
+    />
     <h1
       class="text-black dark:text-white text-3xl lg:text-5xl w-full text-center mt-4"
     >
@@ -285,7 +315,7 @@ onMounted(async () => {
           v-if="selectedLanguages.length === 0"
           class="text-white text-sm italic ml-4"
         >
-          Nessun linguaggio selezionato
+          No language selected
         </p>
       </div>
       <div
@@ -377,13 +407,13 @@ onMounted(async () => {
         </button>
       </div>
     </div>
-    <!-- CodeQuests Resolved -->
     <div
       class="flex flex-col lg:flex-row justify-center items-center lg:justify-evenly lg:items-stretch gap-10 w-full mt-8"
       data-aos="zoom-in"
       data-aos-duration="1400"
     >
       <div
+          v-if="codequests.length > 0"
           id="questcontainer"
           class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4"
           data-aos="zoom-in"
@@ -397,8 +427,20 @@ onMounted(async () => {
             :title="codequest.title"
             :difficulty="codequest.difficulty.name"
             :is-solved="true"
+            :deletable="true"
+            @delete="openDeleteDialog(codequest.id)"
             @expand="expandCodequest(codequest.id)"
         />
+      </div>
+      <div
+          v-else
+          class="w-full lg:w-2/5 h-96 overflow-y-auto overflow-x-hidden bg-gray-400 rounded-3xl mt-4 flex items-center justify-center"
+          data-aos="zoom-in"
+          data-aos-duration="600"
+      >
+        <label class="text-white text-xl lg:text-3xl text-center">
+          No codequests created
+        </label>
       </div>
     </div>
     <footer

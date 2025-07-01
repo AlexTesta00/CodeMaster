@@ -6,12 +6,12 @@ import type {
     CodeQuestResponse,
     CodeQuestsResponse,
     Difficulty,
-    Example, ExecutionResult, GetAllUserResponse,
+    Example, GetAllUserResponse,
     FunctionExample, FunctionParameter, GeneratorCodeRequest,
     Language,
     Problem, Solution, SolutionResponse,
     SolutionsResponse, UserManager,
-    UserManagerResponse,
+    UserManagerResponse, LanguageCodes, ResultResponse,
 } from './interface.ts'
 
 const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
@@ -121,36 +121,48 @@ export const addNewCodequest = async (
 }
 
 export const addNewSolution = async (
-    user: String,
-    questId: String,
-    language: Language,
-    difficulty: Difficulty,
-    solved: Boolean,
-    code: String,
-    testCode: String
+    user: string,
+    questId: string,
+    codes: LanguageCodes[],
+    solved: boolean
 ): Promise<SolutionResponse> => {
     console.log({
         user,
         questId,
-        language,
-        difficulty,
         solved,
-        code,
-        testCode
+        codes
     });
+
+    const code = codes.map((entry) => {
+        return {
+            language: {
+                name: entry.language.name,
+                fileExtension: entry.language.fileExtension
+            },
+            code: entry.code
+        }
+    })
+
     const response = await axios.post(`${SOLUTION_URL}`, {
         user: user,
         questId: questId,
-        language: {
-            name: language.name,
-            fileExtension: language.fileExtension
-        },
-        difficulty: difficulty.name,
         solved: solved,
-        code: code,
-        testCode: testCode
+        codes: code
     })
-    return response.data
+
+    const solution = {
+        id: response.data.id,
+        codes: response.data.codes,
+        questId: response.data.questId,
+        user: response.data.user,
+        solved: response.data.solved,
+    }
+
+    return {
+        message: response.statusText,
+        success: response.status == 200,
+        solution
+    }
 }
 
 export const getAllCodequests = async (): Promise<CodeQuestsResponse> => {
@@ -211,13 +223,31 @@ export const getCodequestById = async (
     }
 }
 
+export const deleteCodequestById = async (
+    questId: string
+): Promise<CodeQuestResponse> => {
+    const response = await axios.delete(`${CODEQUEST_URL}${questId}`)
+
+    return {
+        message: response.data.message,
+        success: response.data.success,
+        codequest: response.data.codequest
+    }
+}
+
 export const getAllSolvedSolutions = async (
     nickname: string
 ): Promise<SolutionsResponse> => {
     const response = await axios.get(`${SOLUTION_URL}solved/${nickname}`)
 
-    const solutions: Solution[] = response.data.map((sol: any): Solution => {
-        return convertSolution(sol)
+    const solutions: Solution[] = response.data.map((sol: any) => {
+        return {
+            id: sol.id,
+            codes: sol.codes,
+            questId: sol.questId,
+            user: sol.user,
+            solved: sol.solved,
+        }
     })
 
     return {
@@ -232,14 +262,41 @@ export const getSolutionsByCodequest = async (
 ): Promise<SolutionsResponse> => {
     const response = await axios.get(`${SOLUTION_URL}codequests/${questId}`)
 
-    const solutions: Solution[] = response.data.map((sol: any): Solution => {
-        return convertSolution(sol)
+    const solutions: Solution[] = response.data.map((sol: any) => {
+        return {
+            id: sol.id,
+            codes: sol.codes,
+            questId: sol.questId,
+            user: sol.user,
+            solved: sol.solved,
+        }
     })
 
     return {
         message: response.statusText,
         success: response.status === 200,
         solutions
+    }
+}
+
+export const updateSolution = async (
+    id: string,
+    code: LanguageCodes
+): Promise<SolutionResponse> => {
+
+    const payload = {
+        code: code.code,
+        language: {
+            name: code.language.name,
+            fileExtension: code.language.fileExtension
+        }
+    }
+    const response = await axios.put(`${SOLUTION_URL}code/${id}`, payload)
+
+    return {
+        message: response.statusText,
+        success: response.status === 200,
+        solution: response.data
     }
 }
 
@@ -268,70 +325,63 @@ export const generateCodequestCodes = async (
     }
 }
 
-const convertSolution = (sol: any): Solution => {
-
-    const baseResult = sol.result
-    let result: ExecutionResult
-
-    switch (baseResult.type) {
-        case 'pending':
-            result = { type: 'Pending' }
-            break
-        case 'accepted':
-            result = {
-                type: 'Accepted',
-                output: baseResult.output,
-                exitCode: baseResult.exitCode
-            }
-            break
-        case 'testsFailed':
-            result = {
-                type: 'TestsFailed',
-                error: baseResult.error,
-                output: baseResult.output,
-                exitCode: baseResult.exitCode
-            }
-            break
-        case 'compileFailed':
-            result = {
-                type: 'CompileFailed',
-                error: baseResult.error,
-                stderr: baseResult.stderr,
-                exitCode: baseResult.exitCode
-            }
-            break
-        case 'runtimeError':
-            result = {
-                type: 'RuntimeError',
-                error: baseResult.error,
-                stderr: baseResult.stderr,
-                exitCode: baseResult.exitCode
-            }
-            break
-        case 'timeLimitExceeded':
-            result = {
-                type: 'TimeLimitExceeded',
-                timeout: baseResult.timeout
-            }
-            break
-        default:
-            throw new Error(`Unknown ExecutionResult type: ${baseResult.type}`)
-    }
+export const getGeneratedCodes = async (
+    questId: string
+): Promise<CodeGeneratorResponse> => {
+    const response = await axios.get(`${GENERATOR_URL}${questId}`)
 
     return {
-        id: { value: sol.id.value },
-        code: sol.code,
-        questId: sol.questId,
-        user: sol.user,
-        difficulty: { name: sol.difficulty.name },
+        generatedCodes: response.data,
+        message: response.statusText,
+        success: response.status == 200
+    }
+}
+
+export const debugCode = async (
+    id: string,
+    testCode: string,
+    languageCode: LanguageCodes
+): Promise<ResultResponse> => {
+
+    const payload = {
         language: {
-            name: sol.language.name,
-            version: sol.language.version,
-            fileExtension: sol.language.fileExtension
+            name: languageCode.language.name,
+            fileExtension: languageCode.language.fileExtension
         },
-        result,
-        solved: sol.solved,
-        testCode: sol.testCode
+        code: languageCode.code,
+        testCode: testCode
+    }
+
+    const response = await axios.put(`${SOLUTION_URL}compile/${id}`, payload)
+
+    return {
+        message: response.statusText,
+        success: response.status == 200,
+        result: response.data
+    }
+}
+
+export const executeCode = async (
+    id: string,
+    testCode: string,
+    languageCode: LanguageCodes
+): Promise<ResultResponse> => {
+
+    const payload = {
+        language: {
+            name: languageCode.language.name,
+            fileExtension: languageCode.language.fileExtension
+        },
+        code: languageCode.code,
+        testCode: testCode
+    }
+
+    const response = await axios.put(`${SOLUTION_URL}execute/${id}`, payload)
+
+    return {
+        message: response.statusText,
+        success: response.status == 200,
+        result: response.data.result
     }
 }
 

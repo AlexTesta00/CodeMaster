@@ -5,23 +5,32 @@ import {
     ListboxOption,
     ListboxOptions,
 } from '@headlessui/vue'
-import { ref } from 'vue'
-import type {Language} from "../utils/interface.ts";
+import {ref, watch} from 'vue'
+import type {Codes} from "../utils/interface.ts";
 
 const props = defineProps<{
-    allowedLanguage: Language[],
-    currentLanguage: Language
+    availableLanguages: Codes[],
+    currentLanguage: Codes
 }>()
 
-const selectedLanguage = ref<Language>(props.currentLanguage)
+const selectedLanguage = ref<Codes>(
+    props.currentLanguage ?? props.availableLanguages[0]
+)
 
 const emit = defineEmits<{
-    (e: 'languageSelected', language: Language): void
+  (e: 'language-selected', language: Codes): void
 }>()
 
 const confirmSelection = () => {
-    emit('languageSelected', selectedLanguage.value)
+    emit('language-selected', selectedLanguage.value)
 }
+
+watch(
+    () => props.currentLanguage,
+    (newLang) => {
+      if (newLang) selectedLanguage.value = newLang
+    }
+)
 </script>
 
 <template>
@@ -32,18 +41,18 @@ const confirmSelection = () => {
     >
       <div class="relative">
         <ListboxButton class="w-full px-4 py-2 text-left text-white">
-          {{ selectedLanguage.name }}
+          {{ selectedLanguage.language }}
         </ListboxButton>
         <ListboxOptions
           class="absolute mt-1 w-full border bg-white rounded shadow z-30"
         >
           <ListboxOption
-            v-for="lang in allowedLanguage"
-            :key="lang.name"
+            v-for="lang in availableLanguages"
+            :key="lang.language"
             :value="lang"
             class="cursor-pointer px-4 py-2 hover:bg-gray-100"
           >
-            {{ lang.name }}
+            {{ lang.language }}
           </ListboxOption>
         </ListboxOptions>
       </div>

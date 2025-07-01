@@ -148,20 +148,12 @@ export interface CodeQuestsResponse {
     codequests: CodeQuest[]
 }
 
-export interface SolutionId {
-    value: string
-}
-
 export interface Solution {
-    id: SolutionId
-    code: string
+    id: string
     questId: string
     user: string
-    difficulty: Difficulty
-    language: Language
-    result: ExecutionResult
+    codes: LanguageCodes[]
     solved: boolean
-    testCode: string
 }
 
 export interface SolutionResponse {
@@ -176,16 +168,9 @@ export interface SolutionsResponse {
     solutions: Solution[]
 }
 
-export interface DebugResponse {
-    message: string
-    success: boolean
-    user: ExecutionResult
-}
-
-export interface ExecutionResponse {
-    message: string
-    success: boolean
-    user: CodeQuest
+export interface ExampleFieldErrors {
+    inputs: (string | null)[]
+    output: string | null
 }
 
 export type ExecutionResult =
@@ -245,11 +230,25 @@ export interface CodeGeneratorResponse {
 
 export interface GeneratedCode {
     questId: string
-    entries: LanguageCodes[]
+    entries: Codes[]
 }
 
 export interface LanguageCodes {
-    language: Language
+    language: {
+        name: string
+        fileExtension: string
+    }
     code: string
+}
+
+export interface Codes {
+    language: string
+    templateCode: string
     testCode: string
+}
+
+export interface ResultResponse {
+    message: string,
+    success: boolean,
+    result: ExecutionResult
 }

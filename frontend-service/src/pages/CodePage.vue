@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import MarkdownViewer from '../components/MarkdownViewer.vue'
 import CodeEditor from '../components/CodeEditor.vue'
 import ClickableTextWithImage from '../components/ClickableTextWithImage.vue'
@@ -8,48 +8,159 @@ import TextareaCodeLanguages from '../components/TextareaCodeLanguages.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
 import {errorToast} from "../utils/notify.ts";
-import {getAllCodequests, getCodequestById, getSolutionsByCodequest} from "../utils/api.ts";
+import {
+  addNewSolution, debugCode, executeCode,
+  getAllCodequests,
+  getCodequestById,
+  getGeneratedCodes,
+  getSolutionsByCodequest, updateSolution
+} from "../utils/api.ts";
 import {useAuthStore} from "../utils/store.ts";
-import type {CodeQuest, Example, Language} from "../utils/interface.ts";
+import type {CodeQuest, Codes, ExecutionResult, LanguageCodes, Solution} from "../utils/interface.ts";
 import {useRoute} from "vue-router";
+import ExecutionResultPanel from "../components/ExecutionResultPanel.vue";
 
-const currentLanguage = ref<Language>({
-  name: 'Java',
-  version: '17',
-  fileExtension: '.java'
-})
-
-const allowedLanguages = ref([
-  {
-    name: 'Java',
-    version: '17',
-    fileExtension: '.java'
-  },
-  {
-    name: 'Scala',
-    version: '2.11.10',
-    fileExtension: '.scala'
-  },
-  {
-    name: 'Kotlin',
-    version: '1.9.22',
-    fileExtension: '.kt'
-  }
-])
+const availableLanguages = ref<Codes[]>([])
+const currentLanguage = ref<Codes>()
+const solution = ref<Solution>()
 const auth = useAuthStore()
 const codequests = ref<CodeQuest[]>([])
 
 const isBackDialogOpen = ref(false)
 const route = useRoute()
 
-const markDown = ref('')
-const code = ref('')
-
+const result = ref<ExecutionResult>()
 const codequest = ref<CodeQuest | null>(null)
+const currentCode = ref('')
 
-const handleConfirm = () => {
+const addSolution = async () => {
+  try {
+    if (auth.nickname && codequest.value) {
+      const codes = codequest.value.languages.map(lang => {
+        const matched = availableLanguages.value.find(l => l.language === lang.name)
+        if (!matched) {
+          throw new Error(`No code found for language ${lang.name}`)
+        }
+        return {
+          language: {
+            name: lang.name,
+            fileExtension: lang.fileExtension
+          },
+          code: matched.templateCode
+        }
+      })
+      return await addNewSolution(
+          auth.nickname,
+          codequest.value.id,
+          codes,
+          false,
+      )
+    }
+  } catch(error) {
+    await errorToast('Impossible to add solution')
+    console.log(error)
+  }
+}
+
+const handleConfirm = async () => {
+    try {
+      if(auth.nickname && codequest.value) {
+        if (solution.value) {
+          const languageCodes: LanguageCodes[] = codequest.value.languages.map(lang => {
+            const matched = availableLanguages.value.find(l => l.language === lang.name)
+            if (!matched) {
+              throw new Error(`No code found for language ${lang.name}`)
+            }
+            return {
+              language: {
+                name: lang.name,
+                fileExtension: lang.fileExtension
+              },
+              code: matched.templateCode
+            }
+          })
+          for (const code of languageCodes) {
+            await updateSolution(
+                solution.value.id,
+                code
+            )
+          }
+        } else {
+          await addSolution()
+        }
+      }
+    } catch (error) {
+      await errorToast('Impossible to load solution')
+      console.log(error)
+    }
     isBackDialogOpen.value = false
-    router.push('/dashboard')
+    await router.push('/dashboard')
+}
+
+const debug = async () => {
+  try {
+    if(!solution.value) {
+      const response = await addSolution()
+      if (response && response.success) {
+        solution.value = response.solution
+      } else {
+        await errorToast('Error while adding solution')
+      }
+    }
+    if (availableLanguages.value && currentLanguage.value && solution.value) {
+      const lang = currentLanguage.value.language
+      const testCode = availableLanguages.value.find(l => l.language === lang)?.testCode
+      if (testCode) {
+        const languageCode = solution.value.codes.find(code => code.language.name == lang)
+        if (languageCode) {
+          const response = await debugCode(
+              solution.value.id,
+              testCode,
+              languageCode
+          )
+          console.log('solution resp: ', JSON.stringify(response, null, 2))
+          if (response.success) {
+            result.value = response.result
+          }
+        }
+      }
+    }
+  } catch {
+    await errorToast('Error while compiling code')
+  }
+}
+
+const submit = async () => {
+  try {
+    if(!solution.value) {
+      const response = await addSolution()
+      if (response && response.success) {
+        solution.value = response.solution
+      } else {
+        await errorToast('Error while adding solution')
+      }
+    }
+    if (availableLanguages.value && currentLanguage.value && solution.value) {
+      const lang = currentLanguage.value.language
+      const testCode = availableLanguages.value.find(l => l.language === lang)?.testCode
+      if (testCode) {
+        const languageCode = solution.value.codes.find(code => code.language.name == lang)
+        if (languageCode) {
+          const response = await executeCode(
+              solution.value.id,
+              testCode,
+              languageCode
+          )
+          console.log('solution resp: ', JSON.stringify(response, null, 2))
+          if (response.success) {
+            result.value = response.result
+          }
+        }
+      }
+    }
+  } catch {
+    await errorToast('Error while compiling code')
+  }
 }
 
 const handleClose = () => {
@@ -81,101 +192,80 @@ const handleMouseMove = (e: MouseEvent) => {
     leftPanelWidth.value = Math.min(Math.max(e.clientX, min), max)
 }
 
-const getExamples = (examples: Example[]): string => {
-  return examples
-      .map((example, index) => {
-        const explanation = example.explanation
-            ? `Explanation: ${example.explanation}`
-            : ''
-
-        return `### ${index + 1}.
-**Input**:
-\`${example.input}\`
-
-**Output**:
-\`${example.output}\`
-
-${explanation}`
-      })
-      .join('\n\n')
-}
-
-const getConstraints = (constraints: string[]): string => {
-  return constraints.map(c => `- ${c}`).join('\n')
-}
-
-
-const buildMarkDown = (codequest: CodeQuest): string => {
-  return `# ${codequest.title}
-
-## Problem
-${codequest.problem.description}
-
-## Examples
-${getExamples(codequest.problem.examples)}
-
-## Constraints
-${getConstraints(codequest.problem.constraints)}
-
-## Difficulty
-${codequest.difficulty.name}
-
-## Author
-${codequest.author}`
-}
-
-
 onMounted(async () => {
+  window.addEventListener('mousemove', handleMouseMove)
+  window.addEventListener('mouseup', stopDragging)
+
   const id = route.params.id?.toString()
 
-  if (auth.nickname && id) {
+  if (auth.nickname) {
     try {
-      const solRes = await getSolutionsByCodequest(id)
-      if(solRes.success){
-        const sol = solRes.solutions.find(sol => sol.user === auth.nickname)
-        if(sol) {
-          currentLanguage.value = sol.language
-          code.value = sol.code
-        }
-      }
-      const res = await getCodequestById(id)
-      if(res.success) {
-        markDown.value = buildMarkDown(res.codequest)
-        codequest.value = res.codequest
-      }
-    } catch (error) {
-      await errorToast('Impossible to load codequests')
-      console.log(error)
-    }
-  } else {
-    await errorToast('Impossible to load codequest')
-  }
-})
-
-onMounted( async () => {
-  if(auth.nickname) {
-    try{
       const res = await getAllCodequests()
-      if(res.success) {
-        for (const quest of res.codequests) {
-          codequests.value.push(quest)
+      if (res.success) {
+        codequests.value = res.codequests
+      }
+
+      if (id) {
+        const questRes = await getCodequestById(id)
+        if (questRes.success) {
+          codequest.value = questRes.codequest
+
+          const solRes = await getSolutionsByCodequest(id)
+          const codeRes = await getGeneratedCodes(id)
+          solution.value = solRes.solutions.find(sol => sol.user === auth.nickname)
+          if (solRes.success && solution.value && codeRes.success) {
+            availableLanguages.value = solution.value.codes.map(code => {
+              const matched = codeRes.generatedCodes.entries.find(langCode => langCode.language == code.language.name)
+              if (!matched) {
+                throw new Error(`No code found for language ${code.language.name}`)
+              }
+              return {
+                language: code.language.name,
+                templateCode: code.code,
+                testCode: matched.testCode
+              }
+            })
+            currentLanguage.value = availableLanguages.value[0]
+          } else {
+            if (codeRes.success) {
+              availableLanguages.value = codeRes.generatedCodes.entries
+              currentLanguage.value = availableLanguages.value[0]
+            }
+          }
         }
+      } else {
+        await errorToast('Impossible to load codequest')
       }
     } catch (error) {
       await errorToast('Impossible to load codequests')
-      console.log(error)
+      console.error(error)
     }
   }
 })
 
-onMounted(() => {
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', stopDragging)
-})
 onBeforeUnmount(() => {
     window.removeEventListener('mousemove', handleMouseMove)
     window.removeEventListener('mouseup', stopDragging)
 })
+
+watch(currentLanguage, (newLang) => {
+  if (newLang) {
+    currentCode.value = newLang.templateCode || ''
+  } else {
+    currentCode.value = ''
+  }
+}, { immediate: true })
+
+watch(currentCode, (newCode) => {
+  if (!currentLanguage.value) return
+
+  const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value?.language)
+  if (idx !== -1) {
+    availableLanguages.value[idx].templateCode = newCode
+    currentLanguage.value = availableLanguages.value[idx]
+  }
+})
+
 </script>
 
 <template>
@@ -212,8 +302,9 @@ onBeforeUnmount(() => {
       data-aos-duration="1600"
     >
       <markdown-viewer
-        :content="markDown"
-        class="w-full h-full"
+          v-if="codequest"
+          :codequest="codequest"
+          class="w-full h-full"
       />
     </div>
 
@@ -230,18 +321,22 @@ onBeforeUnmount(() => {
     >
       <div class="absolute top-4 right-4 z-10">
         <textarea-code-languages
-          :allowed-language="allowedLanguages"
-          :current-language="currentLanguage"
-          @language-selected="currentLanguage = $event"
+            v-if="currentLanguage"
+            :available-languages="availableLanguages"
+            :current-language="currentLanguage"
+            @language-selected="currentLanguage = $event"
         />
       </div>
       <code-editor
-        v-if="auth.nickname && codequest"
-        class="w-full h-full"
-        :current-language="currentLanguage"
-        :codequest="codequest"
-        :old-code="code"
-        :user="auth.nickname"
+          v-if="auth.nickname && codequest && currentLanguage"
+          :current-language="currentLanguage"
+          :examples="codequest.problem.examples"
+          v-model:value="currentCode"
+      />
+      <execution-result-panel
+        v-if="result && codequest"
+        :result="result"
+        :examples="codequest.problem.examples"
       />
     </div>
   </section>
@@ -269,11 +364,13 @@ onBeforeUnmount(() => {
         title="Debug"
         url="/icons/debug.svg"
         alt="Debug your solution"
+        @click="debug"
       />
       <clickable-text-with-image
         title="Submit"
         url="/icons/upload.svg"
         alt="Upload your solution"
+        @click="submit"
       />
     </div>
   </footer>
