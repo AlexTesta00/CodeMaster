@@ -14,11 +14,9 @@ class JavaLanguageGenerator : LanguageGenerator {
         val returnType = signature.returnType.mapTo(Language.Java)
 
         return """
-            public class Main {
-                public static $returnType ${signature.name}($params) {
-                    // TODO: implement
-                    return null;
-                }
+            public static $returnType ${signature.name}($params) {
+                // TODO: implement
+                return null;
             }
         """.trimIndent()
     }
