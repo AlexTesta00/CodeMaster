@@ -45,9 +45,6 @@ const allowedLanguages = ref<Language[]>([
 const languages = ref<Language[]>([allowedLanguages.value[0]])
 const difficulties = ref(['EASY', 'MEDIUM', 'HARD'])
 const difficulty = ref(difficulties.value[0])
-const leftPanelWidth = ref(
-    parseInt(localStorage.getItem('leftPanelWidth') || '500'),
-)
 
 const isLanguageSelected = (lang: Language): boolean => {
   return languages.value.some(l => l.name === lang.name)
@@ -175,10 +172,10 @@ onMounted(() => {
     />
 
     <form
-        :style="{ width: leftPanelWidth + 'px' }"
-        class="flex h-full flex-col overflow-auto min-w-[200px] max-w-[calc(100%-200px)] gap-4 pb-16 ml-4"
+        :style="{ width: '50%' }"
+        class="flex h-full flex-col overflow-auto gap-4 pb-16 ml-4"
         data-aos="fade-up"
-        data-aos-duration="1600"
+        data-aos-duration="3000"
     >
       <label
           for="title"
@@ -265,28 +262,18 @@ onMounted(() => {
         </select>
       </div>
     </form>
-
-    <!--
-    <div
-        class="w-1 cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 transition-all"
-        @mousedown="startDragging"
-    />-->
-
-    <div
-        class="flex-1 h-full min-w-[200px] relative"
-        data-aos="fade-left"
+    <form
+        :style="{ width: '50%' }"
+        class="flex h-full flex-col overflow-auto gap-4 pb-16 ml-4"
+        data-aos="fade-up"
         data-aos-duration="3000"
     >
-      <!-- <test-editor
-          :language="languages[0] || allowedLanguages[0]"
-      /> -->
       <function-editor
           @update:function="handleFunctionUpdate"
           v-model:valid="isFunctionValid"
       />
-    </div>
+    </form>
   </section>
-
   <footer
       class="flex flex-row justify-center items-center w-full fixed h-16 bottom-0 bg-background dark:bg-bgdark gap-4"
   >

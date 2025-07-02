@@ -133,17 +133,21 @@ watch(examples, () => {
 
 </script>
 <template>
-  <section class="p-6 bg-background dark:bg-bgdark text-black dark:text-white min-h-screen">
-    <h1 class="text-2xl font-bold mb-6">
+  <form
+      class="flex h-full flex-col overflow-auto gap-4 pb-16 ml-4"
+      data-aos="fade-up"
+      data-aos-duration="3000"
+  >
+    <label class="text-2xl font-bold mb-6">
       Define Examples for <span class="text-primary">{{ functionName }}</span>
-    </h1>
+    </label>
 
     <div
         v-for="(ex, index) in examples"
         :key="index"
         class="mb-6 border border-primary rounded-xl p-6 bg-white dark:bg-gray-900 shadow-md"
     >
-      <h2 class="text-xl font-semibold mb-4 text-black dark:text-white">Example {{ index + 1 }}</h2>
+      <label class="text-xl font-semibold mb-4 text-black dark:text-white">Example {{ index + 1 }}</label>
 
       <div
           v-for="(param, pIndex) in parameters"
@@ -188,7 +192,7 @@ watch(examples, () => {
       </div>
       <button
           @click="removeExample(index)"
-          class="text-sm text-red-600 hover:underline"
+          class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md transition mb-8"
       >
         Remove
       </button>
@@ -215,5 +219,5 @@ watch(examples, () => {
         Continue
       </button>
     </div>
-  </section>
+  </form>
 </template>

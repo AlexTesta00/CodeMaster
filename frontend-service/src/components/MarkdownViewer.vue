@@ -40,6 +40,8 @@ const getConstraints = (constraints: string[]): string => {
 const buildMarkDown = (): string => {
   return `
 # ${props.codequest.title}
+## Author
+${user}
 ## Problem
 ${props.codequest.problem.description}
 ## Examples
@@ -48,8 +50,6 @@ ${getExamples(props.codequest.problem.examples)}
 ${getConstraints(props.codequest.problem.constraints)}
 ## Difficulty
 ${props.codequest.difficulty.name}
-## Author
-${user}
 
 `
 }

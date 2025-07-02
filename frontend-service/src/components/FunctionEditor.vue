@@ -104,29 +104,28 @@ const removeParameter = (index: number) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 text-black dark:text-white">
     <label class="text-black dark:text-white text-2xl">Function Signature*</label>
     <input
         v-model="functionName"
         placeholder="Function name"
-        class="p-2 border-2 border-primary rounded-md bg-white text-black"
+        class="border-2 border-primary w-2/5 rounded-l"
         required
-        :class="{ 'border-red-500': errors.functionName }"
     />
     <p v-if="errors.functionName" class="text-error text-base">{{ errors.functionName }}</p>
     <label class="text-black dark:text-white text-2xl">Parameters*</label>
     <div v-for="(param, index) in parameters" :key="index" class="flex gap-2 items-center">
-      <input
-          v-model="param.name"
-          placeholder="Parameter name"
-          class="p-2 border-2 border-primary rounded-md bg-white text-black"
-          required
-          :class="{ 'border-red-500': errors.parameters[index] }"
-      />
-      <p v-if="errors.parameters[index]" class="text-error text-base">{{ errors.parameters[index] }}</p>
+      <div>
+        <input
+            v-model="param.name"
+            placeholder="Parameter name"
+            class="border-2 border-primary w-2/5 rounded-l"
+            required
+        />
+        <p v-if="errors.parameters[index]" class="text-error text-base">{{ errors.parameters[index] }}</p>
+      </div>
       <select
           v-model="param.typeName"
-          class="p-2 border-2 border-primary rounded-md bg-white text-black"
+          class="p-2 border-2 border-primary rounded-md dark:bg-gray-800 text-black dark:text-white"
       >
         <option v-for="type in allowedTypes" :key="type" :value="type">
           {{ type }}
@@ -154,12 +153,16 @@ const removeParameter = (index: number) => {
     <div class="w-full flex flex-row items-center justify-start gap-4 text-black dark:text-white text-2xl">
       <select
           v-model="returnType"
-          class="p-2 border-2 border-primary rounded-md bg-white text-black"
+          class="p-2 border-2 border-primary rounded-md dark:bg-gray-800 text-black dark:text-white"
       >
         <option v-for="type in allowedTypes" :key="type" :value="type">
           {{ type }}
         </option>
       </select>
     </div>
-  </div>
 </template>
+<style scoped>
+input {
+  @apply focus:outline-none p-2;
+}
+</style>

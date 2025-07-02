@@ -44,11 +44,15 @@ const handleDelete = (event: MouseEvent) => {
       <button
           v-if="deletable"
           @click="handleDelete"
-          class="text-red-600 hover:text-red-800 transition duration-300 font-semibold px-3 py-1 rounded-md border border-red-600 hover:bg-red-100"
+          class="transition duration-300 font-semibold px-3 py-1"
           aria-label="Delete codequest"
           type="button"
       >
-        <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5" />
+        <img
+            src="/icons/trashcan.svg"
+            alt="Remove"
+            class="w-5 h-5"
+        >
       </button>
     </div>
   </div>

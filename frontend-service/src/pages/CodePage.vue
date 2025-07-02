@@ -1,4 +1,3 @@
-ti mando il mio codice com'è ora così mi dici cosa cambiare:
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import MarkdownViewer from '../components/MarkdownViewer.vue'
@@ -14,16 +13,16 @@ import {
   getAllCodequests,
   getCodequestById,
   getGeneratedCodes,
-  getSolutionsByCodequest, updateSolution
+  getSolutionsByCodequest
 } from "../utils/api.ts";
 import {useAuthStore} from "../utils/store.ts";
-import type {CodeQuest, Codes, ExecutionResult, LanguageCodes, Solution} from "../utils/interface.ts";
+import type {CodeQuest, Codes, ExecutionResult, Solution} from "../utils/interface.ts";
 import {useRoute} from "vue-router";
 import ExecutionResultPanel from "../components/ExecutionResultPanel.vue";
 
 const availableLanguages = ref<Codes[]>([])
 const currentLanguage = ref<Codes>()
-const originalCodes: Codes[] = []
+const originalCodes = ref<Codes[]>([])
 const solution = ref<Solution>()
 const auth = useAuthStore()
 const codequests = ref<CodeQuest[]>([])
@@ -68,36 +67,6 @@ const addSolution = async () => {
 }
 
 const handleConfirm = async () => {
-  try {
-    if(auth.nickname && codequest.value) {
-      if (solution.value) {
-        const languageCodes: LanguageCodes[] = codequest.value.languages.map(lang => {
-          const matched = availableLanguages.value.find(l => l.language === lang.name)
-          if (!matched) {
-            throw new Error(`No code found for language ${lang.name}`)
-          }
-          return {
-            language: {
-              name: lang.name,
-              fileExtension: lang.fileExtension
-            },
-            code: matched.templateCode
-          }
-        })
-        for (const code of languageCodes) {
-          await updateSolution(
-              solution.value.id,
-              code
-          )
-        }
-      } else {
-        await addSolution()
-      }
-    }
-  } catch (error) {
-    await errorToast('Impossible to load solution')
-    console.log(error)
-  }
   isBackDialogOpen.value = false
   await router.push('/dashboard')
 }
@@ -249,13 +218,21 @@ onMounted(async () => {
                 testCode: matched.testCode
               }
             })
-            availableLanguages.value.forEach(code => originalCodes.push(code))
+            originalCodes.value = availableLanguages.value.map(code => ({
+              language: code.language,
+              templateCode: code.templateCode,
+              testCode: code.testCode
+            }))
             currentLanguage.value = availableLanguages.value[0]
           } else {
             if (codeRes.success) {
               availableLanguages.value = codeRes.generatedCodes.entries
               currentLanguage.value = availableLanguages.value[0]
-              availableLanguages.value.forEach(code => originalCodes.push(code))
+              originalCodes.value = availableLanguages.value.map(code => ({
+                language: code.language,
+                templateCode: code.templateCode,
+                testCode: code.testCode
+              }))
             }
           }
         }
@@ -271,9 +248,18 @@ onMounted(async () => {
 
 const resetCurrentCode = () => {
   if (currentLanguage.value) {
-    const original = originalCodes.find(l => l.language === currentLanguage.value!.language)
+    const original = originalCodes.value.find(l => l.language === currentLanguage.value!.language)
+    console.log('original codes: ', JSON.stringify(original, null, 2))
     if (original) {
-      currentCode.value = original.templateCode
+      const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value!.language)
+      console.log('idx: ', JSON.stringify(original, null, 2))
+      if (idx !== -1) {
+        availableLanguages.value[idx].templateCode = original.templateCode
+        currentLanguage.value = {
+          ...availableLanguages.value[idx]
+        }
+        currentCode.value = original.templateCode
+      }
     }
   }
 }
@@ -306,8 +292,12 @@ watch(currentCode, (newCode) => {
 
   const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value?.language)
   if (idx !== -1) {
-    availableLanguages.value[idx].templateCode = newCode
-    currentLanguage.value = availableLanguages.value[idx]
+    if (availableLanguages.value[idx].templateCode !== newCode) {
+      availableLanguages.value[idx].templateCode = newCode
+      if (currentLanguage.value !== availableLanguages.value[idx]) {
+        currentLanguage.value = availableLanguages.value[idx]
+      }
+    }
   }
 })
 
@@ -319,7 +309,7 @@ watch(currentCode, (newCode) => {
   >
     <yes-or-no-dialog
         title="Are you sure?"
-        message="Changes will not be saved and the codequest will not be forwarded"
+        message="Changes will be lost"
         :is-open-dialog="isBackDialogOpen"
         @confirm="handleConfirm"
         @close="handleClose"
@@ -350,9 +340,15 @@ watch(currentCode, (newCode) => {
     </div>
 
     <div
-        class="flex-1 h-full min-w-[200px] flex flex-col relative" data-aos="fade-left" data-aos-duration="3000"
-        @mousedown="startDragging"
+        class="flex-1 h-full min-w-[200px] flex flex-col relative"
+        data-aos="fade-left"
+        data-aos-duration="3000"
     >
+      <div
+          class="w-2 cursor-ew-resize absolute left-0 top-0 bottom-0 z-20"
+          @mousedown="startDragging"
+      />
+
       <div class="absolute top-4 right-4 z-10">
         <textarea-code-languages
             v-if="currentLanguage"
@@ -365,15 +361,15 @@ watch(currentCode, (newCode) => {
       <div class="flex-1 overflow-hidden">
         <code-editor
             v-if="auth.nickname && codequest && currentLanguage"
-            :current-language="currentLanguage"
-            :examples="codequest.problem.examples"
+            v-model="currentCode"
+            :language="currentLanguage.language"
             v-model:value="currentCode"
             class="h-full"
         />
       </div>
       <div
           v-if="isTerminalOpen"
-          class="h-60 bg-gray-600 border-t border-black dark:border-white overflow-y-auto"
+          class="h-60 bg-gray-200 dark:bg-gray-700 overflow-y-auto"
       >
         <div class="p-4">
           <div v-if="isExecuting" class="flex items-center space-x-2">
@@ -393,7 +389,6 @@ watch(currentCode, (newCode) => {
           />
         </div>
       </div>
-
       <footer class="h-20 w-full z-20">
         <div class="w-full h-full bg-primary rounded-sm flex flex-row justify-evenly items-center flex-wrap">
           <clickable-text-with-image
