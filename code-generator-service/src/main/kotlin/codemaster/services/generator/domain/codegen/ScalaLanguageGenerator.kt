@@ -2,6 +2,8 @@ import codemaster.services.generator.domain.ExampleCase
 import codemaster.services.generator.domain.FunctionSignature
 import codemaster.services.generator.domain.Language
 import codemaster.services.generator.domain.codegen.LanguageGenerator
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 
 class ScalaLanguageGenerator : LanguageGenerator {
 
@@ -21,28 +23,42 @@ class ScalaLanguageGenerator : LanguageGenerator {
 
     override fun generateTests(signature: FunctionSignature, examples: List<ExampleCase>): String {
         return examples.mapIndexed { index, example ->
-            val inputArgs = example.inputs.joinToString(", ") { toLiteral(it, Language.Scala) }
-            val expected = toLiteral(example.output, Language.Scala)
+            val inputArgs = example.inputs.joinToString(", ") { toLiteralFromJson(it) }
+            val expected = toLiteralFromJson(example.output)
 
             """
             test("test${index + 1}") {
-                val result = Main.${signature.name}($inputArgs)
+                val result = ${signature.name}($inputArgs)
                 assert(result == $expected)
             }
             """.trimIndent()
         }.joinToString("\n\n")
     }
 
-    fun toLiteral(value: Any?, language: Language): String {
-        return when (value) {
-            is String -> "\"$value\""
-            is Int, is Double, is Boolean -> value.toString()
-            is List<*> -> value.joinToString(", ", "List(", ")") { toLiteral(it, language) }
-            is Map<*, *> -> value.entries.joinToString(", ", "Map(", ")") {
-                "${toLiteral(it.key, language)} -> ${toLiteral(it.value, language)}"
-            }
-            is Array<*> -> value.joinToString(", ", "Array(", ")") { toLiteral(it, language) }
-            else -> value.toString()
+    private fun toLiteral(value: Any?): String = when (value) {
+        null -> "null"
+        is String -> "\"${value.replace("\"", "\\\"")}\""
+        is Int, is Double, is Boolean -> value.toString()
+        is List<*> -> value.joinToString(", ", "List(", ")") { toLiteral(it) }
+        is Map<*, *> -> value.entries.joinToString(", ", "Map(", ")") {
+            "${toLiteral(it.key)} -> ${toLiteral(it.value)}"
         }
+        is Array<*> -> value.joinToString(", ", "Array(", ")") { toLiteral(it) }
+        is Pair<*, *> -> "(${toLiteral(value.first)}, ${toLiteral(value.second)})"
+        else -> value.toString()
+    }
+
+    fun toLiteralFromJson(raw: Any?): String {
+        val mapper = ObjectMapper()
+        val value = if (raw is String) {
+            try {
+                mapper.readValue(raw, object : TypeReference<Any>() {})
+            } catch (e: Exception) {
+                raw
+            }
+        } else {
+            raw
+        }
+        return toLiteral(value)
     }
 }
