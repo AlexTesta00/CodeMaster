@@ -10,7 +10,7 @@ import type {
 } from "../utils/interface.ts";
 import {addNewCodequest, generateCodequestCodes} from "../utils/api.ts";
 import {getPlaceholder, isValidInput, isValidOutput} from "../utils/type-utils.ts";
-import {errorToast} from "../utils/notify.ts";
+import {errorToast, successToast} from "../utils/notify.ts";
 import {codequestStore} from "../utils/codequest-store.ts";
 
 const router = useRouter()
@@ -91,6 +91,7 @@ const submitCodequest = async () => {
 
   codeQuestStore.$reset();
   await router.push('/profile');
+  await successToast("CodeQuest created successfully!")
 };
 
 const addExample = () => {

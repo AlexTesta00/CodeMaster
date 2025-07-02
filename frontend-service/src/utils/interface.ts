@@ -174,32 +174,32 @@ export interface ExampleFieldErrors {
 }
 
 export type ExecutionResult =
-    | { type: 'Pending' }
+    | { type: 'pending' }
     | {
-    type: 'Accepted'
+    type: 'accepted'
     output: string[]
     exitCode: number
 }
     | {
-    type: 'TestsFailed'
+    type: 'testsFailed'
     error: string
     output: string[]
     exitCode: number
 }
     | {
-    type: 'CompileFailed'
+    type: 'compileFailed'
     error: string
     stderr: string
     exitCode: number
 }
     | {
-    type: 'RuntimeError'
+    type: 'runtimeError'
     error: string
     stderr?: string
     exitCode: number
 }
     | {
-    type: 'TimeLimitExceeded'
+    type: 'timeLimitExceeded'
     timeout: number
 }
 

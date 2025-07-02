@@ -1,3 +1,4 @@
+ti mando il mio codice com'è ora così mi dici cosa cambiare:
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import MarkdownViewer from '../components/MarkdownViewer.vue'
@@ -7,7 +8,7 @@ import SideBar from '../components/SideBar.vue'
 import TextareaCodeLanguages from '../components/TextareaCodeLanguages.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
-import {errorToast} from "../utils/notify.ts";
+import {errorToast, successToast} from "../utils/notify.ts";
 import {
   addNewSolution, debugCode, executeCode,
   getAllCodequests,
@@ -22,6 +23,7 @@ import ExecutionResultPanel from "../components/ExecutionResultPanel.vue";
 
 const availableLanguages = ref<Codes[]>([])
 const currentLanguage = ref<Codes>()
+const originalCodes: Codes[] = []
 const solution = ref<Solution>()
 const auth = useAuthStore()
 const codequests = ref<CodeQuest[]>([])
@@ -32,6 +34,9 @@ const route = useRoute()
 const result = ref<ExecutionResult>()
 const codequest = ref<CodeQuest | null>(null)
 const currentCode = ref('')
+const isExecuting = ref(false)
+const isTerminalOpen = ref(false)
+const executionType = ref('')
 
 const addSolution = async () => {
   try {
@@ -63,108 +68,127 @@ const addSolution = async () => {
 }
 
 const handleConfirm = async () => {
-    try {
-      if(auth.nickname && codequest.value) {
-        if (solution.value) {
-          const languageCodes: LanguageCodes[] = codequest.value.languages.map(lang => {
-            const matched = availableLanguages.value.find(l => l.language === lang.name)
-            if (!matched) {
-              throw new Error(`No code found for language ${lang.name}`)
-            }
-            return {
-              language: {
-                name: lang.name,
-                fileExtension: lang.fileExtension
-              },
-              code: matched.templateCode
-            }
-          })
-          for (const code of languageCodes) {
-            await updateSolution(
-                solution.value.id,
-                code
-            )
+  try {
+    if(auth.nickname && codequest.value) {
+      if (solution.value) {
+        const languageCodes: LanguageCodes[] = codequest.value.languages.map(lang => {
+          const matched = availableLanguages.value.find(l => l.language === lang.name)
+          if (!matched) {
+            throw new Error(`No code found for language ${lang.name}`)
           }
-        } else {
-          await addSolution()
+          return {
+            language: {
+              name: lang.name,
+              fileExtension: lang.fileExtension
+            },
+            code: matched.templateCode
+          }
+        })
+        for (const code of languageCodes) {
+          await updateSolution(
+              solution.value.id,
+              code
+          )
         }
+      } else {
+        await addSolution()
       }
-    } catch (error) {
-      await errorToast('Impossible to load solution')
-      console.log(error)
     }
-    isBackDialogOpen.value = false
-    await router.push('/dashboard')
+  } catch (error) {
+    await errorToast('Impossible to load solution')
+    console.log(error)
+  }
+  isBackDialogOpen.value = false
+  await router.push('/dashboard')
 }
 
 const debug = async () => {
+  executionType.value = 'compile'
   try {
+    isTerminalOpen.value = true
+    isExecuting.value = true
+    result.value = undefined
+
     if(!solution.value) {
       const response = await addSolution()
       if (response && response.success) {
         solution.value = response.solution
       } else {
         await errorToast('Error while adding solution')
+        return
       }
     }
     if (availableLanguages.value && currentLanguage.value && solution.value) {
       const lang = currentLanguage.value.language
       const testCode = availableLanguages.value.find(l => l.language === lang)?.testCode
-      if (testCode) {
-        const languageCode = solution.value.codes.find(code => code.language.name == lang)
-        if (languageCode) {
-          const response = await debugCode(
-              solution.value.id,
-              testCode,
-              languageCode
-          )
-          console.log('solution resp: ', JSON.stringify(response, null, 2))
-          if (response.success) {
-            result.value = response.result
-          }
+      const languageCode = solution.value.codes.find(code => code.language.name == lang)
+      if (testCode && languageCode) {
+        const response = await debugCode(
+            solution.value.id,
+            testCode,
+            {
+              language: languageCode.language,
+              code: currentCode.value
+            }
+        )
+        console.log('debug response: ', JSON.stringify(response, null, 2))
+        if (response.success) {
+          result.value = response.result
         }
       }
     }
   } catch {
     await errorToast('Error while compiling code')
+  } finally {
+    isExecuting.value = false
   }
 }
 
 const submit = async () => {
+  executionType.value = 'run'
   try {
-    if(!solution.value) {
+    isTerminalOpen.value = true
+    isExecuting.value = true
+    result.value = undefined
+
+    if (!solution.value) {
       const response = await addSolution()
-      if (response && response.success) {
+      if (response?.success) {
         solution.value = response.solution
       } else {
         await errorToast('Error while adding solution')
+        return
       }
     }
+
     if (availableLanguages.value && currentLanguage.value && solution.value) {
       const lang = currentLanguage.value.language
       const testCode = availableLanguages.value.find(l => l.language === lang)?.testCode
-      if (testCode) {
-        const languageCode = solution.value.codes.find(code => code.language.name == lang)
-        if (languageCode) {
-          const response = await executeCode(
-              solution.value.id,
-              testCode,
-              languageCode
-          )
-          console.log('solution resp: ', JSON.stringify(response, null, 2))
-          if (response.success) {
-            result.value = response.result
-          }
+      const languageCode = solution.value.codes.find(code => code.language.name == lang)
+      if (testCode && languageCode) {
+        const response = await executeCode(
+            solution.value.id,
+            testCode,
+            {
+              language: languageCode.language,
+              code: currentCode.value
+            }
+        )
+        console.log('execute response: ', JSON.stringify(response, null, 2))
+        if (response.success) {
+          result.value = response.result
         }
       }
     }
   } catch {
     await errorToast('Error while compiling code')
+  } finally {
+    isExecuting.value = false
   }
 }
 
 const handleClose = () => {
-    isBackDialogOpen.value = false
+  isBackDialogOpen.value = false
 }
 
 const leftPanelWidth = ref(
@@ -175,21 +199,21 @@ let isDragging = false
 const isSidebarOpen = ref(false)
 
 const startDragging = (e: MouseEvent) => {
-    e.preventDefault()
-    isDragging = true
+  e.preventDefault()
+  isDragging = true
 }
 
 const stopDragging = () => {
-    isDragging = false
-    localStorage.setItem('leftPanelWidth', leftPanelWidth.value.toString())
+  isDragging = false
+  localStorage.setItem('leftPanelWidth', leftPanelWidth.value.toString())
 }
 
 const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return
+  if (!isDragging) return
 
-    const min = 200
-    const max = window.innerWidth - 200
-    leftPanelWidth.value = Math.min(Math.max(e.clientX, min), max)
+  const min = 200
+  const max = window.innerWidth - 200
+  leftPanelWidth.value = Math.min(Math.max(e.clientX, min), max)
 }
 
 onMounted(async () => {
@@ -225,11 +249,13 @@ onMounted(async () => {
                 testCode: matched.testCode
               }
             })
+            availableLanguages.value.forEach(code => originalCodes.push(code))
             currentLanguage.value = availableLanguages.value[0]
           } else {
             if (codeRes.success) {
               availableLanguages.value = codeRes.generatedCodes.entries
               currentLanguage.value = availableLanguages.value[0]
+              availableLanguages.value.forEach(code => originalCodes.push(code))
             }
           }
         }
@@ -243,9 +269,28 @@ onMounted(async () => {
   }
 })
 
+const resetCurrentCode = () => {
+  if (currentLanguage.value) {
+    const original = originalCodes.find(l => l.language === currentLanguage.value!.language)
+    if (original) {
+      currentCode.value = original.templateCode
+    }
+  }
+}
+
+const copyLink = async () => {
+  const fullUrl = `${window.location.origin}/codequest/${codequest.value?.id}`
+  try {
+    await navigator.clipboard.writeText(fullUrl)
+    await successToast('Link copied in clipboard')
+  } catch (e) {
+    console.error('Errore nella copia:', e)
+  }
+}
+
 onBeforeUnmount(() => {
-    window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('mouseup', stopDragging)
+  window.removeEventListener('mousemove', handleMouseMove)
+  window.removeEventListener('mouseup', stopDragging)
 })
 
 watch(currentLanguage, (newLang) => {
@@ -270,36 +315,32 @@ watch(currentCode, (newCode) => {
 
 <template>
   <section
-    class="h-[90vh] min-h-screen flex flex-row bg-background dark:bg-bgdark mx-4 overflow-hidden animate-fade-in"
+      class="h-[90vh] min-h-screen flex flex-row bg-background dark:bg-bgdark mx-4 overflow-hidden animate-fade-in"
   >
-    <!-- Dialog for return back -->
     <yes-or-no-dialog
-      title="Are you sure?"
-      message="Changes will not be saved and the codequest will not be forwarded"
-      :is-open-dialog="isBackDialogOpen"
-      @confirm="handleConfirm"
-      @close="handleClose"
+        title="Are you sure?"
+        message="Changes will not be saved and the codequest will not be forwarded"
+        :is-open-dialog="isBackDialogOpen"
+        @confirm="handleConfirm"
+        @close="handleClose"
     />
 
-    <!-- Sidebar Overlay -->
     <div
-      v-if="isSidebarOpen"
-      class="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm"
-      @click="isSidebarOpen = false"
+        v-if="isSidebarOpen"
+        class="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm"
+        @click="isSidebarOpen = false"
     />
 
-    <!-- Sidebar Overlay -->
     <side-bar
-      v-if="isSidebarOpen"
-      :codequest="codequests"
+        v-if="isSidebarOpen"
+        :codequest="codequests"
     />
 
-    <!-- Markdown Section -->
     <div
-      :style="{ width: leftPanelWidth + 'px' }"
-      class="h-full overflow-auto min-w-[200px] max-w-[calc(100%-200px)] mt-6"
-      data-aos="fade-up"
-      data-aos-duration="1600"
+        :style="{ width: leftPanelWidth + 'px' }"
+        class="h-full overflow-auto min-w-[200px] max-w-[calc(100%-200px)] mt-6"
+        data-aos="fade-up"
+        data-aos-duration="1600"
     >
       <markdown-viewer
           v-if="codequest"
@@ -308,16 +349,9 @@ watch(currentCode, (newCode) => {
       />
     </div>
 
-    <!-- Code section -->
     <div
-      class="w-1 cursor-col-resize bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 transition-all"
-      @mousedown="startDragging"
-    />
-
-    <div
-      class="flex-1 h-full min-w-[200px] relative"
-      data-aos="fade-left"
-      data-aos-duration="3000"
+        class="flex-1 h-full min-w-[200px] flex flex-col relative" data-aos="fade-left" data-aos-duration="3000"
+        @mousedown="startDragging"
     >
       <div class="absolute top-4 right-4 z-10">
         <textarea-code-languages
@@ -327,51 +361,79 @@ watch(currentCode, (newCode) => {
             @language-selected="currentLanguage = $event"
         />
       </div>
-      <code-editor
-          v-if="auth.nickname && codequest && currentLanguage"
-          :current-language="currentLanguage"
-          :examples="codequest.problem.examples"
-          v-model:value="currentCode"
-      />
-      <execution-result-panel
-        v-if="result && codequest"
-        :result="result"
-        :examples="codequest.problem.examples"
-      />
+
+      <div class="flex-1 overflow-hidden">
+        <code-editor
+            v-if="auth.nickname && codequest && currentLanguage"
+            :current-language="currentLanguage"
+            :examples="codequest.problem.examples"
+            v-model:value="currentCode"
+            class="h-full"
+        />
+      </div>
+      <div
+          v-if="isTerminalOpen"
+          class="h-60 bg-gray-600 border-t border-black dark:border-white overflow-y-auto"
+      >
+        <div class="p-4">
+          <div v-if="isExecuting" class="flex items-center space-x-2">
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10"
+                      stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"/>
+            </svg>
+            <span>Running code...</span>
+          </div>
+          <execution-result-panel
+              v-else-if="result && codequest"
+              :result="result"
+              :examples="codequest.problem.examples"
+              :execution-type="executionType"
+          />
+        </div>
+      </div>
+
+      <footer class="h-20 w-full z-20">
+        <div class="w-full h-full bg-primary rounded-sm flex flex-row justify-evenly items-center flex-wrap">
+          <clickable-text-with-image
+              title="Share"
+              url="/icons/share.svg"
+              alt="Share codequest"
+              @click="copyLink"
+          />
+          <clickable-text-with-image
+              title="Reset"
+              url="/icons/reset.svg"
+              alt="Reset current code"
+              @click="resetCurrentCode"
+          />
+          <clickable-text-with-image
+              title="Codequest"
+              url="/icons/dot.svg"
+              alt="Open sidebar to view all codequests"
+              @click="isSidebarOpen = true"
+          />
+          <clickable-text-with-image
+              title="Home"
+              url="/icons/home.svg"
+              alt="Return to home"
+              @click="isBackDialogOpen = true"
+          />
+          <clickable-text-with-image
+              title="Debug"
+              url="/icons/debug.svg"
+              alt="Debug your solution"
+              @click="debug"
+          />
+          <clickable-text-with-image
+              title="Submit"
+              url="/icons/upload.svg"
+              alt="Upload your solution"
+              @click="submit"
+          />
+        </div>
+      </footer>
     </div>
   </section>
-
-  <!-- Bottom NavBar -->
-  <footer
-    class="flex flex-row justify-center items-center w-full h-16 fixed bottom-0 mb-7 bg-transparent"
-  >
-    <div
-      class="w-1/4 h-full bg-primary rounded-full flex flex-row justify-evenly items-center flex-wrap"
-    >
-      <clickable-text-with-image
-        title="Codequest"
-        url="/icons/dot.svg"
-        alt="Open sidebar to view all codequests"
-        @click="isSidebarOpen = true"
-      />
-      <clickable-text-with-image
-        title="Home"
-        url="/icons/home.svg"
-        alt="Return to home"
-        @click="isBackDialogOpen = true"
-      />
-      <clickable-text-with-image
-        title="Debug"
-        url="/icons/debug.svg"
-        alt="Debug your solution"
-        @click="debug"
-      />
-      <clickable-text-with-image
-        title="Submit"
-        url="/icons/upload.svg"
-        alt="Upload your solution"
-        @click="submit"
-      />
-    </div>
-  </footer>
 </template>
