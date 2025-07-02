@@ -50,11 +50,8 @@ class KotlinExecutionServiceTest : DescribeSpec() {
     """.trimIndent()
     private val code =
         """
-        companion object {
-            @JvmStatic
-            fun myPrint(s: String): String {
-                return "Hello World! " + s
-            }
+        fun myPrint(s: String): String {
+            return "Hello World! " + s
         }
         """.trimIndent()
 
@@ -108,21 +105,15 @@ class KotlinExecutionServiceTest : DescribeSpec() {
 
             context("Compile and execute solution code") {
                 val nonCompilingCode = """
-                    companion object {
-                        @JvmStatic
-                        fun myPrint(s: String): String {
-                            return "Hello World! " + s
-                        
-                    }
+                    fun myPrint(s: String): String {
+                        return "Hello World! " + s
+                    
                 """.trimIndent()
 
                 val loop = """
-                    companion object {
-                        @JvmStatic
-                        fun myPrint(s: String) {
-                            while(true) {}
-                        }
-                       }
+                    fun myPrint(s: String) {
+                        while(true) {}
+                    }
                 """.trimIndent()
 
                 val failingTests = """
@@ -192,11 +183,8 @@ class KotlinExecutionServiceTest : DescribeSpec() {
                 it("should fail execution if there is a runtime exception") {
                     val newId = SolutionId.generate()
                     val newCode = """
-                        companion object {
-                            @JvmStatic
-                            fun myPrint(input: String?): String {
-                                return input!!.toUpperCase();
-                            }
+                        fun myPrint(input: String?): String {
+                            return input!!.toUpperCase();
                         }
                     """.trimIndent()
 

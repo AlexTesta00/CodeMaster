@@ -41,12 +41,12 @@ class ScalaExecutionServiceTest : DescribeSpec() {
         """
           @Test
           def testFunction1(): Unit = {
-            assertEquals("Hello World! test",  myPrint("test"))
+            assertEquals("Hello World! test",  Main.myPrint("test"))
           }
         
           @Test
           def testFunction2(): Unit = {
-            assertEquals("Hello World! test", myPrint("test"))
+            assertEquals("Hello World! test", Main.myPrint("test"))
           }
         """.trimIndent()
     private val code =
@@ -114,19 +114,19 @@ class ScalaExecutionServiceTest : DescribeSpec() {
                 val failingTests = """
                       @Test
                       def testFunction1(): Unit = {
-                        assertEquals("Hello World! test", myPrint("test"))
+                        assertEquals("Hello World! test", Main.myPrint("test"))
                       }
                     
                       @Test
                       def testFunction2(): Unit = {
-                        assertEquals("Hello World! test", myPrint(""))
+                        assertEquals("Hello World! test", Main.myPrint(""))
                       }
                 """.trimIndent()
 
                 val runtimeException = """
                       @Test
                       def testFunction1(): Unit = {
-                        assertEquals("Hello World! test", myPrint(null))
+                        assertEquals("Hello World! test", Main.myPrint(null))
                       }
                 """.trimIndent()
 

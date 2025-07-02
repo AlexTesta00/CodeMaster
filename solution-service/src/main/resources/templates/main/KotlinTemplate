@@ -3,6 +3,10 @@ import kotlin.collections.*
 
 class Main {
 
-    // USER_CODE_HERE
+    companion object {
+
+        // USER_CODE_HERE
+
+    }
 
 }
