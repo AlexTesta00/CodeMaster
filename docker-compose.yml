@@ -34,6 +34,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-user:27017/codemaster-user-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-user-service:
     build:
@@ -47,9 +49,9 @@ services:
         condition: service_healthy
       mongo-user:
         condition: service_started
-    env_file:
-      - ./user-service/.env
     environment:
+      - MONGO_URI=mongodb://mongo-user:27017/codemaster-user-db
+      - PORT=4005
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-authentication:
@@ -70,6 +72,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-authentication:27017/codemaster-authentication-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-authentication-service:
     build:
@@ -83,9 +87,11 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-    env_file:
-      - ./authentication-service/.env
     environment:
+      - JWT_SECRET=UW0qPTOxV3bTdBYSMPOj2801OBCj0bi3Pf9MhJ1IQHQTPKzyuVKMU3bsWgs4Lxhx7EdCAdOHchqu5mpRg5jpSjiy2twMBTpFVyy85OzWobGVrwxYllxUcaF0ziP1AKSXiwoPazIHurPE8Rvzl1OKVhzeXEmAoXGgMgT5b36zGLglYM4fQ5edrqg10oPXjSxV3w6imqSzQlQJS8mFRfdwFH9VCiMlsMHFg9emoyW8fi49zD8WWwisebYLG8LeW9VQ
+      - JWT_REFRESH_TOKEN_SECRET=bjFqPVp1o5EsXmwcjTpJ27io1aBzHbhODjbCAgmMGMT9hp2QrXWtWo1CMeXI8z6RE2Z5agOqHKyz31VK3WGQebvz9LwhZPmfyPxxUGclt2gxrgllHZdBLq3Hh5wmSrzYso7XYmC9bkP0VapbjztR53KmkBF5TtJq5SRosaMKKqkWzajIbd3xqBr6eybwEXaGOv8XCCdJ7tUvL1uh7yFpUDUfbwLc18dlD5QD5A9jjvlKwH3353irFZv2f7tUO5jk
+      - MONGO_URI=mongodb://mongo-authentication:27017/codemaster-authentication-db
+      - PORT=4004
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-codequest:
@@ -106,6 +112,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-codequest:27017/codemaster-codequest-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-codequest-service:
     build:
@@ -119,8 +127,10 @@ services:
         condition: service_healthy
       mongo-codequest:
         condition: service_started
-    env_file:
-      - ./codequest-service/.env
+    environment:
+      - MONGO_URI=mongodb://mongo-codequest:27017/codemaster-codequest-db
+      - PORT=3000
+      - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-community:
     image: mongo
@@ -140,6 +150,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-community:27017/codemaster-community-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-community-service:
     build:
@@ -153,9 +165,9 @@ services:
         condition: service_healthy
       mongo-community:
         condition: service_started
-    env_file:
-      - ./community-service/.env
     environment:
+      - MONGO_URI=mongodb://mongo-community:27017/codemaster-community-db
+      - PORT=4007
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
   mongo-solution:
@@ -176,6 +188,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-solution:27017/codemaster-solution-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-solution-service:
     build:
@@ -192,9 +206,9 @@ services:
         condition: service_healthy
       mongo-solution:
         condition: service_started
-    env_file:
-      - ./solution-service/.env
     environment:
+      - MONGO_URI=mongodb://localhost:27017/codemaster
+      - PORT=4006
       - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
 
@@ -216,6 +230,8 @@ services:
         condition: service_started
     environment:
       ME_CONFIG_MONGODB_URL: "mongodb://mongo-generator:27017/codemaster-generator-db"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
 
   codemaster-generator-service:
     build:
@@ -229,8 +245,6 @@ services:
         condition: service_healthy
       mongo-generator:
         condition: service_started
-    env_file:
-      - ./code-generator-service/.env
 
   api-gateway:
     build:

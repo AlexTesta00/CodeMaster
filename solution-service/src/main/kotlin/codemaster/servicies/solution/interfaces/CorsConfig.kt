@@ -17,7 +17,7 @@ class CorsConfig {
     fun corsWebFilter(): CorsWebFilter {
         val corsConfig = CorsConfiguration()
         corsConfig.allowedOrigins = listOf("http://localhost:5173")
-        corsConfig.allowedMethods = listOf("GET", "POST", "OPTIONS", "DELETE")
+        corsConfig.allowedMethods = listOf("GET", "POST", "OPTIONS", "DELETE", "PUT")
         corsConfig.allowedHeaders = listOf("Authorization", "Content-Type", "Accept")
         corsConfig.allowCredentials = true
         corsConfig.maxAge = MAX_AGE
