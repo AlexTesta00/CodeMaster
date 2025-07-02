@@ -1,3 +1,18 @@
+## [3.1.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.0.2...v3.1.0) (2025-07-02)
+
+### Features
+
+* **generator-service:** add code generation api routes and container ([afd782e](https://github.com/AlexTesta00/CodeMaster/commit/afd782e811603eb62b940b8cae60c2344078b474))
+* **generator-service:** add generator service model and infrastructure ([137d924](https://github.com/AlexTesta00/CodeMaster/commit/137d924b793ab9968e8176c8f0c36edd49be6aa0))
+* **generator-service:** add generator-service service and tests ([4c6c425](https://github.com/AlexTesta00/CodeMaster/commit/4c6c425428ff5552bf79340c3799d5aa3cac1b4e))
+* **generator-service:** add new service generatore service ([2d88f0f](https://github.com/AlexTesta00/CodeMaster/commit/2d88f0f613680feee90568c29f02ef47c078631c))
+
+### Bug Fixes
+
+* **authentication:** change URI string in test environement ([38ec74f](https://github.com/AlexTesta00/CodeMaster/commit/38ec74ff5de033f32056eedc7ae734b40495c411))
+* **solution-service:** add all standard libraries import in code templates ([415dfa9](https://github.com/AlexTesta00/CodeMaster/commit/415dfa99787e894f70e80c14ef0a43b42eeaa60f))
+* **user:** change URI for db-connection in test environement ([30f58fe](https://github.com/AlexTesta00/CodeMaster/commit/30f58febf4a6a31e4bd6b5a73325d841496dbd70))
+
 ## [3.0.2](https://github.com/AlexTesta00/CodeMaster/compare/v3.0.1...v3.0.2) (2025-06-28)
 
 ### Bug Fixes
