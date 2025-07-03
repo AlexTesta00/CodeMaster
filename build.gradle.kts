@@ -43,7 +43,7 @@ tasks.register<Exec>("buildMultiLangRunner") {
 
     doLast {
         println("Docker build completed")
-        commandLine("docker", "compose", "up")
+        commandLine("docker", "compose", "up", "--build")
     }
 }
 
