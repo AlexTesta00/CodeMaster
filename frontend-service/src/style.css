@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+@layer base {
+    @font-face {
+        font-family: 'Inter-Bold';
+        font-style: normal;
+        font-display: swap;
+        src: url(/fonts/Inter-Black.woff2) format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter-Regular';
+        font-style: normal;
+        font-display: swap;
+        src: url(/fonts/Inter-Regular.woff2) format('woff2');
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family:
+            'Inter-Bold',
+            -apple-system,
+            sans-serif;
+        @apply select-none;
+    }
+
+    p,
+    button,
+    span {
+        @apply select-none;
+    }
+
+    progress {
+        @apply [&::-webkit-progress-bar]:bg-white;
+    }
+}

@@ -15,7 +15,7 @@ Make sure you have the following prerequisites installed on your system:
 Once the requirements are met, you can start the project with the following command:
 
 ```bash
-docker-compose up --build
+./gradlew dockerCompose
 ```
 
 ---

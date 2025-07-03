@@ -5,6 +5,8 @@ LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create/"
 TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create/"
 CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests/"
 COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments/"
+GENERATION_URL = "http://codemaster-generator-service:4008/api/v1/code-generator/generate"
+SOLUTIONS_URL = "http://codemaster-solution-service:4006/api/v1/solutions/"
 
 def get_existing_levels():
     url = 'http://codemaster-user-service:4005/api/v1/levels/'
@@ -22,7 +24,23 @@ def get_existing_trophies():
     else:
         return []
 
+def create_codequest(codequest):
+    try:
+        response = requests.post(CODEQUESTS_URL, json=codequest)
+        if response.status_code == 201:
+            data = response.json()
+            codequest = data.get('codequest')
+            print(f"[OK] CodeQuest '{codequest['title']}' creato con id: {codequest['id']}")
+            return codequest['id']
+        else:
+            print(f"[ERR] Errore creando '{codequest['title']}': {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"[EXC] Errore durante creazione codequest '{codequest['title']}': {e}")
+        return None
+
 if __name__ == "__main__":
+    codequest_ids = {}
 
     codequests = [
         {
@@ -138,13 +156,13 @@ if __name__ == "__main__":
     ]
 
     comments = [
-        {'author': 'markzuck', 'questId': 'Hello World', 'content': 'Questo esercizio è perfetto per iniziare!'},
-        {'author': 'rambo', 'questId': 'Somma di due numeri', 'content': 'Attenzione ai numeri negativi, funziona tutto bene.'},
-        {'author': 'fausto99', 'questId': 'Numero Pari o Dispari', 'content': 'Mi è piaciuto risolverlo con Scala!'},
-        {'author': 'aldo', 'questId': 'Fattoriale', 'content': 'Il limite a 20 è perfetto per evitare overflow del long.'},
-        {'author': 'marcob', 'questId': 'Palindromo', 'content': 'Molto interessante usare la funzione reverse per la soluzione.'},
-        {'author': 'stevejobs', 'questId': 'Fibonacci fino a N', 'content': 'Ho ottimizzato la soluzione con programmazione dinamica.'},
-        {'author': 'giacomo', 'questId': 'Fibonacci fino a N', 'content': 'Attenzione ai grandi input per non superare i tempi.'},
+        ('Hello World', 'markzuck', 'Questo esercizio è perfetto per iniziare!'),
+        ('Somma di due numeri', 'rambo', 'Attenzione ai numeri negativi, funziona tutto bene.'),
+        ('Numero Pari o Dispari', 'fausto99', 'Mi è piaciuto risolverlo con Scala!'),
+        ('Fattoriale', 'aldo', 'Il limite a 20 è perfetto per evitare overflow del long.'),
+        ('Palindromo', 'marcob', 'Molto interessante usare la funzione reverse per la soluzione.'),
+        ('Fibonacci fino a N', 'stevejobs', 'Ho ottimizzato la soluzione con programmazione dinamica.'),
+        ('Fibonacci fino a N', 'giacomo', 'Attenzione ai grandi input per non superare i tempi.')
     ]
 
     users = [
@@ -182,6 +200,125 @@ if __name__ == "__main__":
         {'title': 'Debugger Pro', 'description': 'You have defeated the bug', 'url': 'https://cdn-icons-png.flaticon.com/512/14807/14807389.png', 'xp': 200},
         {'title': 'Ninja', 'description': 'You used the keyboard exclusively throughout the session', 'url': 'https://cdn-icons-png.flaticon.com/512/1507/1507155.png', 'xp': 100},
         {'title': 'Hacker', 'description': 'Press correct keyboard combo', 'url': 'https://cdn-icons-png.flaticon.com/512/12652/12652488.png', 'xp': 10000},
+    ]
+
+    generation_requests = [
+        {
+            "title": "Hello World",
+            "functionName": "helloWorld",
+            "parameters": [{"name": "a", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {
+                    "inputs": ["2"],
+                    "output": "Hello, World!"
+                }
+            ],
+            "languages": ["Java", "Kotlin", "Scala"]
+        },
+        {
+            "title": "Somma di due numeri",
+            "functionName": "somma",
+            "parameters": [
+                {"name": "a", "typeName": "int"},
+                {"name": "b", "typeName": "int"}
+            ],
+            "returnType": "int",
+            "examples": [
+                {"inputs": ["3", "5"], "output": "8"},
+                {"inputs": ["10", "20"], "output": "30"}
+            ],
+            "languages": ["Java", "Kotlin", "Scala"]
+        },
+        {
+            "title": "Numero Pari o Dispari",
+            "functionName": "pariODispari",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {"inputs": ["4"], "output": "Pari"},
+                {"inputs": ["7"], "output": "Dispari"}
+            ],
+            "languages": ["Java", "Kotlin", "Scala"]
+        },
+        {
+            "title": "Fattoriale",
+            "functionName": "fattoriale",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "long",
+            "examples": [
+                {"inputs": ["5"], "output": "120"},
+                {"inputs": ["0"], "output": "1"}
+            ],
+            "languages": ["Java", "Kotlin"]
+        },
+        {
+            "title": "Palindromo",
+            "functionName": "isPalindromo",
+            "parameters": [{"name": "s", "typeName": "string"}],
+            "returnType": "boolean",
+            "examples": [
+                {"inputs": ["radar"], "output": "true"},
+                {"inputs": ["hello"], "output": "false"}
+            ],
+            "languages": ["Scala", "Kotlin"]
+        },
+        {
+            "title": "Fibonacci fino a N",
+            "functionName": "fibonacciFinoAN",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {"inputs": ["10"], "output": "0 1 1 2 3 5 8"},
+                {"inputs": ["1"], "output": "0 1 1"}
+            ],
+            "languages": ["Java", "Scala"]
+        }
+    ]
+
+    solutions = [
+        {
+            "title": "Somma di due numeri",
+            "user": "giacomo",
+            "solved": False,
+            "codes": [
+                {
+                    "language": {
+                        "name": "Java",
+                        "fileExtension": ".java"
+                    },
+                    "code": "public static int sum(int a, int b) { return a + b; }"
+                }
+            ]
+        },
+        {
+            "title": "Fattoriale",
+            "user": "giacomo",
+            "solved": False,
+            "codes": [
+                {
+                    "language": {
+                        "name": "Java",
+                        "fileExtension": ".java"
+                    },
+                    "code": "public static int factorial(int n) { return n <= 1 ? 1 : n * factorial(n - 1); }"
+                }
+            ]
+        },
+        {
+            "title": "Numero Pari o Dispari",
+            "user": "giacomo",
+            "solved": False,
+            "codes": [
+                {
+                    "language": {
+                        "name": "Java",
+                        "fileExtension": ".java"
+                    },
+                    "code": "public static boolean isEven(int n) { return n % 2 == 0; }"
+                }
+            ]
+        }
     ]
 
     print("[⏳] Creating users...")
@@ -232,24 +369,68 @@ if __name__ == "__main__":
         print("[✅] Trophies creation completed.")
 
     print("[⏳] Creating codequests...")
-
-    for quest in codequests:
-        try:
-            res = requests.post(CODEQUESTS_URL, json=quest)
-            if res.status_code in (200, 201):
-                print(f"[✅] Codequest '{quest['title']}' created successfully.")
-            else:
-                print(f"[X] Failed to create codequest '{quest['title']}': {res.status_code} - {res.text}")
-        except requests.exceptions.RequestException as e:
-            print(f"Error creating codequest '{quest['title']}': {e}")
+    for cq in codequests:
+        cq_id = create_codequest(cq)
+        if cq_id:
+            codequest_ids[cq['title']] = cq_id
 
     print("[✅] Codequests creation completed.")
 
     print("[⏳] Creating comments...")
-    for comment in comments:
-        res = requests.post(COMMUNITY_URL, json=comment)
-        if res.status_code in (200, 201):
-            print(f"[✅] Comment by '{comment['author']}' for '{comment['questId']}' created successfully.")
+    for title, author, content in comments:
+        quest_id = codequest_ids.get(title)
+        if not quest_id:
+            print(f"[WARN] Nessun id trovato per codequest '{title}', salto commento.")
+            continue
+        payload = {
+            'questId': quest_id,
+            'author': author,
+            'content': content,
+            'timestamp': None
+        }
+        response = requests.post(COMMUNITY_URL, json=payload)
+        if response.status_code == 201:
+            print(f"✅ Add comment: {title}, {author}, {content}")
         else:
-            print(f"[X] Failed to create comment by '{comment['author']}' for '{comment['questId']}': {res.status_code} - {res.text}")
-    print("[✅] Comments creation completed.\n")
+            print(f"❌ {response.status_code} - {response.text}")
+
+    for gen in generation_requests:
+        quest_id = codequest_ids.get(gen['title'])
+        if not quest_id:
+            print(f"⚠️ Nessun ID trovato per '{gen['title']}'")
+            continue
+
+        payload = {
+            "questId": quest_id,
+            "functionName": gen["functionName"],
+            "parameters": gen["parameters"],
+            "returnType": gen["returnType"],
+            "examples": gen["examples"],
+            "languages": gen["languages"]
+        }
+
+        response = requests.post(GENERATION_URL, json=payload)
+        if response.status_code == 200:
+            print(f"✅ Code generated for '{gen['title']}'")
+        else:
+            print(f"❌ Error generating '{gen['title']}': {response.status_code} - {response.text}")
+
+
+    for sol in solutions:
+        quest_id = codequest_ids.get(sol['title'])
+        if not quest_id:
+            print(f"⚠️ Nessun ID trovato per '{sol['title']}'")
+            continue
+
+        payload = {
+            "user": sol["user"],
+            "questId": quest_id,
+            "solved": sol["solved"],
+            "codes": sol["codes"]
+        }
+
+        response = requests.post(SOLUTIONS_URL, json=payload)
+        if response.status_code == 200:
+            print(f"✅ Create solution with '{sol['title']}'")
+        else:
+            print(f"❌ Error with '{sol['title']}': {response.status_code} - {response.text}")
