@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
     generation_requests = [
         {
-            "title": "Hello, World!",
+            "title": "Hello World",
             "functionName": "helloWorld",
             "parameters": [{"name": "a", "typeName": "int"}],
             "returnType": "string",
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             "languages": ["Java", "Kotlin", "Scala"]
         },
         {
-            "title": "Pari o dispari",
+            "title": "Numero Pari o Dispari",
             "functionName": "pariODispari",
             "parameters": [{"name": "n", "typeName": "int"}],
             "returnType": "string",
@@ -395,7 +395,7 @@ if __name__ == "__main__":
             print(f"❌ {response.status_code} - {response.text}")
 
     for gen in generation_requests:
-        quest_id = codequest_ids.get(title)
+        quest_id = codequest_ids.get(gen['title'])
         if not quest_id:
             print(f"⚠️ Nessun ID trovato per '{gen['title']}'")
             continue
@@ -417,7 +417,7 @@ if __name__ == "__main__":
 
 
     for sol in solutions:
-        quest_id = codequest_ids.get(title)
+        quest_id = codequest_ids.get(sol['title'])
         if not quest_id:
             print(f"⚠️ Nessun ID trovato per '{sol['title']}'")
             continue

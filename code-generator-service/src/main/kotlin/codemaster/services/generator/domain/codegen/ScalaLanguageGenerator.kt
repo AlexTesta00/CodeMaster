@@ -25,10 +25,10 @@ class ScalaLanguageGenerator : LanguageGenerator {
         return examples.mapIndexed { index, example ->
             val inputArgs = example.inputs.joinToString(", ") { toLiteralFromJson(it) }
             val expected = toLiteralFromJson(example.output)
-
             """
-            test("test${index + 1}") {
-                val result = ${signature.name}($inputArgs)
+            @Test
+            def test${index + 1}(): Unit = {
+                val result = Main.${signature.name}($inputArgs)
                 assert(result == $expected)
             }
             """.trimIndent()
