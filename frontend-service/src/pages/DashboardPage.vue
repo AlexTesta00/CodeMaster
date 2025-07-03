@@ -26,6 +26,12 @@ interface CodeQuestWithSolved {
 
 const allCodequests = ref<CodeQuestWithSolved[]>([])
 const codequests = ref<CodeQuestWithSolved[]>([])
+const easyCod = ref<number>(0)
+const mediumCod = ref<number>(0)
+const hardCod = ref<number>(0)
+const easyCodMax = ref<number>(0)
+const mediumCodMax = ref<number>(0)
+const hardCodMax = ref<number>(0)
 const contacts: Ref<Person[]> = ref([])
 const isLoading = ref(false)
 const profilePicture = ref<ProfilePicture | null>(null)
@@ -97,6 +103,12 @@ onMounted(async () => {
             codequests.value.push(newEntry)
             allCodequests.value.push(newEntry)
           }
+          easyCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy' && quest.isSolved).length
+          mediumCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium' && quest.isSolved).length
+          hardCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard' && quest.isSolved).length
+          easyCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy').length
+          mediumCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium').length
+          hardCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard').length
         }
       }
       console.log('Filtered Codequests loaded:', codequests.value)
@@ -152,30 +164,18 @@ onMounted(async () => {
       <dashboard-card>
         <progress-bar
             difficulty="Easy"
-            :current-value="allCodequests
-              .filter(
-                quest => quest.codequest.difficulty.name == 'easy' &&
-                quest.isSolved
-              ).length"
-            :max-value="200"
+            :current-value="easyCod"
+            :max-value="easyCodMax"
         />
         <progress-bar
             difficulty="Medium"
-            :current-value="allCodequests
-              .filter(
-                  quest => quest.codequest.difficulty.name == 'medium' &&
-                  quest.isSolved
-              ).length"
-            :max-value="250"
+            :current-value="mediumCod"
+            :max-value="mediumCodMax"
         />
         <progress-bar
             difficulty="Hard"
-            :current-value="allCodequests
-              .filter(
-                  quest => quest.codequest.difficulty.name == 'hard' &&
-                  quest.isSolved
-              ).length"
-            :max-value="100"
+            :current-value="hardCod"
+            :max-value="hardCodMax"
         />
       </dashboard-card>
       <!--DashboardCard Last Trophies-->

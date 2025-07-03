@@ -27,7 +27,7 @@ fun findExecutableInPath(executable: String): String? {
 
 tasks.register<Exec>("dockerCompose") {
     println("Docker build completed")
-    commandLine("docker", "compose", "up")
+    commandLine("docker", "compose", "up", "--build")
 
     dependsOn("buildMultiLangRunner")
 }
@@ -40,11 +40,6 @@ tasks.register<Exec>("buildMultiLangRunner") {
 
     val dockerContextDir = File(project.projectDir, "./multi-lang-runner").absolutePath
     commandLine(dockerCmd, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
-
-    doLast {
-        println("Docker build completed")
-        commandLine("docker", "compose", "up", "--build")
-    }
 }
 
 
