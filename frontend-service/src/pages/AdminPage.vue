@@ -199,9 +199,9 @@ onMounted(async () => {
             :index="index + 1"
             :title="codequest.title"
             :difficulty="codequest.difficulty.name"
-            :is-solved="true"
+            :is-solved="false"
             :deletable="true"
-            @deletd="openDeleteDialog(codequest.id)"
+            @delete="openDeleteDialog(codequest.id)"
         />
       </div>
     </div>

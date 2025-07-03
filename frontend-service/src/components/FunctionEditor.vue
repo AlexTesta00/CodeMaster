@@ -43,6 +43,8 @@ const errors = ref<{
 const validate = () => {
   let valid = true
 
+  const nameSet = new Set<string>()
+
   if (!functionName.value.trim()) {
     errors.value.functionName = 'Function name is required.'
     valid = false
@@ -57,9 +59,19 @@ const validate = () => {
     errors.value.parameters = ['At least one parameter is required.']
     valid = false
   } else {
-    errors.value.parameters = parameters.value.map(param => {
-      if (!param.name.trim()) return 'Parameter name is required.'
-      if (!isValidIdentifier(param.name)) return 'Invalid parameter name. CamelCase, no spaces, no digits first.'
+    errors.value.parameters = parameters.value.map((param) => {
+      const name = param.name.trim()
+      if (!name) return 'Parameter name is required.'
+      if (!isValidIdentifier(name)) return 'Invalid parameter name. CamelCase, no spaces, no digits first.'
+      if (name === functionName.value.trim()) {
+        valid = false
+        return 'Parameter name must be different from function name.'
+      }
+      if (nameSet.has(name)) {
+        valid = false
+        return 'Duplicate parameter name.'
+      }
+      nameSet.add(name)
       return undefined
     })
     if (errors.value.parameters.some(e => e !== undefined)) valid = false
@@ -113,16 +125,14 @@ const removeParameter = (index: number) => {
     />
     <p v-if="errors.functionName" class="text-error text-base">{{ errors.functionName }}</p>
     <label class="text-black dark:text-white text-2xl">Parameters*</label>
-    <div v-for="(param, index) in parameters" :key="index" class="flex gap-2 items-center">
-      <div>
-        <input
-            v-model="param.name"
-            placeholder="Parameter name"
-            class="border-2 border-primary w-2/5 rounded-l"
-            required
-        />
-        <p v-if="errors.parameters[index]" class="text-error text-base">{{ errors.parameters[index] }}</p>
-      </div>
+  <div v-for="(param, index) in parameters" :key="index" class="flex flex-col gap-1 mb-4">
+    <div class="flex gap-2 items-center">
+      <input
+          v-model="param.name"
+          placeholder="Parameter name"
+          class="border-2 border-primary w-2/5 rounded-l"
+          required
+      />
       <select
           v-model="param.typeName"
           class="p-2 border-2 border-primary rounded-md dark:bg-gray-800 text-black dark:text-white"
@@ -135,19 +145,23 @@ const removeParameter = (index: number) => {
           v-if="parameters.length > 1"
           type="button"
           @click="removeParameter(index)"
-          class="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700"
+          class="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700 dark:text-white"
           aria-label="Remove parameter"
       >
-        <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5" />
+        <img src="/icons/trashcan.svg" alt="Remove" class="w-5 h-5 dark:text-white" />
       </button>
     </div>
-    <button
+    <p v-if="errors.parameters[index]" class="text-error text-base ml-1">
+      {{ errors.parameters[index] }}
+    </p>
+  </div>
+  <button
         type="button"
         @click="addParameter"
         class="inline-flex items-center p-2 rounded bg-primary hover:bg-blue-600 text-white w-fit"
         aria-label="Add parameter"
     >
-      <img src="/icons/add.svg" alt="Add" class="w-5 h-5" />
+    Add parameter
     </button>
     <label for="allowedTypes" class="text-black dark:text-white text-2xl">Return Type*</label>
     <div class="w-full flex flex-row items-center justify-start gap-4 text-black dark:text-white text-2xl">

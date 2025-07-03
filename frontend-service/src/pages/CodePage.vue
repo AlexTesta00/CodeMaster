@@ -19,6 +19,7 @@ import {useAuthStore} from "../utils/store.ts";
 import type {CodeQuest, Codes, ExecutionResult, Solution} from "../utils/interface.ts";
 import {useRoute} from "vue-router";
 import ExecutionResultPanel from "../components/ExecutionResultPanel.vue";
+import CommentsPanel from "../components/CommentsPanel.vue";
 
 const availableLanguages = ref<Codes[]>([])
 const currentLanguage = ref<Codes>()
@@ -274,6 +275,10 @@ const copyLink = async () => {
   }
 }
 
+const closeTerminal = async () => {
+  isTerminalOpen.value = false
+}
+
 onBeforeUnmount(() => {
   window.removeEventListener('mousemove', handleMouseMove)
   window.removeEventListener('mouseup', stopDragging)
@@ -337,6 +342,10 @@ watch(currentCode, (newCode) => {
           :codequest="codequest"
           class="w-full h-full"
       />
+      <comments-panel
+          v-if="codequest"
+          :quest-id="codequest.id"
+      />
     </div>
 
     <div
@@ -369,7 +378,7 @@ watch(currentCode, (newCode) => {
       </div>
       <div
           v-if="isTerminalOpen"
-          class="h-60 bg-gray-200 dark:bg-gray-700 overflow-y-auto"
+          class="h-60 bg-black overflow-y-auto"
       >
         <div class="p-4">
           <div v-if="isExecuting" class="flex items-center space-x-2">
@@ -379,7 +388,8 @@ watch(currentCode, (newCode) => {
               <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8v8H4z"/>
             </svg>
-            <span>Running code...</span>
+            <span class="text-white" v-if="executionType === 'run'">Running code...</span>
+            <span class="text-white" v-else>Compiling code...</span>
           </div>
           <execution-result-panel
               v-else-if="result && codequest"
@@ -390,7 +400,7 @@ watch(currentCode, (newCode) => {
         </div>
       </div>
       <footer class="h-20 w-full z-20">
-        <div class="w-full h-full bg-primary rounded-sm flex flex-row justify-evenly items-center flex-wrap">
+        <div class="w-full h-full bg-primary rounded-lg flex flex-row justify-evenly items-center flex-wrap">
           <clickable-text-with-image
               title="Share"
               url="/icons/share.svg"
@@ -404,7 +414,7 @@ watch(currentCode, (newCode) => {
               @click="resetCurrentCode"
           />
           <clickable-text-with-image
-              title="Codequest"
+              title="Codequests"
               url="/icons/dot.svg"
               alt="Open sidebar to view all codequests"
               @click="isSidebarOpen = true"
@@ -426,6 +436,12 @@ watch(currentCode, (newCode) => {
               url="/icons/upload.svg"
               alt="Upload your solution"
               @click="submit"
+          />
+          <clickable-text-with-image
+              title="Close terminal"
+              url="/icons/cross.svg"
+              alt="Close terminal"
+              @click="closeTerminal"
           />
         </div>
       </footer>

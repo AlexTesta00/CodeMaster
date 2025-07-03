@@ -67,7 +67,7 @@ watch(
       v-model:value="code"
       :language="language.toLowerCase()"
       :options="options"
-      class="border rounded-md h-96 w-full"
+      class="border border-black rounded-md h-96 w-full"
       @update:model-value="emit('update:modelValue', $event)"
   />
 </template>

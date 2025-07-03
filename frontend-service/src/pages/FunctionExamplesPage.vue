@@ -133,8 +133,8 @@ watch(examples, () => {
 
 </script>
 <template>
-  <form
-      class="flex h-full flex-col overflow-auto gap-4 pb-16 ml-4"
+  <section
+      class="p-6 bg-background dark:bg-bgdark text-black dark:text-white min-h-screen"
       data-aos="fade-up"
       data-aos-duration="3000"
   >
@@ -191,6 +191,7 @@ watch(examples, () => {
         />
       </div>
       <button
+          v-if="examples.length > 1"
           @click="removeExample(index)"
           class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md transition mb-8"
       >
@@ -219,5 +220,5 @@ watch(examples, () => {
         Continue
       </button>
     </div>
-  </form>
+  </section>
 </template>

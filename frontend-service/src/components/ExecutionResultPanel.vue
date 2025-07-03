@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import {computed} from 'vue'
 import type { Example, ExecutionResult } from '../utils/interface.ts'
 
 const props = defineProps<{
@@ -16,14 +16,24 @@ const showTestResults = computed(() => {
 
 const zippedTests = computed(() => {
   if (props.result.type === 'accepted' || props.result.type === 'testsFailed') {
-    const outputs = props.result.output
-    return props.examples.map((ex, idx) => ({
-      input: ex.input,
-      expectedOutput: ex.output,
-      actualOutput: props.executionType === 'compile' ? 'Compile successfull' : outputs[idx] || '',
-      passed: props.result.type === 'accepted' || outputs[idx] === ex.output,
-      error: null
-    }))
+    if (props.executionType === 'compile') {
+      return [{
+        input: '',
+        expectedOutput: '',
+        actualOutput: 'Compile successfull',
+        passed: true,
+        error: null
+      }]
+    } else {
+      const outputs = props.result.output
+      return props.examples.map((ex, idx) => ({
+        input: ex.input,
+        expectedOutput: ex.output,
+        actualOutput: outputs[idx] || '',
+        passed: props.result.type === 'accepted' || outputs[idx] === ex.output,
+        error: null
+      }))
+    }
   }
 
   if (props.result.type === 'compileFailed' || props.result.type === 'runtimeError') {
@@ -57,7 +67,7 @@ const message = computed(() => {
 
 </script>
 <template>
-  <div v-if="result" class="p-4 rounded font-mono whitespace-pre-wrap">
+  <div v-if="result" class="p-4 text-white rounded-lg font-mono whitespace-pre-wrap">
     <template v-if="showTestResults">
       <div
           v-for="(test, i) in zippedTests"
@@ -72,7 +82,7 @@ const message = computed(() => {
         <template v-else>
           <div v-if="executionType === 'run'"><strong>Input:</strong> {{ test.input }}</div>
           <div v-if="executionType === 'run'"><strong>Output atteso:</strong> {{ test.expectedOutput }}</div>
-          <div><strong>Output ottenuto:</strong> {{ test.actualOutput }}</div>
+          <div><strong v-if="executionType === 'run'">Output ottenuto:</strong> {{ test.actualOutput }}</div>
         </template>
       </div>
     </template>

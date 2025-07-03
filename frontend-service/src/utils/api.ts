@@ -11,7 +11,8 @@ import type {
     Language,
     Problem, Solution, SolutionResponse,
     SolutionsResponse, UserManager,
-    UserManagerResponse, LanguageCodes, ResultResponse,
+    UserManagerResponse, LanguageCodes, ResultResponse, CommentsResponse,
+    Comment
 } from './interface.ts'
 
 const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
@@ -19,6 +20,7 @@ const USER_URL = 'http://localhost/api/v1/users/'
 const CODEQUEST_URL = 'http://localhost/api/v1/codequests/'
 const SOLUTION_URL = 'http://localhost/api/v1/solutions/'
 const GENERATOR_URL = 'http://localhost/api/v1/code-generator/'
+const COMMUNITY_URL = 'http://localhost/api/v1/comments/'
 
 axios.defaults.withCredentials = true
 
@@ -413,5 +415,27 @@ export const unbanUser = async (
         nicknameFrom,
         nicknameTo
     })
+    return response.data
+}
+
+export const addComment = async (
+    questId: string,
+    author: string,
+    content: string
+): Promise<{ message: string; success: boolean; result: Comment }> => {
+    const response = await axios.post(`${COMMUNITY_URL}`, {
+        questId: questId,
+        author: author,
+        content: content
+    })
+
+    return response.data
+}
+
+export const getCommentsByQuest = async (
+    questId: string
+): Promise<CommentsResponse> => {
+    const response = await axios.get(`${COMMUNITY_URL}/codequests/${questId}`)
+
     return response.data
 }

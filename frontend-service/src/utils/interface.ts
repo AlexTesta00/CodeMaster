@@ -248,7 +248,21 @@ export interface Codes {
 }
 
 export interface ResultResponse {
-    message: string,
-    success: boolean,
+    message: string
+    success: boolean
     result: ExecutionResult
+}
+
+export interface Comment {
+    id: string
+    author: string
+    content: string
+    questId: string
+    timestamp: Date
+}
+
+export interface CommentsResponse {
+    message: string
+    success: boolean
+    result: Comment[]
 }
