@@ -183,9 +183,9 @@ jobs:
           cp docs/authentication/swagger.yaml docs/static/openapi/authentication.yaml
           cp docs/user/swagger.yaml docs/static/openapi/user.yaml
           cp docs/code-generator/swagger.yaml docs/static/openapi/code-generator.yaml
-          cp docs/codequest/swagger.yml docs/static/openapi/codequest.yaml
-          cp docs/community/swagger.yml docs/static/openapi/community.yaml
-          cp docs/solution/swagger.yml docs/static/openapi/solution.yaml
+          cp docs/codequest/swagger.yaml docs/static/openapi/codequest.yaml
+          cp docs/community/swagger.yaml docs/static/openapi/community.yaml
+          cp docs/solution/swagger.yaml docs/static/openapi/solution.yaml
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
