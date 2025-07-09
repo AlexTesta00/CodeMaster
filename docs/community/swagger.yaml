@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: API Commenti CodeQuest
+  version: 1.0.0
+  description: API per la gestione dei commenti associati alle codequest
+
+servers:
+  - url: http://localhost:3000/api/v1/comments
+
+components:
+  schemas:
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        questId:
+          type: string
+        author:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - content
+        - questId
+        - author
+        - timestamp
+
+    CommentInput:
+      type: object
+      properties:
+        content:
+          type: string
+        questId:
+          type: string
+        author:
+          type: string
+      required:
+        - content
+        - questId
+        - author
+
+    CommentUpdateInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+paths:
+  /:
+    post:
+      summary: Aggiungi un nuovo commento a una codequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '201':
+          description: Commento aggiunto con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/Comment'
+
+  /{id}:
+    get:
+      summary: Ottieni un commento tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Commento trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/Comment'
+
+    put:
+      summary: Modifica il contenuto di un commento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateInput'
+      responses:
+        '200':
+          description: Commento aggiornato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/Comment'
+
+    delete:
+      summary: Elimina un commento tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Commento eliminato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  result:
+                    $ref: '#/components/schemas/Comment'
+
+  /codequests/{questId}:
+    get:
+      summary: Ottieni tutti i commenti associati a una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Commenti trovati
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+
+  /health:
+    get:
+      summary: Verifica lo stato di salute del servizio
+      responses:
+        '200':
+          description: Tutti i servizi sono operativi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  success:
+                    type: boolean
+        '500':
+          description: Servizio non disponibile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Service Unavailable
+                  success:
+                    type: boolean
+                  mongo:
+                    type: boolean
+                  rabbitReady:
+                    type: boolean

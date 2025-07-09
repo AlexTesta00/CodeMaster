@@ -1,0 +1,211 @@
+openapi: 3.0.3
+info:
+  title: Code Generator Service API
+  version: 1.0.0
+  description: API per la generazione e gestione di codice per CodeQuest
+
+paths:
+  /code-generator/{questId}:
+    get:
+      summary: Ottieni il codice generato per un questId
+      operationId: getQuestCode
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del CodeQuest
+      responses:
+        '200':
+          description: Codice generato recuperato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeQuestCode'
+        '404':
+          description: CodeQuestCode non trovato
+
+    delete:
+      summary: Elimina il codice generato per un questId
+      operationId: deleteQuestCode
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del CodeQuest
+      responses:
+        '200':
+          description: Lista di CodeQuestCode dopo l'eliminazione
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeQuestCode'
+
+  /code-generator:
+    post:
+      summary: Genera codice per un CodeQuest
+      operationId: generateQuestCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questId
+                - signature
+                - examples
+                - languages
+              properties:
+                questId:
+                  type: string
+                  description: ID del CodeQuest
+                signature:
+                  $ref: '#/components/schemas/FunctionSignature'
+                examples:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExampleCase'
+                languages:
+                  type: array
+                  items:
+                    type: string
+                    enum: [kotlin, java, scala]
+                  description: Linguaggi per cui generare il codice
+      responses:
+        '200':
+          description: Codice generato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeQuestCode'
+        '400':
+          description: Errore nella richiesta
+
+  /code-generator/ping:
+    get:
+      summary: Ping a MongoDB per verificarne la connettività
+      operationId: pingMongo
+      responses:
+        '200':
+          description: Stato del ping (true se connesso, false altrimenti)
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+components:
+  schemas:
+    CodeQuestCode:
+      type: object
+      required:
+        - questId
+        - entries
+      properties:
+        questId:
+          type: string
+          description: ID del CodeQuest
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeneratedCodeEntry'
+
+    GeneratedCodeEntry:
+      type: object
+      required:
+        - language
+        - templateCode
+        - testCode
+      properties:
+        language:
+          $ref: '#/components/schemas/Language'
+        templateCode:
+          type: string
+          description: Codice template generato
+        testCode:
+          type: string
+          description: Codice dei test generato
+
+    Language:
+      type: string
+      enum:
+        - kotlin
+        - java
+        - scala
+      description: Linguaggi supportati
+
+    FunctionSignature:
+      type: object
+      required:
+        - name
+        - parameters
+        - returnType
+      properties:
+        name:
+          type: string
+          description: Nome della funzione
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionParameter'
+          description: Lista di parametri della funzione
+        returnType:
+          $ref: '#/components/schemas/TypeName'
+          description: Tipo di ritorno della funzione
+
+    FunctionParameter:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          description: Nome del parametro
+        type:
+          $ref: '#/components/schemas/TypeName'
+          description: Tipo del parametro
+
+    ExampleCase:
+      type: object
+      required:
+        - inputs
+        - output
+      properties:
+        inputs:
+          type: array
+          items:
+            nullable: true
+            oneOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - type: object
+              - type: array
+          description: Lista di valori di input
+        output:
+          nullable: true
+          oneOf:
+            - type: string
+            - type: integer
+            - type: number
+            - type: boolean
+            - type: object
+            - type: array
+          description: Valore di output atteso
+
+    TypeName:
+      type: object
+      required:
+        - raw
+      properties:
+        raw:
+          type: string
+          description: Tipo raw della variabile (es. int, List<int>, Map<string,int>)
+

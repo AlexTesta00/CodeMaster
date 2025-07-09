@@ -1,0 +1,306 @@
+openapi: 3.0.3
+info:
+  title: API CodeQuest
+  version: 1.0.0
+  description: API per la gestione delle CodeQuest (missioni di programmazione)
+
+servers:
+  - url: http://localhost:3000/api/v1/codequest
+
+components:
+  schemas:
+    Language:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        fileExtension:
+          type: string
+      required:
+        - name
+        - version
+        - fileExtension
+
+    Difficulty:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    Example:
+      type: object
+      properties:
+        input:
+          type: string
+        output:
+          type: string
+        explanation:
+          type: string
+      required:
+        - input
+        - output
+
+    Problem:
+      type: object
+      properties:
+        description:
+          type: string
+        examples:
+          type: array
+          items:
+            $ref: '#/components/schemas/Example'
+        constraints:
+          type: array
+          items:
+            type: string
+      required:
+        - description
+        - examples
+        - constraints
+
+    CodeQuest:
+      type: object
+      properties:
+        questId:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        problem:
+          $ref: '#/components/schemas/Problem'
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Language'
+        difficulty:
+          $ref: '#/components/schemas/Difficulty'
+        timestamp:
+          type: string
+          format: date-time
+
+    CodeQuestInput:
+      type: object
+      properties:
+        questId:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        problem:
+          $ref: '#/components/schemas/Problem'
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Language'
+        difficulty:
+          $ref: '#/components/schemas/Difficulty'
+      required:
+        - questId
+        - author
+        - title
+        - problem
+        - languages
+        - difficulty
+
+paths:
+  /:
+    get:
+      summary: Ottieni tutte le codequest
+      responses:
+        '200':
+          description: Elenco di tutte le codequest
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeQuest'
+    post:
+      summary: Crea una nuova codequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeQuestInput'
+      responses:
+        '201':
+          description: Codequest creata correttamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeQuest'
+
+  /{questId}:
+    get:
+      summary: Ottieni una codequest tramite questId
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Codequest trovata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeQuest'
+        '404':
+          description: Codequest non trovata
+    delete:
+      summary: Elimina una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Codequest eliminata
+        '404':
+          description: Codequest non trovata
+
+  /authors/{author}:
+    get:
+      summary: Ottieni tutte le codequest create da una determinata autrice/autore
+      parameters:
+        - name: author
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Elenco di codequest per autore
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeQuest'
+
+  /languages:
+    get:
+      summary: Ottieni tutte le codequest filtrate per linguaggio
+      responses:
+        '200':
+          description: Elenco di codequest filtrate per linguaggio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeQuest'
+
+  /difficulty:
+    get:
+      summary: Ottieni tutte le codequest filtrate per difficoltà
+      responses:
+        '200':
+          description: Elenco di codequest filtrate per difficoltà
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeQuest'
+
+  /codequest-problem/{questId}:
+    put:
+      summary: Aggiorna la sezione `problem` di una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Problem'
+      responses:
+        '200':
+          description: Sezione problem aggiornata
+        '404':
+          description: Codequest non trovata
+
+  /codequest-title/{questId}:
+    put:
+      summary: Aggiorna il titolo di una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              required:
+                - title
+      responses:
+        '200':
+          description: Titolo aggiornato
+        '404':
+          description: Codequest non trovata
+
+  /codequest-languages/{questId}:
+    put:
+      summary: Aggiorna i linguaggi supportati da una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Language'
+      responses:
+        '200':
+          description: Linguaggi aggiornati
+        '404':
+          description: Codequest non trovata
+
+  /codequest-difficulty/{questId}:
+    put:
+      summary: Aggiorna la difficoltà di una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Difficulty'
+      responses:
+        '200':
+          description: Difficoltà aggiornata
+        '404':
+          description: Codequest non trovata

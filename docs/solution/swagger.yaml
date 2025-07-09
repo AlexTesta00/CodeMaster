@@ -1,0 +1,441 @@
+openapi: 3.0.3
+info:
+  title: Solution Service API
+  version: 1.0.0
+  description: API per la gestione delle soluzioni associate alle codequest
+
+servers:
+  - url: http://localhost:3000/api/v1/solutions
+
+components:
+  schemas:
+    Language:
+      type: object
+      properties:
+        name:
+          type: string
+        fileExtension:
+          type: string
+      required:
+        - name
+        - fileExtension
+
+    Code:
+      type: object
+      properties:
+        language:
+          $ref: '#/components/schemas/Language'
+        code:
+          type: string
+      required:
+        - language
+        - code
+
+    ExecutionResult:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          pending: '#/components/schemas/ExecutionResultPending'
+          accepted: '#/components/schemas/ExecutionResultAccepted'
+          testsFailed: '#/components/schemas/ExecutionResultTestsFailed'
+          compileFailed: '#/components/schemas/ExecutionResultCompileFailed'
+          runtimeError: '#/components/schemas/ExecutionResultRuntimeError'
+          timeLimitExceeded: '#/components/schemas/ExecutionResultTimeLimitExceeded'
+      oneOf:
+        - $ref: '#/components/schemas/ExecutionResultPending'
+        - $ref: '#/components/schemas/ExecutionResultAccepted'
+        - $ref: '#/components/schemas/ExecutionResultTestsFailed'
+        - $ref: '#/components/schemas/ExecutionResultCompileFailed'
+        - $ref: '#/components/schemas/ExecutionResultRuntimeError'
+        - $ref: '#/components/schemas/ExecutionResultTimeLimitExceeded'
+
+    ExecutionResultPending:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [pending]
+      required:
+        - type
+      additionalProperties: false
+
+    ExecutionResultAccepted:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [accepted]
+        output:
+          type: array
+          items:
+            type: string
+        exitCode:
+          type: integer
+      required:
+        - type
+        - output
+        - exitCode
+      additionalProperties: false
+
+    ExecutionResultTestsFailed:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [testsFailed]
+        error:
+          type: string
+        output:
+          type: array
+          items:
+            type: string
+        exitCode:
+          type: integer
+      required:
+        - type
+        - error
+        - output
+        - exitCode
+      additionalProperties: false
+
+    ExecutionResultCompileFailed:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [compileFailed]
+        error:
+          type: string
+        stderr:
+          type: string
+        exitCode:
+          type: integer
+      required:
+        - type
+        - error
+        - stderr
+        - exitCode
+      additionalProperties: false
+
+    ExecutionResultRuntimeError:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [runtimeError]
+        error:
+          type: string
+        stderr:
+          type: string
+          nullable: true
+        exitCode:
+          type: integer
+      required:
+        - type
+        - error
+        - exitCode
+      additionalProperties: false
+
+    ExecutionResultTimeLimitExceeded:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [timeLimitExceeded]
+        timeout:
+          type: integer
+          format: int64
+      required:
+        - type
+        - timeout
+      additionalProperties: false
+
+    Solution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        codes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Code'
+        questId:
+          type: string
+        user:
+          type: string
+        result:
+          $ref: '#/components/schemas/ExecutionResult'
+        solved:
+          type: boolean
+      required:
+        - id
+        - codes
+        - questId
+        - user
+        - result
+        - solved
+
+paths:
+  /health:
+    get:
+      summary: Verifica lo stato di salute del servizio
+      responses:
+        '200':
+          description: Servizio attivo e MongoDB raggiungibile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  success:
+                    type: boolean
+        '500':
+          description: Servizio non disponibile o MongoDB non raggiungibile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Service Unavailable
+                  success:
+                    type: boolean
+                  mongo:
+                    type: boolean
+
+  /:
+    post:
+      summary: Aggiungi una nuova soluzione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Solution'
+      responses:
+        '200':
+          description: Soluzione aggiunta con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        '400':
+          description: Richiesta malformata o dati non validi
+
+  /{id}:
+    get:
+      summary: Ottieni una soluzione tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Soluzione trovata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        '404':
+          description: Soluzione non trovata
+
+    delete:
+      summary: Elimina una soluzione tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Soluzione eliminata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        '404':
+          description: Soluzione non trovata
+
+  /codequests/{questId}:
+    get:
+      summary: Ottieni tutte le soluzioni associate a una codequest
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Elenco soluzioni trovate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Solution'
+        '500':
+          description: Errore interno del server
+
+  /solved/{user}:
+    get:
+      summary: Ottieni tutte le soluzioni risolte da un utente
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Soluzioni risolte trovate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Solution'
+        '500':
+          description: Errore interno del server
+
+  /users/{user}:
+    get:
+      summary: Ottieni tutte le soluzioni di un utente (risolte e non)
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Soluzioni trovate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Solution'
+        '500':
+          description: Errore interno del server
+
+  /code/{id}:
+    put:
+      summary: Modifica il codice di una soluzione tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Code'
+      responses:
+        '200':
+          description: Codice soluzione aggiornato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        '400':
+          description: Codice vuoto o richiesta non valida
+        '404':
+          description: Soluzione non trovata
+
+  /execute/{id}:
+    put:
+      summary: Esegui il codice di una soluzione tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  $ref: '#/components/schemas/Language'
+                code:
+                  type: string
+                testCode:
+                  type: string
+              required:
+                - language
+                - code
+                - testCode
+      responses:
+        '200':
+          description: Codice eseguito con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        '400':
+          description: Codice vuoto o richiesta non valida
+        '404':
+          description: Soluzione non trovata
+        '500':
+          description: Errore interno del server
+
+  /compile/{id}:
+    put:
+      summary: Compila il codice di una soluzione tramite ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  $ref: '#/components/schemas/Language'
+                code:
+                  type: string
+                testCode:
+                  type: string
+              required:
+                - language
+                - code
+                - testCode
+      responses:
+        '200':
+          description: Risultato compilazione
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResult'
+        '400':
+          description: Codice vuoto o richiesta non valida
+        '404':
+          description: Soluzione non trovata
+        '500':
+          description: Errore interno del server
