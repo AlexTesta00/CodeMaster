@@ -3,7 +3,6 @@ import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import MarkdownViewer from '../components/MarkdownViewer.vue'
 import CodeEditor from '../components/CodeEditor.vue'
 import ClickableTextWithImage from '../components/ClickableTextWithImage.vue'
-import SideBar from '../components/SideBar.vue'
 import TextareaCodeLanguages from '../components/TextareaCodeLanguages.vue'
 import YesOrNoDialog from '../components/YesOrNoDialog.vue'
 import router from '../router'
@@ -20,6 +19,7 @@ import type {CodeQuest, Codes, ExecutionResult, Solution} from "../utils/interfa
 import {useRoute} from "vue-router";
 import ExecutionResultPanel from "../components/ExecutionResultPanel.vue";
 import CommentsPanel from "../components/CommentsPanel.vue";
+import DifficultyButton from "../components/DifficultyButton.vue";
 
 const availableLanguages = ref<Codes[]>([])
 const currentLanguage = ref<Codes>()
@@ -65,6 +65,14 @@ const addSolution = async () => {
     await errorToast('Impossible to add solution')
     console.log(error)
   }
+}
+
+const expandCodequest = async (id: string) => {
+  await router.push({
+    name: 'Code',
+    params: { id: id }
+  })
+  window.location.reload()
 }
 
 const handleConfirm = async () => {
@@ -326,10 +334,35 @@ watch(currentCode, (newCode) => {
         @click="isSidebarOpen = false"
     />
 
-    <side-bar
+    <aside
+        class="flex flex-col w-1/5 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:border-gray-700 absolute top-0 left-0 z-40 dark:text-white dark:bg-bgdark"
+        data-aos="fade-right"
+        data-aos-duration="1400"
         v-if="isSidebarOpen"
-        :codequest="codequests"
-    />
+    >
+      <img
+          class="w-16 h-16"
+          src="/icons/logo.png"
+          alt="Codemaster logo"
+      >
+      <ul
+          class="w-full h-full flex flex-col justify-start items-start gap-4 ml-4"
+      >
+        <div
+            v-for="quest in codequests"
+            :key="quest.title"
+            class="w-4/5 flex flex-row justify-between items-end gap-4"
+        >
+          <li
+              class="mt-6 cursor-pointer"
+              @click="expandCodequest(quest.id)"
+          >
+            {{ quest.title }}
+          </li>
+          <difficulty-button :difficulty="quest.difficulty.name" />
+        </div>
+      </ul>
+    </aside>
 
     <div
         :style="{ width: leftPanelWidth + 'px' }"

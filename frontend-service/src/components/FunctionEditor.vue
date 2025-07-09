@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { FunctionExample, FunctionParameter } from "../utils/interface.ts";
+import type {AllowedTypeName, FunctionExample, FunctionParameter} from "../utils/interface.ts";
 import {isValidIdentifier, primitiveTypes} from "../utils/type-utils.ts";
 
 const emit = defineEmits<{
@@ -21,17 +21,9 @@ const examples = ref<FunctionExample[]>([
   { inputs: [], output: '' }
 ])
 
-const listTypes = primitiveTypes.map(t => `List<${t}>` as const)
-const mapTypes = primitiveTypes.flatMap(keyType =>
-    primitiveTypes.map(valueType => `Map<${keyType},${valueType}>` as const)
-)
-
 const allowedTypes = [
-  ...primitiveTypes,
-  ...listTypes,
-  ...mapTypes,
+  ...primitiveTypes
 ] as const
-type AllowedTypeName = (typeof allowedTypes)[number]
 
 const errors = ref<{
   functionName?: string
