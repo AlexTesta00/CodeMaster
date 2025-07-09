@@ -7,7 +7,7 @@ export const isValidPrimitive = (value: string, type: AllowedTypeName): boolean 
         case 'int': return /^-?\d+$/.test(value);
         case 'double': return /^-?\d+(\.\d+)?$/.test(value);
         case 'boolean': return /^(true|false)$/.test(value);
-        case 'string': return /^".*"$/.test(value);
+        case 'string': return /^".*"$/s.test(value) || /^[a-zA-Z0-9_]+$/.test(value);
         default: return false;
     }
 };
@@ -54,15 +54,15 @@ export const isValidInput = (input: string, type: AllowedTypeName) => isValidVal
 export const isValidOutput = (output: string, type: AllowedTypeName) => isValidValue(output, type);
 
 export const getPlaceholder = (type: AllowedTypeName): string => {
-    if (type.startsWith('List<')) {
-        const inner = type.slice(5, -1);
-        return `[${getPlaceholder(inner as AllowedTypeName)},${getPlaceholder(inner as AllowedTypeName)}]`;
-    }
-
-    if (type.startsWith('Map<')) {
-        const [keyType, valueType] = type.slice(4, -1).split(',');
-        return `{${getPlaceholder(keyType.trim() as AllowedTypeName)}:${getPlaceholder(valueType.trim() as AllowedTypeName)}, ${getPlaceholder(keyType.trim() as AllowedTypeName)}:${getPlaceholder(valueType.trim() as AllowedTypeName)}}`;
-    }
+    // if (type.startsWith('List<')) {
+    //     const inner = type.slice(5, -1);
+    //     return `[${getPlaceholder(inner as AllowedTypeName)},${getPlaceholder(inner as AllowedTypeName)}]`;
+    // }
+    //
+    // if (type.startsWith('Map<')) {
+    //     const [keyType, valueType] = type.slice(4, -1).split(',');
+    //     return `{${getPlaceholder(keyType.trim() as AllowedTypeName)}:${getPlaceholder(valueType.trim() as AllowedTypeName)}, ${getPlaceholder(keyType.trim() as AllowedTypeName)}:${getPlaceholder(valueType.trim() as AllowedTypeName)}}`;
+    // }
 
     switch (type) {
         case 'int':
@@ -74,7 +74,7 @@ export const getPlaceholder = (type: AllowedTypeName): string => {
         case 'boolean':
             return 'true';
         case 'string':
-            return '"a"';
+            return 'a';
         default:
             return '?';
     }

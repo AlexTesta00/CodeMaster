@@ -40,8 +40,8 @@ const level = ref<Level | null>(null)
 const filterActive = ref('none')
 const auth = useAuthStore()
 
-const expandCodequest = (id: string) => {
-  router.push({
+const expandCodequest = async (id: string) => {
+  await router.push({
     name: 'Code',
     params: { id: id }
   })
@@ -111,8 +111,6 @@ onMounted(async () => {
           hardCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard').length
         }
       }
-      console.log('Filtered Codequests loaded:', codequests.value)
-      console.log('All Codequests loaded:', allCodequests.value)
     } catch {
       await errorToast('Failed to fetch data')
       await router.push('/error')

@@ -5,6 +5,13 @@ import type {CodeQuest} from "../utils/interface.ts";
 defineProps<{
     codequest: CodeQuest[]
 }>()
+
+const emit = defineEmits<{
+  (e: 'expand:id', id: string): void
+}>()
+
+const handleClick = (id: string) => emit('expand:id', id)
+
 </script>
 
 <template>
@@ -26,7 +33,10 @@ defineProps<{
         :key="quest.title"
         class="w-4/5 flex flex-row justify-between items-end gap-4"
       >
-        <li class="mt-6 cursor-pointer">
+        <li
+            class="mt-6 cursor-pointer"
+            @click="handleClick(quest.id)"
+        >
           {{ quest.title }}
         </li>
         <difficulty-button :difficulty="quest.difficulty.name" />
