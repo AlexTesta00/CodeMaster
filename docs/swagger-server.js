@@ -14,7 +14,7 @@ fs.readdirSync(baseDir, { withFileTypes: true })
   .filter(dirent => dirent.isDirectory() && !['node_modules'].includes(dirent.name))
   .forEach(dirent => {
     const service = dirent.name;
-    const yamlPath = path.join(baseDir, service, 'openapi.yaml');
+    const yamlPath = path.join(baseDir, service, 'swagger.yaml');
     if (fs.existsSync(yamlPath)) {
       const doc = YAML.load(yamlPath);
       app.use(
