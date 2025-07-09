@@ -1,3 +1,14 @@
+## [3.4.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.3.0...v3.4.0) (2025-07-09)
+
+### Features
+
+* **docs:** add codequest, solution, community and code-generator service api documentation ([c622386](https://github.com/AlexTesta00/CodeMaster/commit/c622386ca8b134540fec45a66dca78b435e0aa35))
+* **frontend-service:** add clickable codequest in CodePage side bar ([52f0c99](https://github.com/AlexTesta00/CodeMaster/commit/52f0c996fc52fbbb1531dd745177e2e32a722e9e))
+
+### Bug Fixes
+
+* **ci:** fix bug to deploy docs for solution, code-generator, community, codequest service ([55fcec6](https://github.com/AlexTesta00/CodeMaster/commit/55fcec64b6f8b1f07e9788e8c1ffea3f7263008e))
+
 ## [3.3.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.2.2...v3.3.0) (2025-07-09)
 
 ### Features
