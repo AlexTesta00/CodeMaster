@@ -1,3 +1,9 @@
+## [3.4.1](https://github.com/AlexTesta00/CodeMaster/compare/v3.4.0...v3.4.1) (2025-07-09)
+
+### Bug Fixes
+
+* **ci:** change .yml into .yaml ([2b463fa](https://github.com/AlexTesta00/CodeMaster/commit/2b463fa3e8b832b5f3a55b41dffcf54502c72233))
+
 ## [3.4.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.3.0...v3.4.0) (2025-07-09)
 
 ### Features
