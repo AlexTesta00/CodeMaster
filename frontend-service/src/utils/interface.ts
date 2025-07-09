@@ -26,7 +26,6 @@ export type ComplexTypeName = ListTypes | MapTypes
 
 export type AllowedTypeName = SimpleTypeName | ComplexTypeName
 
-
 export interface AuthenticationResponse {
     message: string
     success: boolean
