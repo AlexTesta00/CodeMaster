@@ -53,6 +53,11 @@ services:
       - MONGO_URI=mongodb://mongo-user:27017/codemaster-user-db
       - PORT=4005
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4005/api/v1/users/status || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mongo-authentication:
     image: mongo
@@ -259,7 +264,7 @@ services:
       - '80:80'
     depends_on:
       codemaster-user-service:
-        condition: service_started
+        condition: service_healthy
       codemaster-authentication-service:
         condition: service_healthy
       codemaster-codequest-service:
@@ -287,7 +292,7 @@ services:
       codemaster-authentication-service:
         condition: service_healthy
       codemaster-user-service:
-        condition: service_started
+        condition: service_healthy
       codemaster-codequest-service:
         condition: service_started
       codemaster-solution-service:
@@ -309,7 +314,7 @@ services:
       codemaster-authentication-service:
         condition: service_healthy
       codemaster-user-service:
-        condition: service_started
+        condition: service_healthy
       codemaster-solution-service:
         condition: service_started
       codemaster-codequest-service:
