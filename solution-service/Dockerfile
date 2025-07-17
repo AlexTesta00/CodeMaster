@@ -9,7 +9,6 @@ RUN ./gradlew clean build --no-daemon --stacktrace -x test
 FROM eclipse-temurin:21.0.7_6-jre
 WORKDIR /codemaster-solution-service
 
-# Install dependencies for Docker CLI
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
