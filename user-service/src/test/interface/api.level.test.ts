@@ -1,21 +1,25 @@
 import supertest from 'supertest'
 import { app } from '../../main/nodejs/codemaster/servicies/app'
-import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/user/infrastructure/db-connection'
-import dotenv from 'dotenv'
 import { DEFAULT_IMAGE_URL } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
+import {MongoMemoryServer} from "mongodb-memory-server";
+import mongoose from "mongoose";
+import {LevelModel} from "../../main/nodejs/codemaster/servicies/user/infrastructure/schema";
 
 describe('Test Level API', () => {
   const request = supertest(app)
   const timeout = 10000
+    let mongoServer: MongoMemoryServer
 
   beforeAll(async () => {
-    dotenv.config()
-    await connectToDatabase()
+      mongoServer = await MongoMemoryServer.create()
+      const uri = mongoServer.getUri()
+      await mongoose.connect(uri)
   }, timeout)
 
   afterAll(async () => {
-    const grade = 1
-    await request.delete(`/api/v1/levels/${grade}`).set('Accept', 'application/json')
+      await LevelModel.deleteMany({})
+      await mongoose.disconnect()
+      await mongoServer.stop()
   }, timeout)
 
   describe('Test /api/v1/levels', () => {
