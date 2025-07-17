@@ -1,6 +1,8 @@
 FROM eclipse-temurin:21.0.7_6-jdk AS builder
 WORKDIR /codemaster-generator-service
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle.kts ./

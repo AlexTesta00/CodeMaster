@@ -143,6 +143,12 @@ services:
       - MONGO_URI=mongodb://mongo-codequest:27017/codemaster-codequest-db
       - PORT=3000
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/v1/codequest/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mongo-community:
     image: mongo
@@ -181,6 +187,12 @@ services:
       - MONGO_URI=mongodb://mongo-community:27017/codemaster-community-db
       - PORT=4007
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4007/api/v1/comments/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mongo-solution:
     image: mongo
@@ -223,6 +235,12 @@ services:
       - PORT=4006
       - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4006/api/v1/solutions/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mongo-generator:
     image: mongo
@@ -257,6 +275,12 @@ services:
         condition: service_healthy
       mongo-generator:
         condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4008/api/v1/code-generator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   api-gateway:
     build:
@@ -318,11 +342,11 @@ services:
       codemaster-user-service:
         condition: service_healthy
       codemaster-solution-service:
-        condition: service_started
+        condition: service_healthy
       codemaster-codequest-service:
-        condition: service_started
+        condition: service_healthy
       codemaster-community-service:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "5173:5173"
 
