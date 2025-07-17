@@ -12,6 +12,8 @@ export function createCodeQuestRouter(controller: Controller): Router {
 
   router.route('/difficulty').get(controller.getCodeQuestsByDifficulty)
 
+  router.route('/health').get(controller.healthCheck)
+
   router.route('/:id').get(controller.getCodeQuestById).delete(controller.deleteCodeQuest)
 
   router.route('/codequest-problem/:id').put(controller.updateProblem)
@@ -21,8 +23,6 @@ export function createCodeQuestRouter(controller: Controller): Router {
   router.route('/codequest-languages/:id').put(controller.updateLanguages)
 
   router.route('/codequest-difficulty/:id').put(controller.updateDifficulty)
-
-  router.route('/health').get(controller.healthCheck)
 
   return router
 }

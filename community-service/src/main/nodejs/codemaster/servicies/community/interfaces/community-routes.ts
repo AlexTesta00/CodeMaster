@@ -6,6 +6,8 @@ export function createCommunityRouter(controller: CommunityController): Router {
 
   router.route('/').post(controller.saveComment)
 
+  router.route('/health').get(controller.healthCheck)
+
   router
     .route('/:id')
     .get(controller.getComment)
@@ -13,8 +15,6 @@ export function createCommunityRouter(controller: CommunityController): Router {
     .delete(controller.deleteComment)
 
   router.route('/codequests/:questId').get(controller.getCommentsByCodequest)
-
-  router.route('/health').get(controller.healthCheck)
 
   return router
 }
