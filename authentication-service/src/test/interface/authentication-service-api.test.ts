@@ -1,3 +1,12 @@
+jest.mock(
+    '../../main/nodejs/codemaster/servicies/authentication/infrastructure/publisher',
+    () => ({
+      connectToRabbit: jest.fn().mockResolvedValue(undefined),
+      publishUserRegistered: jest.fn(),
+      publishUserDeleted: jest.fn(),
+    })
+)
+
 import { app } from '../../main/nodejs/codemaster/servicies/authentication/app'
 import supertest from 'supertest'
 import {
@@ -8,12 +17,13 @@ import {
   OK,
   UNAUTHORIZED,
 } from '../../main/nodejs/codemaster/servicies/authentication/interfaces/status'
-import dotenv from 'dotenv'
-import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/db-connection'
 import { UserManager } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-manager'
-import { connectToRabbit } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/publisher'
+import {MongoMemoryServer} from "mongodb-memory-server";
+import mongoose from "mongoose";
+import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model";
 
 describe('Test API', () => {
+  let mongoServer: MongoMemoryServer
   const request = supertest(app)
   const newUser = {
     nickname: 'example',
@@ -23,27 +33,19 @@ describe('Test API', () => {
   }
 
   beforeAll(async () => {
-    dotenv.config()
-    try {
-      await connectToRabbit()
-      console.log('RabbitMQ connected successfully')
-    } catch (error) {
-      console.error('Connection to RabbitMQ unsuccessfully: ', error)
-      process.exit(1)
-    }
-    await connectToDatabase()
+    mongoServer = await MongoMemoryServer.create()
+    const uri = mongoServer.getUri()
+    await mongoose.connect(uri)
   })
 
   afterAll(async () => {
-    await request
-      .delete('/api/v1/authentication/' + newUser.nickname)
-      .send(newUser.nickname)
-      .set('Accept', 'application/json')
+    await UserModel.deleteMany({})
+    await mongoose.disconnect()
+    await mongoServer.stop()
+  })
 
-    await request
-      .delete('/api/v1/authentication/admin')
-      .send('admin')
-      .set('Accept', 'application/json')
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   describe('Test Register', () => {
