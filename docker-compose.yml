@@ -144,7 +144,7 @@ services:
       - PORT=3000
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/v1/codequest/health || exit 1" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/v1/codequests/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 10

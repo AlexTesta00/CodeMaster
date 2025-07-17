@@ -1,7 +1,11 @@
 {
   "urls": [
     { "url": "openapi/user.yaml", "name": "User Service" },
-    { "url": "openapi/authentication.yaml", "name": "Authentication Service" }
+    { "url": "openapi/authentication.yaml", "name": "Authentication Service" },
+    { "url": "openapi/code-generator.yaml", "name": "Code-Generator Service" },
+    { "url": "openapi/codequest.yaml", "name": "Codequest Service" },
+    { "url": "openapi/community.yaml", "name": "Community Service" },
+    { "url": "openapi/solution.yaml", "name": "Solution Service" }
   ],
   "validatorUrl": null
 }
