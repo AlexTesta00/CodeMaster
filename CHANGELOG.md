@@ -1,3 +1,11 @@
+## [3.4.4](https://github.com/AlexTesta00/CodeMaster/compare/v3.4.3...v3.4.4) (2025-07-17)
+
+### Bug Fixes
+
+* added front-end service in build ([19069b3](https://github.com/AlexTesta00/CodeMaster/commit/19069b3c398542dde6ff9ac3ada7726e61d3e36f))
+* fix bug that not show correctly docs info into github site ([bb88987](https://github.com/AlexTesta00/CodeMaster/commit/bb8898708211ce41eb1de4c2e0e9e0fb86e2d5b5))
+* fixed routes in codequest-service and community-service beacuse /health is not in a correct position ([374b856](https://github.com/AlexTesta00/CodeMaster/commit/374b8566ad9c56a6e4b70b67b1a9df70cf7acb18))
+
 ## [3.4.3](https://github.com/AlexTesta00/CodeMaster/compare/v3.4.2...v3.4.3) (2025-07-17)
 
 ### Bug Fixes
