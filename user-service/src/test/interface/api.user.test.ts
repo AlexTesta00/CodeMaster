@@ -6,8 +6,9 @@ import {
   DEFAULT_IMAGE_URL,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { isRight } from 'fp-ts/Either'
-import { connectToDatabase } from '../../main/nodejs/codemaster/servicies/user/infrastructure/db-connection'
-import dotenv from 'dotenv'
+import {MongoMemoryServer} from "mongodb-memory-server";
+import mongoose from "mongoose";
+import {UserManagerModel} from "../../main/nodejs/codemaster/servicies/user/infrastructure/schema";
 
 describe('Test User API', () => {
   const timeout = 10000
@@ -15,14 +16,18 @@ describe('Test User API', () => {
   const nickname = 'testuser'
   const invalidNickname = 'inv@lid'
   const defaultLevel = createDefaultLevel()
+    let mongoServer: MongoMemoryServer
 
   beforeAll(async () => {
-    dotenv.config()
-    await connectToDatabase()
+      mongoServer = await MongoMemoryServer.create()
+      const uri = mongoServer.getUri()
+      await mongoose.connect(uri)
   }, timeout)
 
   afterAll(async () => {
-    await request.delete(`/api/v1/users/${nickname}`).set('Accept', 'application/json')
+      await UserManagerModel.deleteMany({})
+      await mongoose.disconnect()
+      await mongoServer.stop()
   }, timeout)
 
   describe('Test /register', () => {
