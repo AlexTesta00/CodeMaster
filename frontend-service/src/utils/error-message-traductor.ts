@@ -5,6 +5,10 @@ export const authenticationTraductor = (error: string): string => {
         return 'Service is not available'
     } else if (error.includes('409')) {
         return 'User already exists'
+    } else if (error.includes('502')) {
+        return 'Service is not temporary available'
+    } else if (error.includes('5000ms')) {
+        return 'Service is not temporary available'
     }
     return error
 }

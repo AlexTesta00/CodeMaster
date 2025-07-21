@@ -21,6 +21,7 @@ const CODEQUEST_URL = 'http://localhost/api/v1/codequests/'
 const SOLUTION_URL = 'http://localhost/api/v1/solutions/'
 const GENERATOR_URL = 'http://localhost/api/v1/code-generator/'
 const COMMUNITY_URL = 'http://localhost/api/v1/comments/'
+const TIMEOUT = 5000
 
 axios.defaults.withCredentials = true
 
@@ -35,7 +36,9 @@ export const registerNewUser = async (
         email,
         password,
         role,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -46,18 +49,23 @@ export const loginUser = async (
     const response = await axios.post(`${AUTHENTICATION_URL}login`, {
         nickname,
         password,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
 export const logoutUser = async (nickname: string): Promise<void> => {
-    await axios.post(`${AUTHENTICATION_URL}logout`, { nickname })
+    await axios.post(`${AUTHENTICATION_URL}logout`,
+        { nickname },
+        {timeout: TIMEOUT}
+    )
 }
 
 export const getUserByNickname = async (
     nickname: string
 ): Promise<UserManagerResponse> => {
-    const response = await axios.get(`${USER_URL}${nickname}`)
+    const response = await axios.get(`${USER_URL}${nickname}`, {timeout: TIMEOUT})
     return response.data
 }
 
@@ -68,7 +76,9 @@ export const updateProfilePicture = async (
     const response = await axios.put(`${USER_URL}profile-picture`, {
         nickname,
         newProfilePicture,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -79,7 +89,9 @@ export const updateCV = async (
     const response = await axios.put(`${USER_URL}cv`, {
         nickname,
         newCV,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -90,7 +102,9 @@ export const updateBio = async (
     const response = await axios.put(`${USER_URL}bio`, {
         nickname,
         newBio,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -101,7 +115,9 @@ export const updateLanguages = async (
     const response = await axios.put(`${USER_URL}languages`, {
         nickname,
         newLanguages,
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -388,7 +404,7 @@ export const executeCode = async (
 }
 
 export const getAllUsers = async (): Promise<GetAllUserResponse> => {
-    const response = await axios.get(`${USER_URL}`)
+    const response = await axios.get(`${USER_URL}`, {timeout: TIMEOUT})
     return {
         message: response.data.message,
         success: response.data.success,
@@ -403,7 +419,9 @@ export const banUser = async (
     const response = await axios.patch(`${AUTHENTICATION_URL}ban`, {
         nicknameFrom,
         nicknameTo
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -414,7 +432,9 @@ export const unbanUser = async (
     const response = await axios.patch(`${AUTHENTICATION_URL}unban`, {
         nicknameFrom,
         nicknameTo
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
