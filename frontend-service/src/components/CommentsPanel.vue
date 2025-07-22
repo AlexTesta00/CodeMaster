@@ -59,7 +59,6 @@ const formatDate = (input: string) => {
 onMounted(async () => {
   try {
     const response = await getCommentsByQuest(props.questId);
-    console.log('response: ', JSON.stringify(response, null, 2))
     if (response.success) {
       comments.value = response.result;
     }

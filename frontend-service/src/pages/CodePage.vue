@@ -63,7 +63,6 @@ const addSolution = async () => {
     }
   } catch(error) {
     await errorToast('Impossible to add solution')
-    console.log(error)
   }
 }
 
@@ -109,7 +108,6 @@ const debug = async () => {
               code: currentCode.value
             }
         )
-        console.log('debug response: ', JSON.stringify(response, null, 2))
         if (response.success) {
           result.value = response.result
         }
@@ -152,7 +150,6 @@ const submit = async () => {
               code: currentCode.value
             }
         )
-        console.log('execute response: ', JSON.stringify(response, null, 2))
         if (response.success) {
           result.value = response.result
         }
@@ -258,10 +255,8 @@ onMounted(async () => {
 const resetCurrentCode = () => {
   if (currentLanguage.value) {
     const original = originalCodes.value.find(l => l.language === currentLanguage.value!.language)
-    console.log('original codes: ', JSON.stringify(original, null, 2))
     if (original) {
       const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value!.language)
-      console.log('idx: ', JSON.stringify(original, null, 2))
       if (idx !== -1) {
         availableLanguages.value[idx].templateCode = original.templateCode
         currentLanguage.value = {

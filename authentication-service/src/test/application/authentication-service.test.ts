@@ -195,7 +195,6 @@ describe('Test authentication service', () => {
           throw new Error('Error generating hash for password')
         }
       } else {
-        console.log(newUser.left)
         throw new Error('Error registering user')
       }
     })
@@ -396,7 +395,6 @@ describe('Test authentication service', () => {
           'Invalid refresh token: JsonWebTokenError: jwt must be provided'
         )
       } else {
-        console.log(result)
         throw new Error('Error refreshing token')
       }
     })
@@ -406,7 +404,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error refreshing token')
       }
     })
@@ -435,7 +432,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error deleting user')
       }
     })
@@ -473,7 +469,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error updating user email')
       }
     })
@@ -512,7 +507,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('Invalid Credentials')
       } else {
-        console.log(result)
         throw new Error('Error updating user password')
       }
     })
@@ -526,7 +520,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error updating user password')
       }
     })
@@ -559,7 +552,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error banning user')
       }
     })
@@ -569,7 +561,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User is not authorized')
       } else {
-        console.log(result)
         throw new Error('Error banning user')
       }
     })
@@ -591,7 +582,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User not found')
       } else {
-        console.log(result)
         throw new Error('Error unbanning user')
       }
     })
@@ -601,7 +591,6 @@ describe('Test authentication service', () => {
       if (isLeft(result)) {
         expect(result.left.message).toBe('User is not authorized')
       } else {
-        console.log(result)
         throw new Error('Error unbanning user')
       }
     })
