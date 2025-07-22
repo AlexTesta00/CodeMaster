@@ -265,3 +265,8 @@ export interface CommentsResponse {
     success: boolean
     result: Comment[]
 }
+
+export interface CheckStatureResponse {
+    status: string,
+    success: boolean,
+}

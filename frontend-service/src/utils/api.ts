@@ -12,7 +12,7 @@ import type {
     Problem, Solution, SolutionResponse,
     SolutionsResponse, UserManager,
     UserManagerResponse, LanguageCodes, ResultResponse, CommentsResponse,
-    Comment
+    Comment, CheckStatureResponse
 } from './interface.ts'
 
 const AUTHENTICATION_URL = 'http://localhost/api/v1/authentication/'
@@ -24,6 +24,54 @@ const COMMUNITY_URL = 'http://localhost/api/v1/comments/'
 const TIMEOUT = 5000
 
 axios.defaults.withCredentials = true
+
+export const healtCheckAuthentication = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${AUTHENTICATION_URL}status`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
+
+export const healtCheckUser = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${USER_URL}status`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
+
+export const healtCheckCodequest = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${CODEQUEST_URL}health`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
+
+export const healtCheckSolution = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${SOLUTION_URL}health`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
+
+export const healtCheckCodeGenerator = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${GENERATOR_URL}health`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
+
+export const healtCheckCommunity = async (): Promise<CheckStatureResponse> => {
+    const response = await axios.get(`${COMMUNITY_URL}health`, {timeout: TIMEOUT})
+    return {
+        status: response.data.status,
+        success: response.data.success
+    }
+}
 
 export const registerNewUser = async (
     nickname: string,
