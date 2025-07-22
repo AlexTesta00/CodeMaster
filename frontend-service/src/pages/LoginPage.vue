@@ -65,6 +65,7 @@ const handleSubmit = async () => {
                 authStore.setRole(response.user!.info.role.name)
                 goToCorrectPage(response.user!.info.role.name)
             } else {
+                console.log(response.message)
                 await errorToast(authenticationTraductor(response.message))
                 isLoading.value = false
             }

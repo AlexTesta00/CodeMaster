@@ -39,7 +39,7 @@ const redirectToCVPage = () => {
     if (cv.value) {
         window.open('https://' + cv.value, '_blank')
     } else {
-        errorToast('No CV URL provided')
+        errorToast('No CV URL provided - service temporarily unavailable')
     }
 }
 
@@ -60,7 +60,7 @@ const removeLanguage = async (lang: string) => {
             )
             await successToast('Languages updated successfully')
         } catch {
-            await errorToast('Languages not updated')
+            await errorToast('Languages not updated - service temporarily unavailable')
         }
     }
 }
@@ -79,7 +79,7 @@ const addLanguage = async (lang: string) => {
             )
             await successToast('Languages updated successfully')
         } catch {
-            await errorToast('Languages not updated')
+            await errorToast('Languages not updated - service temporarily unavailable')
         }
     }
 }
@@ -92,7 +92,7 @@ const saveBio = async () => {
         await successToast('Bio updated successfully')
         bioIsEditing.value = false
     } catch {
-        await errorToast('Bio not updated')
+        await errorToast('Bio not updated - service temporarily unavailable')
     } finally {
         loading.value = false
     }
@@ -106,7 +106,7 @@ const saveCV = async () => {
         await successToast('CV updated successfully')
         cvIsEditing.value = false
     } catch {
-        await errorToast('CV not updated')
+        await errorToast('CV not updated - service temporarily unavailable')
     } finally {
         loading.value = false
     }
@@ -121,7 +121,7 @@ const logout = async () => {
         await successToast('User logged out successfully')
         await router.push('/')
     } catch {
-        await errorToast('User not logged out')
+        await errorToast('User not logged out - service temporarily unavailable')
     } finally {
         loading.value = false
     }
@@ -235,12 +235,20 @@ onMounted(async () => {
         @click="router.push('/choice')"
       >
         <img
+          v-if="profilePicture"
           :src="profilePicture"
+          alt="Barney Image Art"
+          class="w-full h-auto rounded-xl"
+        >
+        <img
+          v-else
+          src="/images/dog.png"
           alt="Barney Image Art"
           class="w-full h-auto rounded-xl"
         >
         <div
           class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          v-if="profilePicture"
         >
           <p
             class="text-white text-center text-sm lg:text-lg font-semibold"
@@ -257,6 +265,7 @@ onMounted(async () => {
           <span
             class="cursor-pointer hidden lg:inline"
             @click="bioIsEditing = !bioIsEditing"
+            v-if="profilePicture"
           >✎</span>
         </h2>
         <p
@@ -300,6 +309,7 @@ onMounted(async () => {
         <span
           class="cursor-pointer hidden lg:inline"
           @click="languageIsEditing = !languageIsEditing"
+          v-if="profilePicture"
         >✎</span>
       </h2>
       <div
@@ -349,6 +359,7 @@ onMounted(async () => {
           <span
             class="cursor-pointer hidden lg:inline"
             @click="cvIsEditing = !cvIsEditing"
+            v-if="profilePicture"
           >✎</span>
           {{ cv || 'CV not present' }}
         </button>
