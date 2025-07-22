@@ -1,3 +1,9 @@
+## [3.5.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.4.4...v3.5.0) (2025-07-22)
+
+### Features
+
+* **frontend:** added timeout to axios request for user-service and authentication-service, and added Service Unavaiable error message ([18b7f95](https://github.com/AlexTesta00/CodeMaster/commit/18b7f95daa17300b363170ee115c16ebe36a668b))
+
 ## [3.4.4](https://github.com/AlexTesta00/CodeMaster/compare/v3.4.3...v3.4.4) (2025-07-17)
 
 ### Bug Fixes
