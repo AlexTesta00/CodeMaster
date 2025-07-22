@@ -102,8 +102,6 @@ router.beforeEach(async (to, _, next) => {
     const isLoggedIn = auth.isLoggedIn()
     const userRole = auth.getUserRole()
 
-    console.log(`requiresAuth: ${requiresAuth}, isLoggedIn: ${isLoggedIn}, userRole: ${userRole}`)
-
     if (requiresAuth && !isLoggedIn) {
         return next({ name: 'Login' })
     }
