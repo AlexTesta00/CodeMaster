@@ -86,7 +86,6 @@ onMounted(async () => {
         level.value = res.user.level
       } else {
         await errorToast('Failed to load user data')
-        await router.push('/error')
       }
 
       const codequestRes = await getAllCodequests()
@@ -113,13 +112,11 @@ onMounted(async () => {
       }
     } catch {
       await errorToast('Failed to fetch data')
-      await router.push('/error')
     } finally {
       isLoading.value = false
     }
   } else {
     await errorToast('Dashboard page requires authentication')
-    await router.push('/error')
   }
 })
 </script>
