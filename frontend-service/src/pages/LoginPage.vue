@@ -2,11 +2,10 @@
 import { ref } from 'vue'
 import router from '../router'
 import { loginUser, registerNewUser } from '../utils/api.ts'
-import { errorToast, successToast } from '../utils/notify.ts'
+import {errorToast, successToast, sweetModalWithImage} from '../utils/notify.ts'
 import { authenticationTraductor } from '../utils/error-message-traductor.ts'
 import LoadingPage from './LoadingPage.vue'
 import { useAuthStore } from '../utils/store.ts'
-import { assignTrophyByTitle } from '../utils/game-logic.ts'
 
 const nickname = ref('')
 const email = ref('')
@@ -58,9 +57,7 @@ const handleSubmit = async () => {
             if (response.success) {
                 await successToast('Registration Successful')
                 authStore.setNickname(nickname.value)
-                if(authStore.nickname){
-                  await assignTrophyByTitle(authStore.nickname, 'Welcome')
-                }
+                await sweetModalWithImage(`Congratulations you have obtained: Welcome trophy`, 'Welcome to the platform!', 'https://cdn-icons-png.flaticon.com/512/14697/14697227.png', 'Image of trophy obtained')
                 isLoading.value = false
                 authStore.setRole(response.user!.info.role.name)
                 goToCorrectPage(response.user!.info.role.name)
