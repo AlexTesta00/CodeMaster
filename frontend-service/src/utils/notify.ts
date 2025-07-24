@@ -28,11 +28,16 @@ export const errorToast = async (title: string) =>
         color: 'white',
     })
 
-export const sweetModalWithImage = async (title: string, description: string, imageUrl: string, alt: string) =>
-  Swal.fire({
-    title: title,
-    text: description,
-    imageUrl: imageUrl,
-    imageHeight: 64,
-    imageAlt: alt
-  })
+export const sweetModalWithImage = async (
+    title: string,
+    description: string,
+    imageUrl: string,
+    alt: string,
+) =>
+    Swal.fire({
+        title: title,
+        text: description,
+        imageUrl: imageUrl,
+        imageHeight: 64,
+        imageAlt: alt,
+    })

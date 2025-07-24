@@ -9,7 +9,7 @@ import {
   deleteUser,
   getAllUserInfo,
   registerNewUser,
-  getAllUsers as getAllUsersFromService
+  getAllUsers as getAllUsersFromService,
 } from '../application/user-service'
 import { Either, isLeft } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'

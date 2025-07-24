@@ -6,7 +6,8 @@ import {
   findUser,
   saveDefaultUser,
   updateUserInfo,
-  deleteUser as deleteUserFromRepo, getAllUsersFromRepo,
+  deleteUser as deleteUserFromRepo,
+  getAllUsersFromRepo,
 } from '../infrastructure/user-repository'
 import { isNone, isSome, none, some } from 'fp-ts/Option'
 import { ProfilePicture } from '../domain/profile-picture'

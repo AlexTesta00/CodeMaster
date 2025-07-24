@@ -17,13 +17,13 @@ paths:
             type: string
           description: ID del CodeQuest
       responses:
-        '200':
+        "200":
           description: Codice generato recuperato con successo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CodeQuestCode'
-        '404':
+                $ref: "#/components/schemas/CodeQuestCode"
+        "404":
           description: CodeQuestCode non trovato
 
     delete:
@@ -37,14 +37,14 @@ paths:
             type: string
           description: ID del CodeQuest
       responses:
-        '200':
+        "200":
           description: Lista di CodeQuestCode dopo l'eliminazione
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CodeQuestCode'
+                  $ref: "#/components/schemas/CodeQuestCode"
 
   /code-generator:
     post:
@@ -66,11 +66,11 @@ paths:
                   type: string
                   description: ID del CodeQuest
                 signature:
-                  $ref: '#/components/schemas/FunctionSignature'
+                  $ref: "#/components/schemas/FunctionSignature"
                 examples:
                   type: array
                   items:
-                    $ref: '#/components/schemas/ExampleCase'
+                    $ref: "#/components/schemas/ExampleCase"
                 languages:
                   type: array
                   items:
@@ -78,13 +78,13 @@ paths:
                     enum: [kotlin, java, scala]
                   description: Linguaggi per cui generare il codice
       responses:
-        '200':
+        "200":
           description: Codice generato con successo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CodeQuestCode'
-        '400':
+                $ref: "#/components/schemas/CodeQuestCode"
+        "400":
           description: Errore nella richiesta
 
   /code-generator/ping:
@@ -92,7 +92,7 @@ paths:
       summary: Ping a MongoDB per verificarne la connettività
       operationId: pingMongo
       responses:
-        '200':
+        "200":
           description: Stato del ping (true se connesso, false altrimenti)
           content:
             application/json:
@@ -113,7 +113,7 @@ components:
         entries:
           type: array
           items:
-            $ref: '#/components/schemas/GeneratedCodeEntry'
+            $ref: "#/components/schemas/GeneratedCodeEntry"
 
     GeneratedCodeEntry:
       type: object
@@ -123,7 +123,7 @@ components:
         - testCode
       properties:
         language:
-          $ref: '#/components/schemas/Language'
+          $ref: "#/components/schemas/Language"
         templateCode:
           type: string
           description: Codice template generato
@@ -152,10 +152,10 @@ components:
         parameters:
           type: array
           items:
-            $ref: '#/components/schemas/FunctionParameter'
+            $ref: "#/components/schemas/FunctionParameter"
           description: Lista di parametri della funzione
         returnType:
-          $ref: '#/components/schemas/TypeName'
+          $ref: "#/components/schemas/TypeName"
           description: Tipo di ritorno della funzione
 
     FunctionParameter:
@@ -168,7 +168,7 @@ components:
           type: string
           description: Nome del parametro
         type:
-          $ref: '#/components/schemas/TypeName'
+          $ref: "#/components/schemas/TypeName"
           description: Tipo del parametro
 
     ExampleCase:
@@ -208,4 +208,3 @@ components:
         raw:
           type: string
           description: Tipo raw della variabile (es. int, List<int>, Map<string,int>)
-

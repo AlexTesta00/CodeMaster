@@ -54,49 +54,49 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section
-    v-if="isLoading === false"
-    class="ml-4 mr-4 min-h-screen overflow-y-hidden animate-fade-in bg-white dark:bg-bgdark"
-  >
-    <header>
-      <h1
-        class="text-3xl md:text-5xl font-bold text-center mt-8 md:mt-24 dark:text-background"
-      >
-        Choose your character
-      </h1>
-    </header>
-    <div
-      class="flex flex-col md:flex-row justify-center items-center mb-12 md:mt-24 md:gap-x-16"
+    <section
+        v-if="isLoading === false"
+        class="ml-4 mr-4 min-h-screen overflow-y-hidden animate-fade-in bg-white dark:bg-bgdark"
     >
-      <card-choicheable
-        v-for="(character, index) in characters"
-        :key="index"
-        v-model="currentFigure"
-        :title="character.name"
-        :image-url="character.imageUrl"
-        :alt="character.alt"
-        :description="character.description"
-        @hover-in="hoverText = $event"
-        @hover-out="hoverText = ''"
-        @selected="updateUserProfilePicture"
-      />
-    </div>
-    <p class="text-center hidden md:block dark:text-background">
-      {{ hoverText }}
-    </p>
+        <header>
+            <h1
+                class="text-3xl md:text-5xl font-bold text-center mt-8 md:mt-24 dark:text-background"
+            >
+                Choose your character
+            </h1>
+        </header>
+        <div
+            class="flex flex-col md:flex-row justify-center items-center mb-12 md:mt-24 md:gap-x-16"
+        >
+            <card-choicheable
+                v-for="(character, index) in characters"
+                :key="index"
+                v-model="currentFigure"
+                :title="character.name"
+                :image-url="character.imageUrl"
+                :alt="character.alt"
+                :description="character.description"
+                @hover-in="hoverText = $event"
+                @hover-out="hoverText = ''"
+                @selected="updateUserProfilePicture"
+            />
+        </div>
+        <p class="text-center hidden md:block dark:text-background">
+            {{ hoverText }}
+        </p>
 
-    <div class="flex flex-row justify-center items-center w-full mb-8">
-      <button-with-image
-        class="w-full md:w-64 lg:mt-6"
-        image-url="/icons/back.svg"
-        alt-text="Return to profile page"
-        title="Return Back"
-        @click="router.back()"
-      />
-    </div>
-  </section>
-  <footer
-    class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
-  />
-  <loading-page v-if="isLoading" />
+        <div class="flex flex-row justify-center items-center w-full mb-8">
+            <button-with-image
+                class="w-full md:w-64 lg:mt-6"
+                image-url="/icons/back.svg"
+                alt-text="Return to profile page"
+                title="Return Back"
+                @click="router.back()"
+            />
+        </div>
+    </section>
+    <footer
+        class="flex flex-row justify-center items-center animate-fade-in bg-primary w-full md:bg-background md:dark:bg-bgdark md:fixed"
+    />
+    <loading-page v-if="isLoading" />
 </template>

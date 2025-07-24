@@ -13,18 +13,18 @@ paths:
     get:
       summary: Retrieve all users
       responses:
-        '200':
+        "200":
           description: List of users retrieved
-        '500':
+        "500":
           description: Internal server error
 
   /status:
     get:
       summary: Check authentication service status
       responses:
-        '200':
+        "200":
           description: Service is available
-        '500':
+        "500":
           description: Service unavailable
 
   /register:
@@ -35,13 +35,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: "#/components/schemas/RegisterRequest"
       responses:
-        '201':
+        "201":
           description: User registered
-        '400':
+        "400":
           description: Invalid request
-        '409':
+        "409":
           description: User already exists
 
   /login:
@@ -52,15 +52,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
+        "200":
           description: Login successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
           description: Invalid credentials
 
   /logout:
@@ -71,11 +71,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LogoutRequest'
+              $ref: "#/components/schemas/LogoutRequest"
       responses:
-        '200':
+        "200":
           description: Logout successful
-        '400':
+        "400":
           description: Error
 
   /refresh-access-token:
@@ -86,11 +86,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NicknameOnly'
+              $ref: "#/components/schemas/NicknameOnly"
       responses:
-        '200':
+        "200":
           description: Token refreshed
-        '400':
+        "400":
           description: Invalid refresh token
 
   /update-email:
@@ -101,11 +101,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEmailRequest'
+              $ref: "#/components/schemas/UpdateEmailRequest"
       responses:
-        '200':
+        "200":
           description: Email updated
-        '400':
+        "400":
           description: Error
 
   /update-password:
@@ -116,11 +116,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatePasswordRequest'
+              $ref: "#/components/schemas/UpdatePasswordRequest"
       responses:
-        '200':
+        "200":
           description: Password updated
-        '400':
+        "400":
           description: Error
 
   /ban:
@@ -131,13 +131,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BanRequest'
+              $ref: "#/components/schemas/BanRequest"
       responses:
-        '200':
+        "200":
           description: User banned
-        '400':
+        "400":
           description: Error or user not found
-        '401':
+        "401":
           description: Unauthorized
 
   /unban:
@@ -148,13 +148,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BanRequest'
+              $ref: "#/components/schemas/BanRequest"
       responses:
-        '200':
+        "200":
           description: User unbanned
-        '400':
+        "400":
           description: Error or user not found
-        '401':
+        "401":
           description: Unauthorized
 
   /{id}:
@@ -167,9 +167,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User deleted
-        '400':
+        "400":
           description: Error
 
 components:
@@ -215,7 +215,7 @@ components:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         user:
-          $ref: '#/components/schemas/UserManager'
+          $ref: "#/components/schemas/UserManager"
 
     LogoutRequest:
       type: object
@@ -273,7 +273,7 @@ components:
       type: object
       properties:
         info:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         banned:
           type: boolean
           example: false

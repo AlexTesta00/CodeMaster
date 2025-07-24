@@ -1,25 +1,25 @@
 import supertest from 'supertest'
 import { app } from '../../main/nodejs/codemaster/servicies/app'
 import { DEFAULT_IMAGE_URL } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
-import {MongoMemoryServer} from "mongodb-memory-server";
-import mongoose from "mongoose";
-import {LevelModel} from "../../main/nodejs/codemaster/servicies/user/infrastructure/schema";
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
+import { LevelModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/schema'
 
 describe('Test Level API', () => {
   const request = supertest(app)
   const timeout = 10000
-    let mongoServer: MongoMemoryServer
+  let mongoServer: MongoMemoryServer
 
   beforeAll(async () => {
-      mongoServer = await MongoMemoryServer.create()
-      const uri = mongoServer.getUri()
-      await mongoose.connect(uri)
+    mongoServer = await MongoMemoryServer.create()
+    const uri = mongoServer.getUri()
+    await mongoose.connect(uri)
   }, timeout)
 
   afterAll(async () => {
-      await LevelModel.deleteMany({})
-      await mongoose.disconnect()
-      await mongoServer.stop()
+    await LevelModel.deleteMany({})
+    await mongoose.disconnect()
+    await mongoServer.stop()
   }, timeout)
 
   describe('Test /api/v1/levels', () => {

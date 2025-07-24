@@ -24,7 +24,7 @@ components:
       type: object
       properties:
         language:
-          $ref: '#/components/schemas/Language'
+          $ref: "#/components/schemas/Language"
         code:
           type: string
       required:
@@ -36,19 +36,19 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          pending: '#/components/schemas/ExecutionResultPending'
-          accepted: '#/components/schemas/ExecutionResultAccepted'
-          testsFailed: '#/components/schemas/ExecutionResultTestsFailed'
-          compileFailed: '#/components/schemas/ExecutionResultCompileFailed'
-          runtimeError: '#/components/schemas/ExecutionResultRuntimeError'
-          timeLimitExceeded: '#/components/schemas/ExecutionResultTimeLimitExceeded'
+          pending: "#/components/schemas/ExecutionResultPending"
+          accepted: "#/components/schemas/ExecutionResultAccepted"
+          testsFailed: "#/components/schemas/ExecutionResultTestsFailed"
+          compileFailed: "#/components/schemas/ExecutionResultCompileFailed"
+          runtimeError: "#/components/schemas/ExecutionResultRuntimeError"
+          timeLimitExceeded: "#/components/schemas/ExecutionResultTimeLimitExceeded"
       oneOf:
-        - $ref: '#/components/schemas/ExecutionResultPending'
-        - $ref: '#/components/schemas/ExecutionResultAccepted'
-        - $ref: '#/components/schemas/ExecutionResultTestsFailed'
-        - $ref: '#/components/schemas/ExecutionResultCompileFailed'
-        - $ref: '#/components/schemas/ExecutionResultRuntimeError'
-        - $ref: '#/components/schemas/ExecutionResultTimeLimitExceeded'
+        - $ref: "#/components/schemas/ExecutionResultPending"
+        - $ref: "#/components/schemas/ExecutionResultAccepted"
+        - $ref: "#/components/schemas/ExecutionResultTestsFailed"
+        - $ref: "#/components/schemas/ExecutionResultCompileFailed"
+        - $ref: "#/components/schemas/ExecutionResultRuntimeError"
+        - $ref: "#/components/schemas/ExecutionResultTimeLimitExceeded"
 
     ExecutionResultPending:
       type: object
@@ -160,13 +160,13 @@ components:
         codes:
           type: array
           items:
-            $ref: '#/components/schemas/Code'
+            $ref: "#/components/schemas/Code"
         questId:
           type: string
         user:
           type: string
         result:
-          $ref: '#/components/schemas/ExecutionResult'
+          $ref: "#/components/schemas/ExecutionResult"
         solved:
           type: boolean
       required:
@@ -182,7 +182,7 @@ paths:
     get:
       summary: Verifica lo stato di salute del servizio
       responses:
-        '200':
+        "200":
           description: Servizio attivo e MongoDB raggiungibile
           content:
             application/json:
@@ -194,7 +194,7 @@ paths:
                     example: OK
                   success:
                     type: boolean
-        '500':
+        "500":
           description: Servizio non disponibile o MongoDB non raggiungibile
           content:
             application/json:
@@ -217,15 +217,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Solution'
+              $ref: "#/components/schemas/Solution"
       responses:
-        '200':
+        "200":
           description: Soluzione aggiunta con successo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Solution'
-        '400':
+                $ref: "#/components/schemas/Solution"
+        "400":
           description: Richiesta malformata o dati non validi
 
   /{id}:
@@ -239,13 +239,13 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Soluzione trovata
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Solution'
-        '404':
+                $ref: "#/components/schemas/Solution"
+        "404":
           description: Soluzione non trovata
 
     delete:
@@ -258,13 +258,13 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Soluzione eliminata
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Solution'
-        '404':
+                $ref: "#/components/schemas/Solution"
+        "404":
           description: Soluzione non trovata
 
   /codequests/{questId}:
@@ -277,15 +277,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Elenco soluzioni trovate
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Solution'
-        '500':
+                  $ref: "#/components/schemas/Solution"
+        "500":
           description: Errore interno del server
 
   /solved/{user}:
@@ -298,15 +298,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Soluzioni risolte trovate
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Solution'
-        '500':
+                  $ref: "#/components/schemas/Solution"
+        "500":
           description: Errore interno del server
 
   /users/{user}:
@@ -319,15 +319,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Soluzioni trovate
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Solution'
-        '500':
+                  $ref: "#/components/schemas/Solution"
+        "500":
           description: Errore interno del server
 
   /code/{id}:
@@ -345,17 +345,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: "#/components/schemas/Code"
       responses:
-        '200':
+        "200":
           description: Codice soluzione aggiornato
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Solution'
-        '400':
+                $ref: "#/components/schemas/Solution"
+        "400":
           description: Codice vuoto o richiesta non valida
-        '404':
+        "404":
           description: Soluzione non trovata
 
   /execute/{id}:
@@ -376,7 +376,7 @@ paths:
               type: object
               properties:
                 language:
-                  $ref: '#/components/schemas/Language'
+                  $ref: "#/components/schemas/Language"
                 code:
                   type: string
                 testCode:
@@ -386,17 +386,17 @@ paths:
                 - code
                 - testCode
       responses:
-        '200':
+        "200":
           description: Codice eseguito con successo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Solution'
-        '400':
+                $ref: "#/components/schemas/Solution"
+        "400":
           description: Codice vuoto o richiesta non valida
-        '404':
+        "404":
           description: Soluzione non trovata
-        '500':
+        "500":
           description: Errore interno del server
 
   /compile/{id}:
@@ -417,7 +417,7 @@ paths:
               type: object
               properties:
                 language:
-                  $ref: '#/components/schemas/Language'
+                  $ref: "#/components/schemas/Language"
                 code:
                   type: string
                 testCode:
@@ -427,15 +427,15 @@ paths:
                 - code
                 - testCode
       responses:
-        '200':
+        "200":
           description: Risultato compilazione
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionResult'
-        '400':
+                $ref: "#/components/schemas/ExecutionResult"
+        "400":
           description: Codice vuoto o richiesta non valida
-        '404':
+        "404":
           description: Soluzione non trovata
-        '500':
+        "500":
           description: Errore interno del server

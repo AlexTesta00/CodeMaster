@@ -19,11 +19,14 @@ Once the requirements are met, you can start the project with the following comm
 ```
 
 ---
+
 ## 👨‍💻 Developers
+
 - [Alex Testa](https://www.instagram.com/alextesta._)
 - Riccardo Rambaldi
 
 ## 🤝 Contributions
+
 We welcome contributions from the community!
 
 To contribute:
@@ -34,13 +37,15 @@ To contribute:
    git checkout -b feature/il-tuo-feature
    ```
 3. Make your changes and commit them:
-    ````bash
-    git commit -m "Aggiunta nuova funzionalità"
-    ````
+   ```bash
+   git commit -m "Aggiunta nuova funzionalità"
+   ```
 4. Push your changes:
-    ```bash
-    git push origin feature/il-tuo-feature
-    ```
+   ```bash
+   git push origin feature/il-tuo-feature
+   ```
 5. Open a pull request describing your changes.
+
 ---
+
 💡*Contributions and suggestions are always welcome!*

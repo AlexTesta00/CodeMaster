@@ -1,25 +1,25 @@
 import supertest from 'supertest'
 import { app } from '../../main/nodejs/codemaster/servicies/app'
-import {MongoMemoryServer} from "mongodb-memory-server";
-import mongoose from "mongoose";
-import {TrophyModel} from "../../main/nodejs/codemaster/servicies/user/infrastructure/schema";
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
+import { TrophyModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/schema'
 
 describe('Test Trophy API', () => {
   const request = supertest(app)
   const timeout = 10000
-    let mongoServer: MongoMemoryServer
+  let mongoServer: MongoMemoryServer
 
   describe('Test /api/v1/trophies', () => {
     beforeAll(async () => {
-        mongoServer = await MongoMemoryServer.create()
-        const uri = mongoServer.getUri()
-        await mongoose.connect(uri)
+      mongoServer = await MongoMemoryServer.create()
+      const uri = mongoServer.getUri()
+      await mongoose.connect(uri)
     }, timeout)
 
     afterAll(async () => {
-        await TrophyModel.deleteMany({})
-        await mongoose.disconnect()
-        await mongoServer.stop()
+      await TrophyModel.deleteMany({})
+      await mongoose.disconnect()
+      await mongoServer.stop()
     }, timeout)
 
     it(

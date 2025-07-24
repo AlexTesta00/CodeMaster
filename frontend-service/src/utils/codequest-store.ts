@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
-import type {AllowedTypeName, FunctionParameter, Language} from "./interface.ts";
-
+import type {
+    AllowedTypeName,
+    FunctionParameter,
+    Language,
+} from './interface.ts'
 
 export const codequestStore = defineStore('codequest', {
     state: () => ({
@@ -15,14 +18,14 @@ export const codequestStore = defineStore('codequest', {
     }),
     actions: {
         setCodeQuestData(data: {
-            title: string,
-            description: string,
-            difficulty: string,
-            constraints: string,
-            languages: Language[],
-            functionName: string,
-            parameters: FunctionParameter[],
-            returnType: AllowedTypeName,
+            title: string
+            description: string
+            difficulty: string
+            constraints: string
+            languages: Language[]
+            functionName: string
+            parameters: FunctionParameter[]
+            returnType: AllowedTypeName
         }) {
             this.title = data.title
             this.description = data.description
@@ -32,6 +35,6 @@ export const codequestStore = defineStore('codequest', {
             this.functionName = data.functionName
             this.parameters = data.parameters
             this.returnType = data.returnType
-        }
-    }
+        },
+    },
 })

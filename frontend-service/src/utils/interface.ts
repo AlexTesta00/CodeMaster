@@ -8,19 +8,55 @@ export type Person = {
     link: [Link]
 }
 
-export type SimpleTypeName = 'int' | 'string' | 'boolean' | 'double' | 'long' | 'float'
+export type SimpleTypeName =
+    | 'int'
+    | 'string'
+    | 'boolean'
+    | 'double'
+    | 'long'
+    | 'float'
 
 type Primitive = SimpleTypeName
 
 type ListTypes = `List<${Primitive}>`
 
 type MapTypes =
-    | `Map<int,int>` | `Map<int,string>` | `Map<int,boolean>` | `Map<int,double>` | `Map<int,long>` | `Map<int,float>`
-    | `Map<string,int>` | `Map<string,string>` | `Map<string,boolean>` | `Map<string,double>` | `Map<string,long>` | `Map<string,float>`
-    | `Map<boolean,int>` | `Map<boolean,string>` | `Map<boolean,boolean>` | `Map<boolean,double>` | `Map<boolean,long>` | `Map<boolean,float>`
-    | `Map<double,int>` | `Map<double,string>` | `Map<double,boolean>` | `Map<double,double>` | `Map<double,long>` | `Map<double,float>`
-    | `Map<long,int>` | `Map<long,string>` | `Map<long,boolean>` | `Map<long,double>` | `Map<long,long>` | `Map<long,float>`
-    | `Map<float,int>` | `Map<float,string>` | `Map<float,boolean>` | `Map<float,double>` | `Map<float,long>` | `Map<float,float>`
+    | `Map<int,int>`
+    | `Map<int,string>`
+    | `Map<int,boolean>`
+    | `Map<int,double>`
+    | `Map<int,long>`
+    | `Map<int,float>`
+    | `Map<string,int>`
+    | `Map<string,string>`
+    | `Map<string,boolean>`
+    | `Map<string,double>`
+    | `Map<string,long>`
+    | `Map<string,float>`
+    | `Map<boolean,int>`
+    | `Map<boolean,string>`
+    | `Map<boolean,boolean>`
+    | `Map<boolean,double>`
+    | `Map<boolean,long>`
+    | `Map<boolean,float>`
+    | `Map<double,int>`
+    | `Map<double,string>`
+    | `Map<double,boolean>`
+    | `Map<double,double>`
+    | `Map<double,long>`
+    | `Map<double,float>`
+    | `Map<long,int>`
+    | `Map<long,string>`
+    | `Map<long,boolean>`
+    | `Map<long,double>`
+    | `Map<long,long>`
+    | `Map<long,float>`
+    | `Map<float,int>`
+    | `Map<float,string>`
+    | `Map<float,boolean>`
+    | `Map<float,double>`
+    | `Map<float,long>`
+    | `Map<float,float>`
 
 export type ComplexTypeName = ListTypes | MapTypes
 
@@ -32,10 +68,10 @@ export interface AuthenticationResponse {
     token?: string
     user?: {
         info: {
-            nickname: {value: string}
+            nickname: { value: string }
             email: string
             password: string
-            role: {name: 'admin' | 'user'}
+            role: { name: 'admin' | 'user' }
         }
         banned: boolean
         refreshToken: string
@@ -175,32 +211,32 @@ export interface ExampleFieldErrors {
 export type ExecutionResult =
     | { type: 'pending' }
     | {
-    type: 'accepted'
-    output: string[]
-    exitCode: number
-}
+          type: 'accepted'
+          output: string[]
+          exitCode: number
+      }
     | {
-    type: 'testsFailed'
-    error: string
-    output: string[]
-    exitCode: number
-}
+          type: 'testsFailed'
+          error: string
+          output: string[]
+          exitCode: number
+      }
     | {
-    type: 'compileFailed'
-    error: string
-    stderr: string
-    exitCode: number
-}
+          type: 'compileFailed'
+          error: string
+          stderr: string
+          exitCode: number
+      }
     | {
-    type: 'runtimeError'
-    error: string
-    stderr?: string
-    exitCode: number
-}
+          type: 'runtimeError'
+          error: string
+          stderr?: string
+          exitCode: number
+      }
     | {
-    type: 'timeLimitExceeded'
-    timeout: number
-}
+          type: 'timeLimitExceeded'
+          timeout: number
+      }
 
 export interface FunctionParameter {
     name: string

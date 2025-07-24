@@ -4,7 +4,9 @@ const serverTimeout = 5000
 
 export const connectToDatabase = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI ?? 'mongodb://mongo-authentication:27017/codemaster-authentication-db-test'
+    const mongoURI =
+      process.env.MONGO_URI ??
+      'mongodb://mongo-authentication:27017/codemaster-authentication-db-test'
     await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: serverTimeout,
     })

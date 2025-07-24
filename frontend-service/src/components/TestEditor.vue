@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
-import {onMounted, ref, watch} from 'vue'
-import type {Language} from "../utils/interface.ts";
+import { onMounted, ref, watch } from 'vue'
+import type { Language } from '../utils/interface.ts'
 
 const props = defineProps<{
-  language: Language
+    language: Language
 }>()
 
 const testTemplates = ref<Record<string, string> | null>(null)
@@ -29,36 +29,37 @@ const options = {
 watch(
     () => props.language,
     (lang) => {
-      if (testTemplates.value) {
-        code.value = testTemplates.value[lang.name] || '// No test template available'
-      }
+        if (testTemplates.value) {
+            code.value =
+                testTemplates.value[lang.name] ||
+                '// No test template available'
+        }
     },
 )
 
 onMounted(async () => {
-  try {
-    const resTest = await fetch('/data/testTemplates.json')
-    if (!resTest.ok) {
-      code.value = 'No test template available'
+    try {
+        const resTest = await fetch('/data/testTemplates.json')
+        if (!resTest.ok) {
+            code.value = 'No test template available'
+        }
+        testTemplates.value = await resTest.json()
+        code.value =
+            testTemplates.value?.[props.language.name] ||
+            '// No code template available'
+    } catch (error) {
+        void error
+        code.value = 'No template available'
     }
-    testTemplates.value = await resTest.json()
-    code.value =
-        testTemplates.value?.[props.language.name] ||
-        '// No code template available'
-  } catch(error) {
-    void error
-    code.value = 'No template available'
-  }
 })
-
 </script>
 
 <template>
-  <vue-monaco-editor
-    v-model:value="code"
-    language="java"
-    theme="vs-dark"
-    :options="options"
-    class="border rounded-full"
-  />
+    <vue-monaco-editor
+        v-model:value="code"
+        language="java"
+        theme="vs-dark"
+        :options="options"
+        class="border rounded-full"
+    />
 </template>

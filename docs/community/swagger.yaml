@@ -61,9 +61,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentInput'
+              $ref: "#/components/schemas/CommentInput"
       responses:
-        '201':
+        "201":
           description: Commento aggiunto con successo
           content:
             application/json:
@@ -75,7 +75,7 @@ paths:
                   success:
                     type: boolean
                   result:
-                    $ref: '#/components/schemas/Comment'
+                    $ref: "#/components/schemas/Comment"
 
   /{id}:
     get:
@@ -87,7 +87,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Commento trovato
           content:
             application/json:
@@ -99,7 +99,7 @@ paths:
                   success:
                     type: boolean
                   result:
-                    $ref: '#/components/schemas/Comment'
+                    $ref: "#/components/schemas/Comment"
 
     put:
       summary: Modifica il contenuto di un commento
@@ -114,9 +114,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentUpdateInput'
+              $ref: "#/components/schemas/CommentUpdateInput"
       responses:
-        '200':
+        "200":
           description: Commento aggiornato
           content:
             application/json:
@@ -128,7 +128,7 @@ paths:
                   success:
                     type: boolean
                   result:
-                    $ref: '#/components/schemas/Comment'
+                    $ref: "#/components/schemas/Comment"
 
     delete:
       summary: Elimina un commento tramite ID
@@ -139,7 +139,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Commento eliminato
           content:
             application/json:
@@ -151,7 +151,7 @@ paths:
                   success:
                     type: boolean
                   result:
-                    $ref: '#/components/schemas/Comment'
+                    $ref: "#/components/schemas/Comment"
 
   /codequests/{questId}:
     get:
@@ -163,7 +163,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Commenti trovati
           content:
             application/json:
@@ -177,13 +177,13 @@ paths:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Comment'
+                      $ref: "#/components/schemas/Comment"
 
   /health:
     get:
       summary: Verifica lo stato di salute del servizio
       responses:
-        '200':
+        "200":
           description: Tutti i servizi sono operativi
           content:
             application/json:
@@ -195,7 +195,7 @@ paths:
                     example: OK
                   success:
                     type: boolean
-        '500':
+        "500":
           description: Servizio non disponibile
           content:
             application/json:

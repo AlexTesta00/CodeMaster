@@ -63,6 +63,6 @@ export const useAuthStore = defineStore('auth', () => {
         isLoggedIn,
         banned,
         setBanned,
-        loadBanned
+        loadBanned,
     }
 })

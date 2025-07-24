@@ -10,7 +10,8 @@ import {
 import {
   banUser as banUserFromService,
   deleteUser as deleteUserFromService,
-  findAllUsers as getAllUsersFromService, findUserByNicknameService,
+  findAllUsers as getAllUsersFromService,
+  findUserByNicknameService,
   loginUser as login,
   logoutUser as logout,
   refreshAccessUserToken,
@@ -52,7 +53,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { nickname, password } = req.body
 
   const token = await login({ value: nickname }, password)
-  const user = await findUserByNicknameService({value: nickname})
+  const user = await findUserByNicknameService({ value: nickname })
 
   if (isRight(token) && isRight(user)) {
     res.cookie('auth_token', token.right, {
@@ -63,12 +64,17 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     })
     res
       .status(OK)
-      .json({ message: 'User LoggedIn', success: true, token: token.right, user: user.right })
+      .json({
+        message: 'User LoggedIn',
+        success: true,
+        token: token.right,
+        user: user.right,
+      })
       .end()
   } else {
     if (isLeft(token)) {
       res.status(BAD_REQUEST).json({ message: token.left.message, success: false })
-    }else if(isLeft(user)) {
+    } else if (isLeft(user)) {
       res.status(BAD_REQUEST).json({ message: user.left.message, success: false })
     }
   }

@@ -1,8 +1,8 @@
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const port = 3000;
@@ -11,16 +11,18 @@ const baseDir = __dirname;
 const services = [];
 
 fs.readdirSync(baseDir, { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory() && !['node_modules'].includes(dirent.name))
-  .forEach(dirent => {
+  .filter(
+    (dirent) => dirent.isDirectory() && !["node_modules"].includes(dirent.name),
+  )
+  .forEach((dirent) => {
     const service = dirent.name;
-    const yamlPath = path.join(baseDir, service, 'swagger.yaml');
+    const yamlPath = path.join(baseDir, service, "swagger.yaml");
     if (fs.existsSync(yamlPath)) {
       const doc = YAML.load(yamlPath);
       app.use(
         `/docs/${service}`,
         swaggerUi.serveFiles(doc, {}),
-        swaggerUi.setup(doc)
+        swaggerUi.setup(doc),
       );
       services.push(service);
       console.log(`✓ Swagger loaded for /docs/${service}`);
@@ -28,7 +30,7 @@ fs.readdirSync(baseDir, { withFileTypes: true })
   });
 
 // Homepage
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -96,16 +98,19 @@ app.get('/', (req, res) => {
       </header>
       <main>
         <ul>
-          ${services.map(s => {
-    const icon = {
-      authentication: '🔐',
-      user: '👤',
-      codequest: '📦',
-      solution: '💳',
-      community: '🛍️'
-    }[s] || '📄'
-    return `<li><a href="/docs/${s}">${icon} <span class="icon"></span>${s}</a></li>`
-  }).join('')}
+          ${services
+            .map((s) => {
+              const icon =
+                {
+                  authentication: "🔐",
+                  user: "👤",
+                  codequest: "📦",
+                  solution: "💳",
+                  community: "🛍️",
+                }[s] || "📄";
+              return `<li><a href="/docs/${s}">${icon} <span class="icon"></span>${s}</a></li>`;
+            })
+            .join("")}
         </ul>
       </main>
     </body>
@@ -113,7 +118,6 @@ app.get('/', (req, res) => {
   `;
   res.send(html);
 });
-
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

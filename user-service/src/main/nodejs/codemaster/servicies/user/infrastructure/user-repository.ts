@@ -58,14 +58,21 @@ export const findUser = async (nickname: UserId): Promise<Either<Error, UserMana
     chain((userDoc) => toUserManager(userDoc))
   )
 
-export const getAllUsersFromRepo = async (): Promise<Either<Error, Iterable<UserManager>>> => {
+export const getAllUsersFromRepo = async (): Promise<
+  Either<Error, Iterable<UserManager>>
+> => {
   try {
     const userDocuments = await UserManagerModel.find().exec()
     if (userDocuments.length === 0) {
       return left(new UserNotFound('No users found'))
     }
-    return right(userDocuments.map(toUserManager).filter(isRight).map((user) => user.right))
-  }catch (error) {
+    return right(
+      userDocuments
+        .map(toUserManager)
+        .filter(isRight)
+        .map((user) => user.right)
+    )
+  } catch (error) {
     return left(error instanceof Error ? error : new UnknownError('Unknown error'))
   }
 }

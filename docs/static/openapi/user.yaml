@@ -12,24 +12,24 @@ paths:
     get:
       summary: Retrieve the list of all users
       responses:
-        '200':
+        "200":
           description: All users retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '404':
+                  $ref: "#/components/schemas/User"
+        "404":
           description: No users found
 
   /users/status:
     get:
       summary: Check the service status
       responses:
-        '200':
+        "200":
           description: All services are up
-        '500':
+        "500":
           description: External services are unreachable
 
   /users/register:
@@ -45,9 +45,9 @@ paths:
                 nickname:
                   type: string
       responses:
-        '200':
+        "200":
           description: User successfully registered
-        '400':
+        "400":
           description: Validation error
 
   /users/{nickname}:
@@ -60,13 +60,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
+                $ref: "#/components/schemas/User"
+        "404":
           description: User not found
 
     delete:
@@ -78,9 +78,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User deleted
-        '404':
+        "404":
           description: User not found
 
   /users/bio:
@@ -98,9 +98,9 @@ paths:
                 newBio:
                   type: string
       responses:
-        '200':
+        "200":
           description: Bio updated
-        '404':
+        "404":
           description: User not found
 
   /users/profile-picture:
@@ -118,9 +118,9 @@ paths:
                 newProfilePicture:
                   type: string
       responses:
-        '200':
+        "200":
           description: Profile picture updated
-        '404':
+        "404":
           description: User not found
 
   /users/cv:
@@ -138,9 +138,9 @@ paths:
                 newCV:
                   type: string
       responses:
-        '200':
+        "200":
           description: CV updated
-        '404':
+        "404":
           description: User not found
 
   /users/languages:
@@ -160,9 +160,9 @@ paths:
                   items:
                     type: string
       responses:
-        '200':
+        "200":
           description: Languages updated
-        '404':
+        "404":
           description: User not found
 
   /users/trophies:
@@ -182,9 +182,9 @@ paths:
                   items:
                     type: string
       responses:
-        '200':
+        "200":
           description: Trophies updated
-        '404':
+        "404":
           description: User not found
 
   /users/level/{nickname}:
@@ -197,9 +197,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User level calculated
-        '404':
+        "404":
           description: User not found
 
   /trophies/create:
@@ -221,9 +221,9 @@ paths:
                 xp:
                   type: integer
       responses:
-        '200':
+        "200":
           description: Trophy created
-        '400':
+        "400":
           description: Invalid data
 
   /trophies/trophies/{trophyId}:
@@ -236,18 +236,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Trophy deleted
-        '404':
+        "404":
           description: Trophy not found
 
   /trophies/:
     get:
       summary: Retrieve all trophies
       responses:
-        '200':
+        "200":
           description: Trophy list
-        '400':
+        "400":
           description: Error retrieving trophies
 
   /levels/create:
@@ -269,9 +269,9 @@ paths:
                 url:
                   type: string
       responses:
-        '200':
+        "200":
           description: Level created
-        '404':
+        "404":
           description: Error
 
   /levels/{grade}:
@@ -284,18 +284,18 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Level deleted
-        '404':
+        "404":
           description: Level not found
 
   /levels/:
     get:
       summary: Retrieve all levels
       responses:
-        '200':
+        "200":
           description: List of levels
-        '404':
+        "404":
           description: Error
 
 components:
@@ -319,9 +319,9 @@ components:
           type: array
           items:
             type: string
-          example: [ "English", "Italian", "French" ]
+          example: ["English", "Italian", "French"]
         trophies:
           type: array
           items:
             type: string
-          example: [ "trophy123", "trophy456" ]
+          example: ["trophy123", "trophy456"]

@@ -11,10 +11,10 @@ const colors: { [key: string]: string } = {
 </script>
 
 <template>
-  <p
-    class="border-2 w-20 text-center"
-    :class="colors[difficulty.toLowerCase()]"
-  >
-    {{ difficulty }}
-  </p>
+    <p
+        class="border-2 w-20 text-center"
+        :class="colors[difficulty.toLowerCase()]"
+    >
+        {{ difficulty }}
+    </p>
 </template>

@@ -10,7 +10,7 @@ import {
   updateUserLanguages,
   updateUserProfilePicture,
   updateUserTrophies,
-  getAllUsers
+  getAllUsers,
 } from './user-controller'
 
 const userRouter: Router = Router()
