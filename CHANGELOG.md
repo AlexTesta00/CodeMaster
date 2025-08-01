@@ -1,3 +1,9 @@
+## [3.5.3](https://github.com/AlexTesta00/CodeMaster/compare/v3.5.2...v3.5.3) (2025-08-01)
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v8.17.0 ([#201](https://github.com/AlexTesta00/CodeMaster/issues/201)) ([c667ab3](https://github.com/AlexTesta00/CodeMaster/commit/c667ab37cfc3a93b628ce8bfccee097b54f58038))
+
 ## [3.5.2](https://github.com/AlexTesta00/CodeMaster/compare/v3.5.1...v3.5.2) (2025-07-25)
 
 ### Bug Fixes
