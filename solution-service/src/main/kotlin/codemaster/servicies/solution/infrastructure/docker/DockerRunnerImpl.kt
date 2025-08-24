@@ -1,17 +1,15 @@
-package codemaster.servicies.solution.application.utility
+package codemaster.servicies.solution.infrastructure.docker
 
 import codemaster.servicies.solution.application.SolutionService.Companion.CONTAINER_TIMEOUT
 import codemaster.servicies.solution.application.SolutionService.Companion.PROCESS_TIMEOUT
 import codemaster.servicies.solution.application.SolutionService.Companion.TIME_SPAN
 import codemaster.servicies.solution.domain.model.ExecutionResult
 import codemaster.servicies.solution.domain.model.Language
-import codemaster.servicies.solution.domain.model.Solution
 import codemaster.servicies.solution.domain.model.SolutionId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
-import org.apache.commons.compress.utils.IOUtils
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
@@ -21,7 +19,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.Comparator
 
-object UtilityFunctions {
+class DockerRunnerImpl: DockerRunner  {
 
     private fun resolveRunnerPath(): Path {
         val envPath = System.getenv("SOLUTION_RUNNER_PATH")?.takeIf { it.isNotBlank() }
@@ -29,7 +27,7 @@ object UtilityFunctions {
         return Paths.get(runnerPath).toAbsolutePath().normalize()
     }
 
-    fun parseJUnitConsoleOutput(output: String): List<String> {
+    override fun parseJUnitConsoleOutput(output: String): List<String> {
         val ansiRegex = Regex("""\u001B\[[0-9;]*m""")
         val testResultRegex = Regex("""\b\w+\(\) \[[A-Z]+]""")
         val treePrefixRegex = Regex("""^\|?\s*['+\\-]*\s*""")
@@ -52,7 +50,7 @@ object UtilityFunctions {
             .replace("// USER_CODE_HERE", code)
     }
 
-    suspend fun prepareCodeDir(language: Language, code: String, testCode: String): Path {
+    override suspend fun prepareCodeDir(language: Language, code: String, testCode: String): Path {
         val codeDir = resolveRunnerPath()
         val sourceMainFile = codeDir.resolve("Main${language.fileExtension}")
         val sourceTestFile = codeDir.resolve("MainTest${language.fileExtension}")
@@ -100,7 +98,7 @@ object UtilityFunctions {
         }
     }
 
-    suspend fun runDocker(
+    override suspend fun runDocker(
         id: SolutionId,
         codeDir: Path,
         command: String,

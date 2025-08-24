@@ -1,19 +1,22 @@
 package com.codemaster.solutionservice.service
 
 import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.errors.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
+import codemaster.servicies.solution.infrastructure.docker.DockerRunner
 import com.mongodb.reactivestreams.client.MongoClients
+import de.flapdoodle.embed.mongo.distribution.Version
+import de.flapdoodle.embed.mongo.transitions.Mongod
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
+import de.flapdoodle.reverse.StateID
 import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.mockk
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.TestInstance
@@ -35,6 +38,7 @@ class SolutionServiceTest : DescribeSpec() {
     private lateinit var repository: SolutionRepositoryImpl
     private lateinit var service: SolutionService
 
+    private val runner = mockk<DockerRunner>()
     private val id1 = SolutionId.generate()
     private val id2 = SolutionId.generate()
     private val user = "user"
@@ -61,7 +65,12 @@ class SolutionServiceTest : DescribeSpec() {
     init {
         beforeSpec {
             val mongoUri = System.getenv("MONGO_URI")
-            val connectionString = mongoUri ?: "mongodb://localhost:27017/codemaster"
+            val connectionString = mongoUri ?: run {
+                val transitions = Mongod.instance().transitions(Version.Main.V6_0)
+                mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
+                startedEmbeddedMongo = true
+                "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
+            }
 
             val client = MongoClients.create(connectionString)
             val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
@@ -82,7 +91,7 @@ class SolutionServiceTest : DescribeSpec() {
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository)
+            service = SolutionService(repository, runner)
         }
 
         afterSpec {
