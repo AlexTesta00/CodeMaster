@@ -25,6 +25,8 @@ fun findExecutableInPath(executable: String): String? {
     return null
 }
 
+subprojects {}
+
 val dockerCmd = findExecutableInPath("docker")
     ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
 
@@ -41,9 +43,6 @@ tasks.register<Exec>("buildMultiLangRunner") {
     val dockerContextDir = File(project.projectDir, "./multi-lang-runner").absolutePath
     commandLine(dockerCmd, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
 }
-
-
-subprojects {}
 
 tasks.register("build"){
     dependsOn("npmInstall")
