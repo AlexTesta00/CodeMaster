@@ -43,6 +43,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.apache.commons:commons-compress:1.26.1")
+    testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.11.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {

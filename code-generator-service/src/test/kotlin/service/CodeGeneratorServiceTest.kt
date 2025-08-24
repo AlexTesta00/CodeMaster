@@ -17,6 +17,11 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import com.mongodb.reactivestreams.client.MongoClients
+import de.flapdoodle.embed.mongo.distribution.Version
+import de.flapdoodle.embed.mongo.transitions.Mongod
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
+import de.flapdoodle.reverse.StateID
+import de.flapdoodle.reverse.TransitionWalker
 import org.junit.jupiter.api.TestInstance
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
@@ -27,6 +32,7 @@ import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeGeneratorServiceTest : DescribeSpec() {
 
+    private lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
     private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
     private lateinit var repository: CodeQuestCodeRepository
     private lateinit var service: CodeGeneratorService
@@ -34,11 +40,12 @@ class CodeGeneratorServiceTest : DescribeSpec() {
     init {
 
         beforeSpec {
-            val mongoUri = System.getenv("MONGO_URI")
+            val transitions = Mongod.instance().transitions(Version.Main.V6_0)
+            mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
 
-            val connectionString = mongoUri ?: "mongodb://localhost:27017/codemaster"
+            val mongoUri = "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
+            val client = MongoClients.create(mongoUri)
 
-            val client = MongoClients.create(connectionString)
             val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
 
             val mappingContext = MongoMappingContext().apply {

@@ -32,24 +32,21 @@ import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
 import org.springframework.data.mongodb.core.query.Query
 
 @SpringBootTest(classes = [Application::class])
-class CodeQuestCodeRepositoryTest : DescribeSpec(){
+class CodeQuestCodeRepositoryTest : DescribeSpec() {
 
     private lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
-    private var startedEmbeddedMongo = false
     private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
     private lateinit var repository: CodeQuestCodeRepository
 
     init {
         beforeSpec {
-            val mongoUri = System.getenv("MONGO_URI")
-            val connectionString = mongoUri ?: run {
-                val transitions = Mongod.instance().transitions(Version.Main.V6_0)
-                mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
-                startedEmbeddedMongo = true
-                "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
-            }
 
-            val client = MongoClients.create(connectionString)
+            val transitions = Mongod.instance().transitions(Version.Main.V6_0)
+            mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
+
+            val mongoUri = "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
+            val client = MongoClients.create(mongoUri)
+
             val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
 
             val mappingContext = MongoMappingContext().apply {
@@ -63,6 +60,10 @@ class CodeQuestCodeRepositoryTest : DescribeSpec(){
 
             reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
             repository = CodeQuestCodeRepositoryImpl(reactiveMongoTemplate)
+        }
+
+        afterSpec {
+            mongodProcess.current().stop()
         }
 
         afterEach {
