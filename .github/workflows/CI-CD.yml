@@ -6,7 +6,13 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,84 +26,31 @@ jobs:
         with:
           node-version: '23.5.0'
           check-latest: false
-      - name: Fix /etc/resolv.conf
-        run: |
-          sudo rm -f /etc/resolv.conf
-          sudo ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y dbus systemd
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.4.1
-      - name: Add Permission To Gradle
-        run:  chmod +x ./gradlew
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.12.0
-        with:
-          mongodb-version: 'latest'
-          mongodb-port: '27017'
-      - name: Set MONGO_URI environement variable
-        run: echo "MONGO_URI=mongodb://localhost:27017/test" >> $GITHUB_ENV
-      - name: Set SOLUTION_RUNNER_PATH environment variable
-        run: echo "SOLUTION_RUNNER_PATH=build/tmp/code-run" >> $GITHUB_ENV
-      - name: Build with Gradle
-        env:
-          MONGO_URI: ${{ env.MONGO_URI }}
-          RUNNER_PATH: ${{ github.workspace }}/build/tmp/code-run
+      - name: Make gradlew executable (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
+      - name: Build with Gradle (Unix)
+        if: runner.os != 'Windows'
         run: ./gradlew clean build --no-build-cache
-      - name: Upload coverage for authentication-service
-        if: github.ref == 'refs/heads/main'
+      - name: Build with Gradle (Windows)
+        if: runner.os == 'Windows'
+        run: .\gradlew.bat clean build --no-build-cache
+        shell: pwsh
+      - name: Upload coverage
+        if: runner.os == 'Linux' && github.ref == 'refs/heads/main'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: authentication-service/coverage/lcov.info
-          flags: authentication-service
-          name: codecov-umbrella
-          fail_ci_if_error: true
-      - name: Upload coverage for codequest-service
-        if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: codequest-service/coverage/lcov.info
-          flags: codequest-service
-          name: codecov-umbrella
-          fail_ci_if_error: true
-      - name: Upload coverage for community-service
-        if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: community-service/coverage/lcov.info
-          flags: community-service
-          name: codecov-umbrella
-          fail_ci_if_error: true
-      - name: Upload coverage for user-service
-        if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: user-service/coverage/lcov.info
-          flags: user-service
-          name: codecov-umbrella
-          fail_ci_if_error: true
-      - name: Upload coverage for solution-service
-        if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: solution-service/build/reports/kover/report.xml
-          flags: solution-service
-          name: codecov-umbrella
-          fail_ci_if_error: true
-      - name: Upload coverage for generator-service
-        if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: code-generator-service/build/reports/kover/report.xml
-          flags: code-generator-service
+          files: |
+            authentication-service/coverage/lcov.info
+            codequest-service/coverage/lcov.info
+            community-service/coverage/lcov.info
+            user-service/coverage/lcov.info
+            solution-service/build/reports/kover/report.xml
+            code-generator-service/build/reports/kover/report.xml
+          flags: combined
           name: codecov-umbrella
           fail_ci_if_error: true
 

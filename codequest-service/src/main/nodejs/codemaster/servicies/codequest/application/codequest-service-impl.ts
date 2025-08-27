@@ -10,12 +10,17 @@ import { Difficulty } from '../domain/codequest/difficulty'
 import { CodequestDeletedEvent } from '../domain/events/codequest-deleted'
 import { MongoConnector } from '../infrastructure/db-connection'
 import { Publisher } from '../infrastructure/middleware/publisher'
+import {CodequestGenerateEvent} from "../domain/events/codequest-generate";
 
 export class CodeQuestServiceImpl implements CodeQuestService {
   private languageRepo = new LanguageRepositoryImpl()
   private codequestRepo = new CodeQuestRepositoryImpl()
 
   constructor(private readonly publisher: Publisher) {}
+
+  async generateCodequestCodes(event: CodequestGenerateEvent): Promise<void> {
+    await this.publisher.sendToCodeGenerator(event)
+  }
 
   async addCodeQuest(
     title: string,

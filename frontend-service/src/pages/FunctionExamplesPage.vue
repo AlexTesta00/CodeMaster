@@ -8,7 +8,7 @@ import type {
   FunctionParameter,
   Language
 } from "../utils/interface.ts";
-import {addNewCodequest, generateCodequestCodes} from "../utils/api.ts";
+import {addNewCodequest, healtCheckCodeGenerator, healtCheckCodequest} from "../utils/api.ts";
 import {getPlaceholder, isValidInput, isValidOutput} from "../utils/type-utils.ts";
 import {errorToast, successToast} from "../utils/notify.ts";
 import {codequestStore} from "../utils/codequest-store.ts";
@@ -51,6 +51,11 @@ const submitCodequest = async () => {
     explanation: ex.explanation,
   }));
 
+  const examplesForGenerate: FunctionExample[] = examples.value.map(ex => ({
+    inputs: ex.inputs,
+    output: ex.output,
+  }));
+
   const response = await addNewCodequest(
       title.value,
       nickname!,
@@ -62,36 +67,17 @@ const submitCodequest = async () => {
       languages.value,
       {
         name: difficulty.value,
-      }
+      },
+      functionName.value,
+      parameters.value,
+      returnType.value!,
+      examplesForGenerate
   );
 
   if (!response.success || !response.codequest.id) {
     await errorToast("Can't save codequest");
     return;
   }
-
-  const examplesForGenerate: FunctionExample[] = examples.value.map(ex => ({
-    inputs: ex.inputs,
-    output: ex.output,
-  }));
-
-  const codegenRes = await generateCodequestCodes(
-      response.codequest.id,
-      functionName.value,
-      parameters.value,
-      returnType.value!,
-      examplesForGenerate,
-      languages.value.map(l => l.name)
-  );
-
-  if (!codegenRes.success) {
-    await errorToast("Codequest saved, but failed to generate starter code");
-    return;
-  }
-
-  codeQuestStore.$reset();
-  await router.push('/profile');
-  await successToast("CodeQuest created successfully!")
 };
 
 const addExample = () => {
@@ -115,7 +101,23 @@ const proceed = async () => {
     await errorToast("Please complete all fields and fix any example errors before continuing.");
     return;
   }
-  await submitCodequest();
+
+  try {
+    const codequestIsOn = (await healtCheckCodequest()).success
+    const generatorIsOn = (await healtCheckCodeGenerator()).success
+    if(!generatorIsOn || !codequestIsOn){
+      await router.push('/profile')
+      await errorToast("Error creating new codequest. Retry later.")
+    }
+    await submitCodequest()
+  } catch {
+    await router.push('/profile')
+    await errorToast("Error creating new codequest. Retry later.")
+  }
+
+  codeQuestStore.$reset();
+  await router.push('/profile');
+  await successToast("CodeQuest created successfully!")
 }
 
 watch(examples, () => {

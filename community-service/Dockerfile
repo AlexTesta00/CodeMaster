@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:24-alpine3.21
 WORKDIR /codemaster-community-service
 COPY package*.json ./
 RUN npm install && npm install -g nodemon
