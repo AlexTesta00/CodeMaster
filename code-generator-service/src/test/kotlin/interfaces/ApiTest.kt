@@ -44,7 +44,8 @@ class ApiTest : DescribeSpec({
             ),
             GeneratedCodeEntry(
                 language = Language.Java,
-                templateCode = "Map<Integer,Integer> foo(Map<String,String> x) { throw new UnsupportedOperationException(); }",
+                templateCode = "Map<Integer,Integer> foo(Map<String,String> x) " +
+                        "{ throw new UnsupportedOperationException(); }",
                 testCode = "public class FooTest { /* Java test code */ }"
             )
         )
