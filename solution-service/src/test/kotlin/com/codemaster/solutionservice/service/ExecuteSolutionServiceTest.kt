@@ -16,20 +16,23 @@ import org.junit.jupiter.api.TestInstance
 import reactor.core.publisher.Mono
 import java.nio.file.Path
 
-data class LanguageCase(
-    val language: Language,
-    val code: String,
-    val testCode: String,
-    val failingTestCode: String,
-    val runtimeExceptionCode: String,
-    val runtimeTestCode: String,
-    val infiniteLoopCode: String,
-)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class ExecuteSolutionServiceTest : DescribeSpec(){
 
-val javaCase = LanguageCase(
-    Language("Java", ".java"),
-    """static String myPrint(String s) { return "Hello World! " + s; }""",
-    """
+    data class LanguageCase(
+        val language: Language,
+        val code: String,
+        val testCode: String,
+        val failingTestCode: String,
+        val runtimeExceptionCode: String,
+        val runtimeTestCode: String,
+        val infiniteLoopCode: String,
+    )
+
+    val javaCase = LanguageCase(
+        Language("Java", ".java"),
+        """static String myPrint(String s) { return "Hello World! " + s; }""",
+        """
         @Test void testFunction1() {
             assertEquals("Hello World! test", Main.myPrint("test"));
         }
@@ -37,7 +40,7 @@ val javaCase = LanguageCase(
             assertEquals("Hello World! test", Main.myPrint("test"));
         }
     """.trimIndent(),
-    """
+        """
         @Test void testFunction1() {
             assertEquals("Hello World! test", Main.myPrint("test"));
         }
@@ -45,15 +48,15 @@ val javaCase = LanguageCase(
             assertEquals("Hello World! test", Main.myPrint(""));
         }
     """.trimIndent(),
-    """static String myPrint(String input) { return input.toUpperCase(); }""",
-    """@Test void testFunction1() { assertEquals("test", Main.myPrint(null)); }""",
-    """static Void myPrint(String s) { while(true) {} }"""
-)
+        """static String myPrint(String input) { return input.toUpperCase(); }""",
+        """@Test void testFunction1() { assertEquals("test", Main.myPrint(null)); }""",
+        """static Void myPrint(String s) { while(true) {} }"""
+    )
 
-val scalaCase = LanguageCase(
-    Language("Scala", ".scala"),
-    """object Main { def myPrint(s: String) = "Hello World! " + s }""",
-    """
+    val scalaCase = LanguageCase(
+        Language("Scala", ".scala"),
+        """object Main { def myPrint(s: String) = "Hello World! " + s }""",
+        """
         test("testFunction1") {
             assert(Main.myPrint("test") == "Hello World! test")
         }
@@ -61,7 +64,7 @@ val scalaCase = LanguageCase(
             assert(Main.myPrint("test") == "Hello World! test")
         }
     """.trimIndent(),
-    """
+        """
         test("testFunction1") {
             assert(Main.myPrint("test") == "Hello World! test")
         }
@@ -69,15 +72,15 @@ val scalaCase = LanguageCase(
             assert(Main.myPrint("") == "Hello World! test")
         }
     """.trimIndent(),
-    """object Main { def myPrint(s: String) = s.toUpperCase }""",
-    """test("testFunction1") { assert(Main.myPrint(null) == "test") }""",
-    """object Main { def myPrint(s: String): Unit = while(true) {} }"""
-)
+        """object Main { def myPrint(s: String) = s.toUpperCase }""",
+        """test("testFunction1") { assert(Main.myPrint(null) == "test") }""",
+        """object Main { def myPrint(s: String): Unit = while(true) {} }"""
+    )
 
-val kotlinCase = LanguageCase(
-    Language("Kotlin", ".kt"),
-    """object Main { fun myPrint(s: String) = "Hello World! " + s }""",
-    """
+    val kotlinCase = LanguageCase(
+        Language("Kotlin", ".kt"),
+        """object Main { fun myPrint(s: String) = "Hello World! " + s }""",
+        """
         @Test fun testFunction1() {
             assertEquals("Hello World! test", Main.myPrint("test"))
         }
@@ -85,7 +88,7 @@ val kotlinCase = LanguageCase(
             assertEquals("Hello World! test", Main.myPrint("test"))
         }
     """.trimIndent(),
-    """
+        """
         @Test fun testFunction1() {
             assertEquals("Hello World! test", Main.myPrint("test"))
         }
@@ -93,13 +96,10 @@ val kotlinCase = LanguageCase(
             assertEquals("Hello World! test", Main.myPrint(""))
         }
     """.trimIndent(),
-    """object Main { fun myPrint(s: String) = s.toUpperCase() }""",
-    """@Test fun testFunction1() { assertEquals("test", Main.myPrint(null)) }""",
-    """object Main { fun myPrint(s: String): Nothing { while(true) {} } }"""
-)
-
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ExecuteSolutionServiceTest : DescribeSpec(){
+        """object Main { fun myPrint(s: String) = s.toUpperCase() }""",
+        """@Test fun testFunction1() { assertEquals("test", Main.myPrint(null)) }""",
+        """object Main { fun myPrint(s: String): Nothing { while(true) {} } }"""
+    )
 
     val languageCases = listOf(javaCase, scalaCase, kotlinCase)
 
