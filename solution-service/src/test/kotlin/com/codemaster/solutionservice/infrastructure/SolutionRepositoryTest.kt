@@ -25,7 +25,6 @@ class SolutionRepositoryTest : DescribeSpec({
 
     val id1 = SolutionId.generate()
     val id2 = SolutionId.generate()
-    val id3 = SolutionId.generate()
     val user = "user"
     val questId = "quest"
     val language = Language("Java", ".java")
@@ -34,7 +33,6 @@ class SolutionRepositoryTest : DescribeSpec({
 
     val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, false, codes)
     val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, false, codes)
-    val solvedSolution = SolutionFactoryImpl().create(id3, user, questId, true, codes)
 
     beforeTest {
         clearAllMocks()
