@@ -32,7 +32,7 @@ val dockerCmd = findExecutableInPath("docker")
 
 tasks.register<Exec>("dockerCompose") {
     println("Docker build completed")
-    commandLine(dockerCmd, "compose", "up", "--build")
+    commandLine(dockerCmd, "compose", "up", "--build", "-d")
 
     dependsOn("buildMultiLangRunner")
 }
