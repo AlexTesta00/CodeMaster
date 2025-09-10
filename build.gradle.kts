@@ -12,37 +12,39 @@ allprojects {
     group = "codemaster"
 }
 
-//fun findExecutableInPath(executable: String): String? {
-//    val path = System.getenv("PATH") ?: return null
-//    val paths = path.split(File.pathSeparator)
-//    val execName = if (System.getProperty("os.name").lowercase().contains("windows")) "$executable.exe" else executable
-//    for (dir in paths) {
-//        val file = File(dir, execName)
-//        if (file.exists() && file.canExecute()) {
-//            return file.absolutePath
-//        }
-//    }
-//    return null
-//}
+fun findExecutableInPath(executable: String): String? {
+    val path = System.getenv("PATH") ?: return null
+    val paths = path.split(File.pathSeparator)
+    val execName = if (System.getProperty("os.name").lowercase().contains("windows")) "$executable.exe" else executable
+    for (dir in paths) {
+        val file = File(dir, execName)
+        if (file.exists() && file.canExecute()) {
+            return file.absolutePath
+        }
+    }
+    return null
+}
 
 subprojects {}
 
-//val dockerCmd = findExecutableInPath("docker")
-//    ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
-//
-//tasks.register<Exec>("dockerCompose") {
-//    println("Docker build completed")
-//    commandLine(dockerCmd, "compose", "up", "--build")
-//
-//    dependsOn("buildMultiLangRunner")
-//}
-//
-//tasks.register<Exec>("buildMultiLangRunner") {
-//    println("Using docker executable: $dockerCmd")
-//
-//    val dockerContextDir = File(project.projectDir, "./multi-lang-runner").absolutePath
-//    commandLine(dockerCmd, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
-//}
+fun dockerCmd(): String? {
+    return findExecutableInPath("docker")
+        ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
+}
+
+tasks.register<Exec>("dockerCompose") {
+    println("Docker build completed")
+    commandLine(dockerCmd(), "compose", "up", "--build")
+
+    dependsOn("buildMultiLangRunner")
+}
+
+tasks.register<Exec>("buildMultiLangRunner") {
+    println("Using docker executable: ${dockerCmd()}")
+
+    val dockerContextDir = File(project.projectDir, "./multi-lang-runner").absolutePath
+    commandLine(dockerCmd(), "build", "-t", "multi-lang-runner:latest", dockerContextDir)
+}
 
 tasks.register("build"){
     dependsOn("npmInstall")
