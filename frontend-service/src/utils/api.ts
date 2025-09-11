@@ -182,7 +182,9 @@ export const addNewCodequest = async (
         problem,
         languages,
         difficulty
-    })
+    },
+        {timeout: TIMEOUT}
+    )
     return response.data
 }
 
@@ -197,7 +199,9 @@ export const addNewSolution = async (
         questId,
         solved,
         codes
-    });
+    },
+        {timeout: TIMEOUT}
+    )
 
     const code = codes.map((entry) => {
         return {
@@ -214,7 +218,9 @@ export const addNewSolution = async (
         questId: questId,
         solved: solved,
         codes: code
-    })
+    },
+        {timeout: TIMEOUT}
+    )
 
     const solution = {
         id: response.data.id,
@@ -232,7 +238,7 @@ export const addNewSolution = async (
 }
 
 export const getAllCodequests = async (): Promise<CodeQuestsResponse> => {
-    const response = await axios.get(`${CODEQUEST_URL}`)
+    const response = await axios.get(`${CODEQUEST_URL}`, {timeout: TIMEOUT})
     const codequests: CodeQuest[] = response.data.codequests.map((codequest: any) => ({
         id: codequest.id,
         title: codequest.title,
@@ -261,7 +267,7 @@ export const getAllCodequests = async (): Promise<CodeQuestsResponse> => {
 export const getCodequestById = async (
     questId: string
 ): Promise<CodeQuestResponse> => {
-    const response = await axios.get(`${CODEQUEST_URL}${questId}`)
+    const response = await axios.get(`${CODEQUEST_URL}${questId}`, {timeout: TIMEOUT})
     const cq = response.data.codequest
 
     const codequest: CodeQuest = {
@@ -292,7 +298,7 @@ export const getCodequestById = async (
 export const deleteCodequestById = async (
     questId: string
 ): Promise<CodeQuestResponse> => {
-    const response = await axios.delete(`${CODEQUEST_URL}${questId}`)
+    const response = await axios.delete(`${CODEQUEST_URL}${questId}`, {timeout: TIMEOUT})
 
     return {
         message: response.data.message,
@@ -304,7 +310,7 @@ export const deleteCodequestById = async (
 export const getAllSolvedSolutions = async (
     nickname: string
 ): Promise<SolutionsResponse> => {
-    const response = await axios.get(`${SOLUTION_URL}solved/${nickname}`)
+    const response = await axios.get(`${SOLUTION_URL}solved/${nickname}`, {timeout: TIMEOUT})
 
     const solutions: Solution[] = response.data.map((sol: any) => {
         return {
@@ -326,7 +332,7 @@ export const getAllSolvedSolutions = async (
 export const getSolutionsByCodequest = async (
     questId: string
 ): Promise<SolutionsResponse> => {
-    const response = await axios.get(`${SOLUTION_URL}codequests/${questId}`)
+    const response = await axios.get(`${SOLUTION_URL}codequests/${questId}`, {timeout: TIMEOUT})
 
     const solutions: Solution[] = response.data.map((sol: any) => {
         return {
@@ -357,7 +363,7 @@ export const updateSolution = async (
             fileExtension: code.language.fileExtension
         }
     }
-    const response = await axios.put(`${SOLUTION_URL}code/${id}`, payload)
+    const response = await axios.put(`${SOLUTION_URL}code/${id}`, payload, {timeout: TIMEOUT})
 
     return {
         message: response.statusText,
@@ -383,7 +389,7 @@ export const generateCodequestCodes = async (
         languages
     }
 
-    const response = await axios.post(`${GENERATOR_URL}generate`, payload)
+    const response = await axios.post(`${GENERATOR_URL}generate`, payload, {timeout: TIMEOUT})
     return {
         generatedCodes: response.data,
         message: response.statusText,
@@ -394,7 +400,7 @@ export const generateCodequestCodes = async (
 export const getGeneratedCodes = async (
     questId: string
 ): Promise<CodeGeneratorResponse> => {
-    const response = await axios.get(`${GENERATOR_URL}${questId}`)
+    const response = await axios.get(`${GENERATOR_URL}${questId}`, {timeout: TIMEOUT})
 
     return {
         generatedCodes: response.data,
@@ -418,7 +424,7 @@ export const debugCode = async (
         testCode: testCode
     }
 
-    const response = await axios.put(`${SOLUTION_URL}compile/${id}`, payload)
+    const response = await axios.put(`${SOLUTION_URL}compile/${id}`, payload, {timeout: TIMEOUT})
 
     return {
         message: response.statusText,
@@ -442,7 +448,7 @@ export const executeCode = async (
         testCode: testCode
     }
 
-    const response = await axios.put(`${SOLUTION_URL}execute/${id}`, payload)
+    const response = await axios.put(`${SOLUTION_URL}execute/${id}`, payload, {timeout: TIMEOUT})
 
     return {
         message: response.statusText,
@@ -495,7 +501,9 @@ export const addComment = async (
         questId: questId,
         author: author,
         content: content
-    })
+    },
+        {timeout: TIMEOUT}
+    )
 
     return response.data
 }
@@ -503,7 +511,7 @@ export const addComment = async (
 export const getCommentsByQuest = async (
     questId: string
 ): Promise<CommentsResponse> => {
-    const response = await axios.get(`${COMMUNITY_URL}/codequests/${questId}`)
+    const response = await axios.get(`${COMMUNITY_URL}/codequests/${questId}`, {timeout: TIMEOUT})
 
     return response.data
 }
