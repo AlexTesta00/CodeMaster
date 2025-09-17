@@ -2,6 +2,8 @@ import { CodeQuest } from '../domain/codequest/codequest'
 import { Problem } from '../domain/codequest/problem'
 import { Language } from '../domain/language/language'
 import { Difficulty } from '../domain/codequest/difficulty'
+import codequestController from "../interfaces/codequest-controller";
+import {CodequestGenerateEvent} from "../domain/events/codequest-generate";
 
 export interface CodeQuestService {
   addCodeQuest(
@@ -26,6 +28,7 @@ export interface CodeQuestService {
   updateTitle(questId: string, newTitle: string): Promise<CodeQuest>
   updateLanguages(questId: string, newLanguages: Language[]): Promise<CodeQuest>
   deleteAllCodequestsByAuthor(author: string): Promise<CodeQuest[]>
+  generateCodequestCodes(event: CodequestGenerateEvent): Promise<void>
   delete(questId: string): Promise<CodeQuest>
 }
 

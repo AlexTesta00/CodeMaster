@@ -5,7 +5,6 @@ LEVEL_URL = "http://codemaster-user-service:4005/api/v1/levels/create/"
 TROPHY_URL = "http://codemaster-user-service:4005/api/v1/trophies/create/"
 CODEQUESTS_URL = "http://codemaster-codequest-service:3000/api/v1/codequests/"
 COMMUNITY_URL = "http://codemaster-community-service:4007/api/v1/comments/"
-GENERATION_URL = "http://codemaster-generator-service:4008/api/v1/code-generator/generate"
 SOLUTIONS_URL = "http://codemaster-solution-service:4006/api/v1/solutions/"
 
 def get_existing_levels():
@@ -59,7 +58,17 @@ if __name__ == "__main__":
                 {'name': 'Kotlin', 'version': '1.9', 'fileExtension': '.kt'},
                 {'name': 'Scala', 'version': '2.13', 'fileExtension': '.scala'}
             ],
-            'difficulty': {'name': 'EASY'}
+            'difficulty': {'name': 'EASY'},
+            "functionName": "helloWorld",
+            "parameters": [{"name": "a", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {
+                    "inputs": ["2"],
+                    "output": "Hello, World!"
+                }
+            ],
+            "lang": ["Java", "Kotlin", "Scala"]
         },
         {
             'title': 'Somma di due numeri',
@@ -78,7 +87,18 @@ if __name__ == "__main__":
                 {'name': 'Kotlin', 'version': '1.9', 'fileExtension': '.kt'},
                 {'name': 'Scala', 'version': '2.13', 'fileExtension': '.scala'}
             ],
-            'difficulty': {'name': 'EASY'}
+            'difficulty': {'name': 'EASY'},
+            "functionName": "somma",
+            "parameters": [
+                {"name": "a", "typeName": "int"},
+                {"name": "b", "typeName": "int"}
+            ],
+            "returnType": "int",
+            "examples": [
+                {"inputs": ["3", "5"], "output": "8"},
+                {"inputs": ["10", "20"], "output": "30"}
+            ],
+            "lang": ["Java", "Kotlin", "Scala"]
         },
         {
             'title': 'Numero Pari o Dispari',
@@ -97,7 +117,15 @@ if __name__ == "__main__":
                 {'name': 'Kotlin', 'version': '1.9', 'fileExtension': '.kt'},
                 {'name': 'Scala', 'version': '2.13', 'fileExtension': '.scala'}
             ],
-            'difficulty': {'name': 'EASY'}
+            'difficulty': {'name': 'EASY'},
+            "functionName": "pariODispari",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {"inputs": ["4"], "output": "Pari"},
+                {"inputs": ["7"], "output": "Dispari"}
+            ],
+            "lang": ["Java", "Kotlin", "Scala"]
         },
         {
             'title': 'Fattoriale',
@@ -115,7 +143,15 @@ if __name__ == "__main__":
                 {'name': 'Java', 'version': '17', 'fileExtension': '.java'},
                 {'name': 'Kotlin', 'version': '1.9', 'fileExtension': '.kt'}
             ],
-            'difficulty': {'name': 'MEDIUM'}
+            'difficulty': {'name': 'MEDIUM'},
+            "functionName": "fattoriale",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "long",
+            "examples": [
+                {"inputs": ["5"], "output": "120"},
+                {"inputs": ["0"], "output": "1"}
+            ],
+            "lang": ["Java", "Kotlin"]
         },
         {
             'title': 'Palindromo',
@@ -133,7 +169,15 @@ if __name__ == "__main__":
                 {'name': 'Scala', 'version': '2.13', 'fileExtension': '.scala'},
                 {'name': 'Kotlin', 'version': '1.9', 'fileExtension': '.kt'}
             ],
-            'difficulty': {'name': 'MEDIUM'}
+            'difficulty': {'name': 'MEDIUM'},
+            "functionName": "isPalindromo",
+            "parameters": [{"name": "s", "typeName": "string"}],
+            "returnType": "boolean",
+            "examples": [
+                {"inputs": ["radar"], "output": "true"},
+                {"inputs": ["hello"], "output": "false"}
+            ],
+            "lang": ["Scala", "Kotlin"]
         },
         {
             'title': 'Fibonacci fino a N',
@@ -151,7 +195,15 @@ if __name__ == "__main__":
                 {'name': 'Java', 'version': '17', 'fileExtension': '.java'},
                 {'name': 'Scala', 'version': '2.13', 'fileExtension': '.scala'}
             ],
-            'difficulty': {'name': 'HARD'}
+            'difficulty': {'name': 'HARD'},
+            "functionName": "fibonacciFinoAN",
+            "parameters": [{"name": "n", "typeName": "int"}],
+            "returnType": "string",
+            "examples": [
+                {"inputs": ["10"], "output": "0 1 1 2 3 5 8"},
+                {"inputs": ["1"], "output": "0 1 1"}
+            ],
+            "lang": ["Java", "Scala"]
         }
     ]
 
@@ -200,80 +252,6 @@ if __name__ == "__main__":
         {'title': 'Debugger Pro', 'description': 'You have defeated the bug', 'url': 'https://cdn-icons-png.flaticon.com/512/14807/14807389.png', 'xp': 200},
         {'title': 'Ninja', 'description': 'You used the keyboard exclusively throughout the session', 'url': 'https://cdn-icons-png.flaticon.com/512/1507/1507155.png', 'xp': 100},
         {'title': 'Hacker', 'description': 'Press correct keyboard combo', 'url': 'https://cdn-icons-png.flaticon.com/512/12652/12652488.png', 'xp': 10000},
-    ]
-
-    generation_requests = [
-        {
-            "title": "Hello World",
-            "functionName": "helloWorld",
-            "parameters": [{"name": "a", "typeName": "int"}],
-            "returnType": "string",
-            "examples": [
-                {
-                    "inputs": ["2"],
-                    "output": "Hello, World!"
-                }
-            ],
-            "languages": ["Java", "Kotlin", "Scala"]
-        },
-        {
-            "title": "Somma di due numeri",
-            "functionName": "somma",
-            "parameters": [
-                {"name": "a", "typeName": "int"},
-                {"name": "b", "typeName": "int"}
-            ],
-            "returnType": "int",
-            "examples": [
-                {"inputs": ["3", "5"], "output": "8"},
-                {"inputs": ["10", "20"], "output": "30"}
-            ],
-            "languages": ["Java", "Kotlin", "Scala"]
-        },
-        {
-            "title": "Numero Pari o Dispari",
-            "functionName": "pariODispari",
-            "parameters": [{"name": "n", "typeName": "int"}],
-            "returnType": "string",
-            "examples": [
-                {"inputs": ["4"], "output": "Pari"},
-                {"inputs": ["7"], "output": "Dispari"}
-            ],
-            "languages": ["Java", "Kotlin", "Scala"]
-        },
-        {
-            "title": "Fattoriale",
-            "functionName": "fattoriale",
-            "parameters": [{"name": "n", "typeName": "int"}],
-            "returnType": "long",
-            "examples": [
-                {"inputs": ["5"], "output": "120"},
-                {"inputs": ["0"], "output": "1"}
-            ],
-            "languages": ["Java", "Kotlin"]
-        },
-        {
-            "title": "Palindromo",
-            "functionName": "isPalindromo",
-            "parameters": [{"name": "s", "typeName": "string"}],
-            "returnType": "boolean",
-            "examples": [
-                {"inputs": ["radar"], "output": "true"},
-                {"inputs": ["hello"], "output": "false"}
-            ],
-            "languages": ["Scala", "Kotlin"]
-        },
-        {
-            "title": "Fibonacci fino a N",
-            "functionName": "fibonacciFinoAN",
-            "parameters": [{"name": "n", "typeName": "int"}],
-            "returnType": "string",
-            "examples": [
-                {"inputs": ["10"], "output": "0 1 1 2 3 5 8"},
-                {"inputs": ["1"], "output": "0 1 1"}
-            ],
-            "languages": ["Java", "Scala"]
-        }
     ]
 
     solutions = [
@@ -393,28 +371,6 @@ if __name__ == "__main__":
             print(f"✅ Add comment: {title}, {author}, {content}")
         else:
             print(f"❌ {response.status_code} - {response.text}")
-
-    for gen in generation_requests:
-        quest_id = codequest_ids.get(gen['title'])
-        if not quest_id:
-            print(f"⚠️ Nessun ID trovato per '{gen['title']}'")
-            continue
-
-        payload = {
-            "questId": quest_id,
-            "functionName": gen["functionName"],
-            "parameters": gen["parameters"],
-            "returnType": gen["returnType"],
-            "examples": gen["examples"],
-            "languages": gen["languages"]
-        }
-
-        response = requests.post(GENERATION_URL, json=payload)
-        if response.status_code == 200:
-            print(f"✅ Code generated for '{gen['title']}'")
-        else:
-            print(f"❌ Error generating '{gen['title']}': {response.status_code} - {response.text}")
-
 
     for sol in solutions:
         quest_id = codequest_ids.get(sol['title'])

@@ -25,14 +25,6 @@ class ApiTest : DescribeSpec({
     val client: WebTestClient = WebTestClient.bindToController(controller).build()
 
     val questId = "test-quest"
-    val request = GenerateRequestDto(
-        questId = questId,
-        functionName = "foo",
-        parameters = listOf(FunctionParameterDto(name = "x", typeName = "Map<string, string>")),
-        returnType = "Map<int, int>",
-        examples = listOf(ExampleCaseDto(inputs = listOf("{si:no}"), output = "{2:1}")),
-        languages = listOf("Kotlin", "Java")
-    )
 
     val generated = CodeQuestCode(
         questId = questId,
@@ -50,24 +42,6 @@ class ApiTest : DescribeSpec({
             )
         )
     )
-
-    describe("POST /code-generator/generate") {
-
-        it("should generate code for a codequest with Kotlin and Java") {
-            coEvery {
-                service.generateQuestCode(questId, any(), any(), any())
-            } returns generated
-
-            client.post()
-                .uri("/api/v1/code-generator/generate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
-                .exchange()
-                .expectStatus().isOk
-                .expectBody()
-                .jsonPath("$.questId").isEqualTo(questId)
-        }
-    }
 
     describe("GET /code-generator/{questId}") {
         it("should retrieve the generated codequest code with Kotlin and Java") {

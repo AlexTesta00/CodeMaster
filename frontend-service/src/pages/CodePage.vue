@@ -243,11 +243,12 @@ onMounted(async () => {
           }
         }
       } else {
+        await router.push("/dashboard")
         await errorToast('Impossible to load codequest')
       }
     } catch (error) {
+      await router.push("/dashboard")
       await errorToast('Impossible to load codequests')
-      console.error(error)
     }
   }
 })
