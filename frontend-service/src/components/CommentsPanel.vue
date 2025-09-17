@@ -76,12 +76,12 @@ onMounted(async () => {
         aria-label="Toggle Comments"
     >
       <svg
-          :class="{ 'rotate-180 transition-transform duration-300': showComments }"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          class="w-5 h-5"
+          class="w-5 h-5 transform transition-transform duration-500 cursor-pointer"
+          :class="showComments ? 'rotate-[360deg]' : 'rotate-180'"
       >
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>

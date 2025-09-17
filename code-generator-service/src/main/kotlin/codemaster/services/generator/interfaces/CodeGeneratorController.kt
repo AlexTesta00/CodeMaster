@@ -46,44 +46,6 @@ class CodeGeneratorController(
         }
     }
 
-    @PostMapping("/generate")
-    suspend fun generateCode(@RequestBody request: GenerateRequestDto): ResponseEntity<CodeQuestCode?> {
-
-        val signature = FunctionSignature(
-            name = request.functionName,
-            parameters = request.parameters.map {
-                FunctionParameter(it.name, TypeName(it.typeName))
-            },
-            returnType = TypeName(request.returnType)
-        )
-
-        val parsedExamples = request.examples.map { example ->
-            val parsedInputs = example.inputs.mapIndexed { index, inputValue ->
-                val expectedType = signature.parameters[index].type
-                parseValue(inputValue, expectedType)
-            }
-            val parsedOutput = parseValue(example.output, signature.returnType)
-
-            ExampleCase(
-                inputs = parsedInputs,
-                output = parsedOutput
-            )
-        }
-
-        val langs = request.languages.map { Language.valueOf(it) }
-
-        val savedCode = service.generateQuestCode(
-            questId = request.questId,
-            signature = signature,
-            examples = parsedExamples,
-            languages = langs
-        )
-
-        return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(savedCode)
-    }
-
     @GetMapping("/{questId}")
     suspend fun getCode(@PathVariable questId: String): ResponseEntity<CodeQuestCode?> {
         val code: CodeQuestCode

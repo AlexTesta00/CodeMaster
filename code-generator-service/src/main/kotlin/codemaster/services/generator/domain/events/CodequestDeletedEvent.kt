@@ -1,4 +1,4 @@
-package codemaster.services.generator.infrastructure.rabbitmq
+package codemaster.services.generator.domain.events
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
