@@ -34,7 +34,7 @@ fun dockerCmd(): String? {
 
 tasks.register<Exec>("dockerCompose") {
     println("Docker build completed")
-    commandLine(dockerCmd(), "compose", "up", "--build", "-d")
+    commandLine(dockerCmd(), "compose", "up", "--build")
 
     dependsOn("buildMultiLangRunner")
 }

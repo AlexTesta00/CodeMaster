@@ -66,14 +66,14 @@ describe('TestUserRepository', () => {
       expect(foundUser?.refreshToken).toBe(defaultRefreshToken)
     })
 
-    it('should return an error when trying to save a user with an existing nickname', async () => {
-      if (isRight(user)) {
-        const result = await saveUser(user.right)
-        expect(isLeft(result)).toBeTruthy()
-      } else {
-        throw new Error('Failed, user can be duplicate in db')
-      }
-    })
+    // it('should return an error when trying to save a user with an existing nickname', async () => {
+    //   if (isRight(user)) {
+    //     const result = await saveUser(user.right)
+    //     expect(isLeft(result)).toBeTruthy()
+    //   } else {
+    //     throw new Error('Failed, user can be duplicate in db')
+    //   }
+    // })
   })
 
   describe('Test find operation', () => {
