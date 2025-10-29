@@ -1,3 +1,22 @@
+## [3.6.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.5.4...v3.6.0) (2025-10-29)
+
+### Features
+
+* **frontend:** added /monitor routes for check service status ([fcd81df](https://github.com/AlexTesta00/CodeMaster/commit/fcd81df5a1898edcb0be46c5a0d14b3626e5650c))
+* **gateway:** now upstream have max_fails and fail_timeout to esclude upstream if request fail in x attemps ([b171284](https://github.com/AlexTesta00/CodeMaster/commit/b17128432b973f798bf36da27b164094b9df8618))
+* **user:** now welcome trophy is awarded by user-service ([c816790](https://github.com/AlexTesta00/CodeMaster/commit/c81679008124365715ce336210d0ff46f73deb71))
+
+### Bug Fixes
+
+* **authentication:** fixed a test that failed non-deterministically ([647f8aa](https://github.com/AlexTesta00/CodeMaster/commit/647f8aae74c4c81fc16a891dc13a66dc48b3a866))
+* downgrade gradle version ([2e2be00](https://github.com/AlexTesta00/CodeMaster/commit/2e2be00fcebc1c00bc9df51d07dae2ff6eb89ebd))
+* **frontend:** now when a service goes offline, the frontend continues to work ([692f6f3](https://github.com/AlexTesta00/CodeMaster/commit/692f6f335134499fc4f12cc8c14b839311e8d1e6))
+* **gateway:** fix /wpad.dat error ([4e0a0c7](https://github.com/AlexTesta00/CodeMaster/commit/4e0a0c789823a7492d32dc874655b6453f8c2dab))
+* remove mongo and docker jobs from ci/cd file ([828ab6f](https://github.com/AlexTesta00/CodeMaster/commit/828ab6f0698ae6b3b68f3d7cd62b11462e6ac5a2))
+* resolve tests error that prevent mongo to start ([7046d8b](https://github.com/AlexTesta00/CodeMaster/commit/7046d8bfd2248e7153c80201c7332d111caf6302))
+* resolve tests error that prevent mongo to start ([07e7c0a](https://github.com/AlexTesta00/CodeMaster/commit/07e7c0aced806c123b3beead9fee20cb2ecb7f15))
+* **user:** fixed test that fail non-deterministically ([0572420](https://github.com/AlexTesta00/CodeMaster/commit/0572420829e82536a0c7bea2b675b0c15742ffb4))
+
 ## [3.5.4](https://github.com/AlexTesta00/CodeMaster/compare/v3.5.3...v3.5.4) (2025-08-10)
 
 ### Bug Fixes
