@@ -1,0 +1,27 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  plugins = ["vue"]
+  environment = [
+    "jest",
+    "vitest",
+    "nodejs",
+    "mongo",
+    "mocha"
+  ]
+
+[[analyzers]]
+name = "kotlin"
+
+  [analyzers.meta]
+  runtime_version = "21"
+  language_version = "1.7"
+
+[[analyzers]]
+name = "docker"
+
+[[transformers]]
+name = "prettier"
