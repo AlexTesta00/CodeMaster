@@ -1,13 +1,9 @@
 package codemaster.servicies.solution.application
 
-import codemaster.servicies.solution.application.errors.EmptyCodeException
-import codemaster.servicies.solution.application.errors.EmptyLanguageException
-import codemaster.servicies.solution.application.utility.LanguageCommandProvider
-import codemaster.servicies.solution.application.utility.UtilityFunctions.parseJUnitConsoleOutput
-import codemaster.servicies.solution.application.utility.UtilityFunctions.prepareCodeDir
-import codemaster.servicies.solution.application.utility.UtilityFunctions.runDocker
+import codemaster.servicies.solution.infrastructure.docker.LanguageCommandProvider
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.infrastructure.SolutionRepository
+import codemaster.servicies.solution.infrastructure.docker.DockerRunner
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -15,7 +11,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class SolutionService(
-    private val repository: SolutionRepository
+    private val repository: SolutionRepository,
+    private val dockerRunner: DockerRunner
 ) {
 
     companion object {
@@ -85,37 +82,37 @@ class SolutionService(
         newCode: String,
         testCode: String
     ): ExecutionResult {
-        val solution = repository.updateCode(id, newCode, language).awaitSingleOrNull()
+        repository.updateCode(id, newCode, language).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
         val commands = LanguageCommandProvider.getCommandsFor(language)
-        val codeDir = prepareCodeDir(language, newCode, testCode)
+        val codeDir = dockerRunner.prepareCodeDir(language, newCode, testCode)
 
-        return runDocker(
+        return dockerRunner.runDocker(
             id,
             codeDir,
             commands.compileCommand,
             "compile"
         ) { exitCode, output, errors ->
-            if (exitCode == 0) ExecutionResult.Accepted(parseJUnitConsoleOutput(output), exitCode)
+            if (exitCode == 0) ExecutionResult.Accepted(dockerRunner.parseJUnitConsoleOutput(output), exitCode)
             else ExecutionResult.CompileFailed("Compilation failed", errors, exitCode)
         }
     }
 
     suspend fun executeSolution(id: SolutionId, language: Language, newCode: String, testCode: String): Solution {
-        val solution = repository.updateCode(id, newCode, language).awaitSingleOrNull()
+        repository.updateCode(id, newCode, language).awaitSingleOrNull()
             ?: throw NoSuchElementException("No solution found in DB for id = $id")
 
         val commands = LanguageCommandProvider.getCommandsFor(language)
-        val codeDir = prepareCodeDir(language, newCode, testCode)
+        val codeDir = dockerRunner.prepareCodeDir(language, newCode, testCode)
 
-        val compileResult = runDocker(
+        val compileResult = dockerRunner.runDocker(
             id,
             codeDir,
             commands.compileCommand,
             "compile"
         ) { exitCode, output, errors ->
-            if (exitCode == 0) ExecutionResult.Accepted(parseJUnitConsoleOutput(output), exitCode)
+            if (exitCode == 0) ExecutionResult.Accepted(dockerRunner.parseJUnitConsoleOutput(output), exitCode)
             else ExecutionResult.CompileFailed("Compilation failed", errors, exitCode)
         }
 
@@ -123,13 +120,13 @@ class SolutionService(
             return repository.updateResult(id, compileResult).awaitSingle()
         }
 
-        val runResult = runDocker(
+        val runResult = dockerRunner.runDocker(
             id,
             codeDir,
             commands.compileAndRunCommand,
             "run"
         ) { exitCode, output, errors ->
-            val parsedOutput = parseJUnitConsoleOutput(output)
+            val parsedOutput = dockerRunner.parseJUnitConsoleOutput(output)
             if (exitCode == 0) ExecutionResult.Accepted(parsedOutput.ifEmpty { errors.lines() }, exitCode)
             else ExecutionResult.TestsFailed("Tests failed", parsedOutput, exitCode)
         }

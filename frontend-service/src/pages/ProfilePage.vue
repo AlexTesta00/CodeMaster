@@ -72,7 +72,6 @@ const addLanguage = async (lang: string) => {
     }
     if (auth.nickname) {
         try {
-            console.log('Selected languages:', selectedLanguages.value)
             await updateLanguages(
                 auth.nickname,
                 selectedLanguages.value.map((lang) => ({ name: lang })),
@@ -159,7 +158,6 @@ onMounted(async () => {
     }
   } catch (error) {
     await errorToast('Impossible to load codequests')
-    console.log(error)
   }
 })
 
@@ -199,10 +197,8 @@ onMounted(async () => {
                     altProfilePicture.value = 'Barney profile picture'
                 }
             }
-            console.log('Fetched user data:', res.user)
         } catch (error) {
             await errorToast('Impossible to load user data')
-            console.log(error)
         }
     }
 })

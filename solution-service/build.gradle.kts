@@ -57,6 +57,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest:kotest-framework-engine:5.9.0")
+    testImplementation("io.mockk:mockk:1.13.10")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
@@ -115,41 +116,6 @@ tasks.koverXmlReport {
     dependsOn(tasks.test)
 }
 
-tasks.register<Exec>("printEnv") {
-    commandLine("sh", "-c", "echo \$PATH")
-
-    doLast {
-        println("PATH printed")
-    }
-}
-
-fun findExecutableInPath(executable: String): String? {
-    val path = System.getenv("PATH") ?: return null
-    val paths = path.split(File.pathSeparator)
-    val execName = if (System.getProperty("os.name").lowercase().contains("windows")) "$executable.exe" else executable
-    for (dir in paths) {
-        val file = File(dir, execName)
-        if (file.exists() && file.canExecute()) {
-            return file.absolutePath
-        }
-    }
-    return null
-}
-
-tasks.register<Exec>("buildMultiLangRunnerImage") {
-    val dockerCmd = findExecutableInPath("docker")
-        ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
-
-    println("Using docker executable: $dockerCmd")
-
-    val dockerContextDir = File(project.projectDir, "../multi-lang-runner").absolutePath
-    commandLine(dockerCmd, "build", "-t", "multi-lang-runner:latest", dockerContextDir)
-
-    doLast {
-        println("Docker build completed")
-    }
-}
-
 tasks.test {
     outputs.upToDateWhen { false }
     outputs.cacheIf { false }
@@ -167,12 +133,9 @@ tasks.test {
 
     finalizedBy(tasks.koverLog)
     finalizedBy(tasks.koverXmlReport)
-
-    dependsOn("buildMultiLangRunnerImage")
 }
 
 tasks.build {
-    dependsOn(tasks.test)
     dependsOn("detekt")
 
     if (!project.hasProperty("skipTests") || project.property("skipTests") != "true") {

@@ -74,7 +74,6 @@ describe('Test API', () => {
   }, timeout)
 
   afterAll(async () => {
-    console.log('✅ Test cleanup done — process should exit now.')
     await mongoose.disconnect()
     await mongoServer.stop()
   })

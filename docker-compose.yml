@@ -1,6 +1,6 @@
 services:
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4.1.4-management
     ports:
       - '5672:5672'
       - '15672:15672'
@@ -17,7 +17,7 @@ services:
       retries: 5
 
   mongo-user:
-    image: mongo
+    image: mongo:noble
     command: ['mongod', '--quiet', '--logpath', '/dev/null']
     ports:
       - '27017:27017'
@@ -25,7 +25,7 @@ services:
       - mongo_data_user:/codemaster/user/db
 
   mongo-express-user:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8081:8081'
@@ -61,7 +61,7 @@ services:
       start_period: 10s
 
   mongo-authentication:
-    image: mongo
+    image: mongo:noble
     command: ['mongod', '--quiet', '--logpath', '/dev/null']
     ports:
       - '27018:27017'
@@ -69,7 +69,7 @@ services:
       - mongo_data_authentication:/codemaster/authentication/db
 
   mongo-express-authentication:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8082:8081'
@@ -107,7 +107,7 @@ services:
       start_period: 10s
 
   mongo-codequest:
-    image: mongo
+    image: mongo:noble
     command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
     ports:
       - '27019:27017'
@@ -115,7 +115,7 @@ services:
       - mongo_data_codequest:/codemaster/codequest/db
 
   mongo-express-codequest:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8083:8081'
@@ -151,7 +151,7 @@ services:
       start_period: 10s
 
   mongo-community:
-    image: mongo
+    image: mongo:noble
     command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
     ports:
       - '27021:27017'
@@ -159,7 +159,7 @@ services:
       - mongo_data_community:/codemaster/community/db
 
   mongo-express-community:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8085:8081'
@@ -195,7 +195,7 @@ services:
       start_period: 10s
 
   mongo-solution:
-    image: mongo
+    image: mongo:noble
     command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
     ports:
       - '27020:27017'
@@ -203,7 +203,7 @@ services:
       - mongo_data_solution:/codemaster/solution/db
 
   mongo-express-solution:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8084:8081'
@@ -243,7 +243,7 @@ services:
       start_period: 10s
 
   mongo-generator:
-    image: mongo
+    image: mongo:noble
     command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
     ports:
       - '27022:27017'
@@ -251,7 +251,7 @@ services:
       - mongo_data_generator:/codemaster/generator/db
 
   mongo-express-generator:
-    image: mongo-express
+    image: mongo-express:1.0.2-20-alpine3.19
     restart: always
     ports:
       - '8086:8081'

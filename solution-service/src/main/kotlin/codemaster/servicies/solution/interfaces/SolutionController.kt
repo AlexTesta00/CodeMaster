@@ -2,7 +2,7 @@ package codemaster.servicies.solution.interfaces
 
 import codemaster.servicies.solution.domain.dto.SolutionsDTO.*
 import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.application.errors.EmptyCodeException
+import codemaster.servicies.solution.application.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.DomainException
 import codemaster.servicies.solution.domain.model.*
 import org.slf4j.LoggerFactory

@@ -49,6 +49,18 @@ describe('Test API', () => {
   })
 
   describe('Test Register', () => {
+    const existingUser = {
+      nickname: 'test',
+      email: 'test@example.com',
+      password: 'Test1234!',
+      role: 'user',
+    }
+    beforeAll(async () => {
+      const response = await request
+          .post('/api/v1/authentication/register')
+          .send(existingUser)
+          .set('Accept', 'application/json')
+    })
     it('should return 201 and user register', async () => {
       const response = await request
         .post('/api/v1/authentication/register')
@@ -125,16 +137,9 @@ describe('Test API', () => {
     })
 
     it('should return 409 and user not register because user already exist', async () => {
-      const newUser = {
-        nickname: 'example',
-        email: 'example@example.com',
-        password: 'Test1234!',
-        role: 'user',
-      }
-
       const response = await request
         .post('/api/v1/authentication/register')
-        .send(newUser)
+        .send(existingUser)
         .set('Accept', 'application/json')
 
       expect(response.status).toBe(CONFLICT)
@@ -611,9 +616,10 @@ describe('Test API', () => {
         const users: UserManager[] = Array.from(response.body.users)
         expect(response.status).toBe(OK)
         expect(response.body.success).toBe(true)
-        expect(users.length).toBe(2)
-        expect(users[0].info.nickname.value).toBe('admin')
-        expect(users[1].info.nickname.value).toBe(newUser.nickname)
+        expect(users.length).toBe(3)
+        expect(users[0].info.nickname.value).toBe('test')
+        expect(users[1].info.nickname.value).toBe('admin')
+        expect(users[2].info.nickname.value).toBe(newUser.nickname)
       })
     })
   })

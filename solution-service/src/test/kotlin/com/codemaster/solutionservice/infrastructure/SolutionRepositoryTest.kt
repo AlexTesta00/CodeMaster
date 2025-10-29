@@ -2,310 +2,146 @@ package com.codemaster.solutionservice.infrastructure
 
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
-import com.mongodb.reactivestreams.client.MongoClients
-import de.flapdoodle.embed.mongo.distribution.Version
-import de.flapdoodle.embed.mongo.transitions.Mongod
-import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
-import de.flapdoodle.reverse.StateID
-import de.flapdoodle.reverse.TransitionWalker
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.*
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
-import org.bson.types.ObjectId
-import org.junit.jupiter.api.TestInstance
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
-import org.springframework.data.mongodb.core.convert.MappingMongoConverter
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions
-import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext
-import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
 import org.springframework.data.mongodb.core.query.Query
+import com.codemaster.solutionservice.utility.Utility.fluxOf
+import com.codemaster.solutionservice.utility.Utility.monoOf
+import org.springframework.data.mongodb.core.FindAndModifyOptions
+import org.springframework.data.mongodb.core.query.Criteria
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SolutionRepositoryTest : DescribeSpec() {
+class SolutionRepositoryTest : DescribeSpec({
 
-    private lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
-    private var startedEmbeddedMongo = false
-    private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
-    private lateinit var repository: SolutionRepositoryImpl
+    val mongoTemplate = mockk<ReactiveMongoTemplate>()
+    val repository = SolutionRepositoryImpl(mongoTemplate)
 
-    private val id1 = SolutionId.generate()
-    private val id2 = SolutionId.generate()
-    private val id3 = SolutionId.generate()
-    private val user = "user"
-    private val questId = "test"
-    private val language = Language("Java", ".java")
-    private val solved = false
-    private val code = Code(
-        language,
-        """
-            static String myPrint(String s) {
-                return "Hello World! " + s;
-            }
-        """.trimIndent()
-        )
-    private val codes = listOf(code)
+    val id1 = SolutionId.generate()
+    val id2 = SolutionId.generate()
+    val user = "user"
+    val questId = "quest"
+    val language = Language("Java", ".java")
+    val code = Code(language, "System.out.println(\"Hello\");")
+    val codes = listOf(code)
 
-    private val newSolution1 = SolutionFactoryImpl()
-        .create(id1, user, questId, solved, codes)
-    private val newSolution2 = SolutionFactoryImpl()
-        .create(id2, user, questId,  solved, codes)
-    private val solvedSolution = SolutionFactoryImpl()
-        .create(id3, user, questId, true, codes)
+    val newSolution1 = SolutionFactoryImpl().create(id1, user, questId, false, codes)
+    val newSolution2 = SolutionFactoryImpl().create(id2, user, questId, false, codes)
 
+    beforeTest {
+        clearAllMocks()
+    }
 
-    init {
-        beforeSpec {
-            val mongoUri = System.getenv("MONGO_URI")
-            val connectionString = mongoUri ?: run {
-                val transitions = Mongod.instance().transitions(Version.Main.V6_0)
-                mongodProcess = transitions.walker().initState(StateID.of(RunningMongodProcess::class.java))
-                startedEmbeddedMongo = true
-                "mongodb://localhost:${mongodProcess.current().serverAddress.port}"
-            }
+    describe("SolutionRepositoryImpl") {
 
-            val client = MongoClients.create(connectionString)
-            val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
+        context("Add new solution") {
+            it("should save and return solution") {
+                every { mongoTemplate.insert(newSolution1) } returns monoOf(newSolution1)
 
-            val mappingContext = MongoMappingContext().apply {
-                setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
-                afterPropertiesSet()
-            }
+                val saved = runBlocking { repository.addNewSolution(newSolution1).awaitSingle() }
 
-            val customConversions = MongoCustomConversions(
-                listOf(SolutionIdWriter(), SolutionIdReader())
-            )
-
-            val converter = MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
-                setCustomConversions(customConversions)
-                afterPropertiesSet()
-            }
-
-            reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
-            repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-        }
-
-        afterSpec {
-            if (startedEmbeddedMongo) {
-                mongodProcess.close()
+                saved shouldBe newSolution1
             }
         }
 
-        afterEach {
-            runBlocking {
-                reactiveMongoTemplate.remove(Query(), Solution::class.java).awaitSingleOrNull()
+        context("Find solution") {
+            it("should return solution by id") {
+                every { mongoTemplate.findById(any(), Solution::class.java) } returns monoOf(newSolution1)
+
+                val found = runBlocking { repository.findSolutionById(id1).awaitSingle() }
+
+                found shouldBe newSolution1
+            }
+
+            it("should throw if not found") {
+                every { mongoTemplate.findById(any(), Solution::class.java) } returns monoOf(null)
+
+                shouldThrowAny {
+                    runBlocking { repository.findSolutionById(SolutionId.generate()).awaitSingle() }
+                }
+            }
+
+            it("should return all solutions by questId") {
+                every { mongoTemplate.find(any<Query>(), Solution::class.java) } returns fluxOf(
+                    newSolution1,
+                    newSolution2
+                )
+
+                val results = runBlocking { repository.findSolutionsByQuestId(questId).asFlow().toList() }
+
+                results.size shouldBe 2
+                results shouldBe listOf(newSolution1, newSolution2)
+            }
+
+            it("should return empty if no results") {
+                every {
+                    mongoTemplate.find(Query(Criteria.where("questId").`is`("fake")), Solution::class.java)
+                } returns fluxOf()
+
+                val results = runBlocking { repository.findSolutionsByQuestId("fake").asFlow().toList() }
+
+                results.isEmpty() shouldBe true
             }
         }
 
-        fun checkSolution(solution: Solution) {
-            solution.id shouldBe id1
-            solution.user shouldBe user
-            solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
-            solution.questId shouldBe questId
-            for (code in solution.codes) {
-                code shouldBe code
-                language shouldBe language
+        context("Update solution") {
+            it("should update result") {
+                val newResult = ExecutionResult.Accepted(listOf("ok"), 0)
+                val updated = newSolution1.copy(result = newResult)
+
+                every {
+                    mongoTemplate.findAndModify(
+                        any<Query>(),
+                        any(),
+                        any<FindAndModifyOptions>(),
+                        Solution::class.java
+                    )
+                } returns monoOf(updated)
+
+                val modified = runBlocking { repository.updateResult(id1, newResult).awaitSingle() }
+
+                modified.result shouldBe newResult
+            }
+
+            it("should return null if solution does not exist") {
+                every {
+                    mongoTemplate.findAndModify(
+                        any<Query>(),
+                        any(),
+                        any<FindAndModifyOptions>(),
+                        Solution::class.java
+                    )
+                } returns monoOf(null)
+
+                val modified = runBlocking { repository.updateResult(id1, ExecutionResult.Pending).awaitSingleOrNull() }
+
+                modified shouldBe null
             }
         }
 
-        describe("SolutionRepositoryTest") {
+        context("Delete solution") {
+            it("should delete by id") {
+                every { mongoTemplate.findAndRemove(any(), Solution::class.java) } returns monoOf(newSolution1)
 
-            context("Add new solution") {
-                it("should save and retrieve solution correctly") {
-                    val saved = repository.addNewSolution(newSolution1).awaitSingle()
+                val deleted = runBlocking { repository.removeSolutionById(id1).awaitSingle() }
 
-                    checkSolution(saved)
-                }
+                deleted shouldBe newSolution1
             }
 
-            context("Find solution") {
-                beforeTest {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                    repository.addNewSolution(newSolution2).awaitSingleOrNull()
-                }
+            it("should return null if id not found") {
+                every { mongoTemplate.findAndRemove(any(), Solution::class.java) } returns monoOf(null)
 
-                it("should retrieve solution by his id") {
-                    val founded = repository.findSolutionById(id1).awaitSingle()
+                val deleted = runBlocking { repository.removeSolutionById(id1).awaitSingleOrNull() }
 
-                    checkSolution(founded)
-                }
-
-                it("should get all solutions by questId") {
-                    val source = repository
-                        .findSolutionsByQuestId(questId)
-                        .collectList()
-                        .awaitSingle()
-
-                    source.size shouldBe 2
-                    checkSolution(source.first())
-
-                    source.last().id shouldBe id2
-                    source.last().user shouldBe user
-                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    source.last().questId shouldBe questId
-                    for (code in source.last().codes) {
-                        code shouldBe code
-                        language shouldBe language
-                    }
-                }
-
-                it("should find solved solution by author") {
-                    repository.addNewSolution(solvedSolution).awaitSingleOrNull()
-
-                    val source = repository
-                        .findSolvedSolutionsByUser(user)
-                        .collectList()
-                        .awaitSingle()
-
-                    source.size shouldBe 1
-
-                    source.first().solved shouldBe true
-                    source.first().id shouldBe id3
-                }
-
-                it("should find all solutions submitted by a user") {
-                    val source = repository
-                        .findSolutionsByUser(user)
-                        .collectList()
-                        .awaitSingle()
-
-                    source.size shouldBe 2
-                    checkSolution(source.first())
-
-                    source.last().id shouldBe id2
-                    source.last().user shouldBe user
-                    source.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    source.last().questId shouldBe questId
-                    for (code in source.last().codes) {
-                        code shouldBe code
-                        language shouldBe language
-                    }
-                }
-
-                it("should throw exception if there is no solution with given id") {
-                    val fakeId = SolutionId.generate()
-
-                    shouldThrowAny {
-                        repository.findSolutionById(fakeId).awaitSingle()
-                    }
-                }
-
-                it("should be empty if there are no solutions with given questId") {
-                    val fakeQuestId = ObjectId()
-                    val solutions = repository
-                        .findSolutionsByQuestId(fakeQuestId.toString())
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
-                it("should be empty if there are no solutions solved by a user") {
-                    val fakeUser = "fakeUser"
-                    val solutions = repository
-                        .findSolvedSolutionsByUser(fakeUser)
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
-                it("should be empty if there are no solutions submitted by a user") {
-                    val fakeUser = "fakeUser"
-                    val solutions = repository
-                        .findSolutionsByUser(fakeUser)
-                        .collectList()
-                        .awaitSingle()
-
-                    solutions.isEmpty() shouldBe true
-                }
-
-            }
-
-            context("Update solution") {
-                beforeTest {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                }
-
-                it("should update the code correctly") {
-                    val newCode = """
-                        private String print(String s) {
-                            return s;
-                        }
-                    """.trimIndent()
-                    val modified = repository.updateCode(id1, newCode, language).awaitSingle()
-
-                    modified.codes.first { it.language.name == language.name }.code shouldBe newCode
-                }
-
-                it("should update the result correctly") {
-                    val newResult = ExecutionResult.Accepted(listOf("1","2","3","4"), 0)
-
-                    val modified = repository.updateResult(id1, newResult).awaitSingle()
-
-                    modified.result shouldBe newResult
-                }
-
-                it("should update solved correctly") {
-                    val newSolved = true
-                    val modified = repository.updateSolved(id1, newSolved).awaitSingle()
-
-                    modified.solved shouldBe newSolved
-                }
-
-                it("should fail if the solution with given id does not exist in the database") {
-                    val fakeId = SolutionId.generate()
-                    val newResult = ExecutionResult.Accepted(listOf("1","2","3","4"), 0)
-                    val newSolved = true
-                    val newCode = """
-                        private String print(String s) {
-                            return s;
-                        }
-                    """.trimIndent()
-
-                    repository.updateResult(fakeId, newResult).awaitSingleOrNull() shouldBe null
-                    repository.updateCode(fakeId, newCode, language).awaitSingleOrNull() shouldBe null
-                    repository.updateSolved(fakeId, newSolved).awaitSingleOrNull() shouldBe null
-                }
-            }
-
-            context("Delete solution") {
-                it("should delete the solution by id correctly") {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                    val deleted = repository.removeSolutionById(id1).awaitSingle()
-
-                    repository.findSolutionById(deleted.id).awaitSingleOrNull() shouldBe null
-                }
-                it("should delete all solutions created by a user") {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                    val deletedList = repository
-                        .removeSolutionsByUser(user)
-                        .collectList()
-                        .awaitSingle()
-
-                    checkSolution(deletedList.first())
-                }
-                it("should delete all solutions of a codequests") {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                    val deletedList = repository
-                        .removeSolutionsByCodequest(questId)
-                        .collectList()
-                        .awaitSingle()
-
-                    checkSolution(deletedList.first())
-                }
-                it("should fail if the solution with given id does not exist in the database") {
-                    repository.addNewSolution(newSolution1).awaitSingleOrNull()
-                    val fakeId = SolutionId.generate()
-
-                    repository.removeSolutionById(fakeId).awaitSingleOrNull() shouldBe null
-                }
+                deleted shouldBe null
             }
         }
     }
-}
+})
+

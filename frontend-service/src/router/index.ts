@@ -13,10 +13,12 @@ import AdminPage from '../pages/AdminPage.vue'
 import FunctionExamplesPage from "../pages/FunctionExamplesPage.vue";
 import { logoutUser } from '../utils/api.ts'
 import { errorToast, successToast } from '../utils/notify.ts'
+import MonitorPage from "../pages/MonitorPage.vue";
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
     { path: '/login', name: 'Login', component: LoginPage },
+    { path: '/monitor', name: 'Monitor', component: MonitorPage},
     {
         path: '/dashboard',
         name: 'Dashboard',
@@ -99,8 +101,6 @@ router.beforeEach(async (to, _, next) => {
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
     const isLoggedIn = auth.isLoggedIn()
     const userRole = auth.getUserRole()
-
-    console.log(`requiresAuth: ${requiresAuth}, isLoggedIn: ${isLoggedIn}, userRole: ${userRole}`)
 
     if (requiresAuth && !isLoggedIn) {
         return next({ name: 'Login' })

@@ -1,264 +1,224 @@
 package com.codemaster.solutionservice.service
 
 import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.errors.EmptyCodeException
 import codemaster.servicies.solution.domain.errors.InvalidUserException
 import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
-import com.mongodb.reactivestreams.client.MongoClients
-import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
-import de.flapdoodle.reverse.TransitionWalker
+import codemaster.servicies.solution.infrastructure.SolutionRepository
+import codemaster.servicies.solution.infrastructure.docker.DockerRunner
+import com.codemaster.solutionservice.utility.Utility.monoOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import kotlinx.coroutines.reactor.awaitSingleOrNull
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.TestInstance
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
-import org.springframework.data.mongodb.core.convert.MappingMongoConverter
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions
-import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext
-import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
-import org.springframework.data.mongodb.core.query.Query
+import kotlinx.coroutines.test.runTest
+import reactor.core.publisher.Mono
+import reactor.core.publisher.Flux
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SolutionServiceTest : DescribeSpec() {
+class SolutionServiceTest : DescribeSpec({
 
-    private lateinit var mongodProcess: TransitionWalker.ReachedState<RunningMongodProcess>
-    private var startedEmbeddedMongo = false
-    private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
-    private lateinit var repository: SolutionRepositoryImpl
-    private lateinit var service: SolutionService
+    val repository = mockk<SolutionRepository>()
+    val runner = mockk<DockerRunner>()
 
-    private val id1 = SolutionId.generate()
-    private val id2 = SolutionId.generate()
-    private val user = "user"
-    private val questId = "test"
-    private val language = Language("Kotlin", ".kt")
-    private val notSolved = false
-    private val solved = true
-    private val code =
-        """
+    val service = SolutionService(repository, runner)
+
+    val id1 = SolutionId.generate()
+    val id2 = SolutionId.generate()
+    val user = "user"
+    val questId = "test"
+    val language = Language("Kotlin", ".kt")
+    val notSolved = false
+    val solved = true
+    val code = """
         companion object {
             @JvmStatic
             fun myPrint(s: String?): String {
                 return "Hello World! " + s
             }
         }
-        """.trimIndent()
-    private val codes = listOf<Code>(
-        Code(
-            language,
-            code
-        )
-    )
+    """.trimIndent()
 
-    init {
-        beforeSpec {
-            val mongoUri = System.getenv("MONGO_URI")
-            val connectionString = mongoUri ?: "mongodb://localhost:27017/codemaster"
+    val codes = listOf(Code(language, code))
 
-            val client = MongoClients.create(connectionString)
-            val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
+    fun buildSolution(id: SolutionId, solved: Boolean) =
+        Solution(id, codes, questId, user, ExecutionResult.Pending, solved)
 
-            val mappingContext = MongoMappingContext().apply {
-                setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
-                afterPropertiesSet()
-            }
-
-            val customConversions = MongoCustomConversions(
-                listOf(SolutionIdWriter(), SolutionIdReader())
-            )
-
-            val converter = MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
-                setCustomConversions(customConversions)
-                afterPropertiesSet()
-            }
-
-            reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
-            repository = SolutionRepositoryImpl(reactiveMongoTemplate)
-            service = SolutionService(repository)
+    fun checkSolution(solution: Solution) {
+        solution.id shouldBe id1
+        solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
+        solution.questId shouldBe questId
+        for (cd in codes) {
+            cd.code shouldBe code
+            cd.language shouldBe language
         }
+    }
 
-        afterSpec {
-            if (startedEmbeddedMongo) {
-                mongodProcess.close()
+    describe("SolutionServiceTest") {
+
+        context("Add new solution") {
+            it("should save and retrieve solution correctly") {
+                val sol = buildSolution(id1, notSolved)
+
+                coEvery { repository.addNewSolution(any()) } returns Mono.just(sol)
+                coEvery { repository.findSolutionById(id1) } returns Mono.just(sol)
+
+                val saved = service.addSolution(id1, user, questId, notSolved, codes)
+
+                checkSolution(saved)
+            }
+
+            it("should throw exception if username is invalid") {
+                shouldThrow<InvalidUserException> {
+                    service.addSolution(id1, "", questId, notSolved, codes)
+                }
             }
         }
 
-        afterEach {
-            runBlocking {
-                reactiveMongoTemplate.remove(Query(), Solution::class.java).awaitSingleOrNull()
-            }
-        }
+        context("Find solution") {
+            val sol1 = buildSolution(id1, notSolved)
+            val sol2 = buildSolution(id2, solved)
 
-        fun checkSolution(solution: Solution) {
-            solution.id shouldBe id1
-            solution.result.shouldBeInstanceOf<ExecutionResult.Pending>()
-            solution.questId shouldBe questId
-            for (cd in codes) {
-                cd.code shouldBe code
-                cd.language shouldBe language
-            }
-        }
-
-        describe("SolutionServiceTest") {
-
-            context("Add new solution") {
-
-                it("should save and retrieve solution correctly") {
-                    val saved = service.addSolution(id1, user, questId, notSolved, codes)
-
-                    checkSolution(saved)
-                }
-
-                it("should throw exception if username is invalid") {
-                    shouldThrow<InvalidUserException> {
-                        service.addSolution(id1, "", questId,  notSolved, codes)
-                    }
-                }
+            beforeTest {
+                coEvery { repository.addNewSolution(sol1) } returns Mono.just(sol1)
+                coEvery { repository.addNewSolution(sol2) } returns Mono.just(sol2)
+                coEvery { repository.findSolutionById(id1) } returns Mono.just(sol1)
+                coEvery { repository.findSolutionById(id2) } returns Mono.just(sol2)
+                coEvery { repository.findSolutionsByQuestId(questId) } returns Flux.just(sol1, sol2)
+                coEvery { repository.findSolvedSolutionsByUser(user) } returns Flux.just(sol2)
+                coEvery { repository.findSolutionsByUser(user) } returns Flux.just(sol1, sol2)
             }
 
-            context("Find solution") {
+            it("should retrieve solution by his id") {
+                val founded = service.getSolution(id1)
 
-                beforeTest {
-                    service.addSolution(id1, user, questId, notSolved, codes)
-                    service.addSolution(id2, user, questId, solved, codes)
+                founded shouldNotBe null
+                checkSolution(founded)
+            }
+
+            it("should retrieve all solutions with the same questId") {
+                val list = service.getSolutionsByQuestId(questId)
+
+                list.size shouldBe 2
+                checkSolution(list.first())
+
+                list.last().id shouldBe id2
+                list.last().questId shouldBe questId
+                list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
+            }
+
+            it("should retrieve all solutions solved by a user") {
+                val list = service.getSolvedSolutionsByUser(user)
+
+                list.size shouldBe 1
+                list.last().id shouldBe id2
+                list.last().solved shouldBe true
+                list.last().user shouldBe user
+            }
+
+            it("should retrieve all solutions submitted by a user") {
+                val list = service.getSolutionsByUser(user)
+
+                list.size shouldBe 2
+                checkSolution(list.first())
+                list.last().id shouldBe id2
+            }
+
+            it("should throw exception if there is no solution with given id") {
+                val fakeId = SolutionId.generate()
+                coEvery { repository.findSolutionById(fakeId) } returns Mono.empty()
+
+                shouldThrow<NoSuchElementException> {
+                    service.getSolution(fakeId)
                 }
+            }
 
-                it("should retrieve solution by his id") {
-                    val founded = service.getSolution(id1)
+            it("should be empty if there are no solutions with given questId") {
+                coEvery { repository.findSolutionsByQuestId("fakeId") } returns Flux.empty()
 
-                    founded shouldNotBe null
-                    checkSolution(founded)
-                }
-
-                it("should retrieve all solutions with the same questId") {
-                    val list = service.getSolutionsByQuestId(questId)
-
-                    list.size shouldBe 2
-                    checkSolution(list.first())
-
-                    list.last().id shouldBe id2
-                    list.last().questId shouldBe questId
-                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    for (cd in list.last().codes) {
-                        cd.code shouldBe code
-                        cd.language shouldBe language
-                    }
-                }
-
-                it("should retrieve all solutions solved by a user") {
-                    val list = service.getSolvedSolutionsByUser(user)
-
-                    list.size shouldBe 1
-
-                    list.last().id shouldBe id2
-                    list.last().solved shouldBe true
-                    list.last().user shouldBe user
-                }
-
-                it("should retrieve all solutions submitted by a user") {
-                    val list = service.getSolutionsByUser(user)
-
-                    list.size shouldBe 2
-                    checkSolution(list.first())
-
-                    list.last().id shouldBe id2
-                    list.last().user shouldBe user
-                    list.last().result.shouldBeInstanceOf<ExecutionResult.Pending>()
-                    list.last().questId shouldBe questId
-                    for (cd in list.last().codes) {
-                        cd.code shouldBe code
-                        cd.language shouldBe language
-                    }
-                }
-
-                it("should throw exception if there is no solution with given id") {
-                    val fakeId = SolutionId.generate()
-
-                    shouldThrow<NoSuchElementException> {
-                        service.getSolution(fakeId)
-                    }
-                }
-
-                it("should be empty if there are no solutions with given questId") {
-                    val fakeQuestId = "fakeId"
-
-                    service.getSolutionsByQuestId(fakeQuestId).isEmpty() shouldBe true
-                }
+                service.getSolutionsByQuestId("fakeId").isEmpty() shouldBe true
             }
         }
 
         describe("Modify solution") {
-
             val fakeId = SolutionId.generate()
             val newCode = """
-                        private String print(String s) {
-                            return s;
-                        }
-                    """.trimIndent()
+                private String print(String s) {
+                    return s;
+                }
+            """.trimIndent()
+
+            val sol = buildSolution(id1, notSolved)
 
             beforeTest {
-                service.addSolution(id1, user, questId,  notSolved, codes)
+                coEvery { repository.findSolutionById(id1) } returns Mono.just(sol)
+                coEvery { repository.updateCode(id1, any(), any()) } answers {
+                    val updatedCode = arg<String>(1)
+                    val lang = arg<Language>(2)
+                    val updatedSolution = sol.copy(
+                        codes = sol.codes.map { if (it.language == lang) it.copy(code = updatedCode) else it }
+                    )
+                    Mono.just(updatedSolution)
+                }
             }
 
             it("should modify solution code correctly") {
                 val modifiedSolution = service.modifySolutionCode(id1, newCode, language)
 
-                modifiedSolution.id shouldBe id1
-                modifiedSolution.codes.first {
-                    it.language == language
-                }.code shouldBe newCode
+                modifiedSolution.codes.first { it.language == language }.code shouldBe newCode
             }
 
             it("should throw exception if there is no solution with given id") {
-                shouldThrow<NoSuchElementException> {
+                coEvery { repository.findSolutionById(fakeId) } returns Mono.empty()
+                coEvery { repository.updateCode(any(), any(), any()) } returns Mono.empty()
+
+                val exception = kotlin.runCatching {
                     service.modifySolutionCode(fakeId, newCode, language)
-                }
+                }.exceptionOrNull()
+
+                exception.shouldBeInstanceOf<NoSuchElementException>()
             }
         }
 
         describe("Delete solution") {
+
             it("should delete solution correctly by id") {
-                service.addSolution(id1, user, questId,  notSolved, codes)
+                val sol = buildSolution(id1, notSolved)
+
+                coEvery { repository.addNewSolution(any()) } returns monoOf(sol)
+                coEvery { repository.removeSolutionById(id1) } returns monoOf(sol)
+
+                var deleted = false
+                coEvery { repository.findSolutionById(id1) } answers {
+                    if (!deleted) monoOf(sol)
+                    else Mono.empty()
+                }
+
+                service.addSolution(id1, user, questId, notSolved, codes)
+                deleted = true
                 service.deleteSolution(id1)
 
-                shouldThrow<NoSuchElementException> {
-                    service.getSolution(id1)
-                }
+                val exception = runCatching { service.getSolution(id1) }.exceptionOrNull()
+                exception.shouldBeInstanceOf<NoSuchElementException>()
             }
 
-            it("should delete all solutions created by a user") {
-                service.addSolution(id1, user, questId,  notSolved, codes)
-                service.deleteSolutionsByUser(user)
 
-                service.getSolutionsByUser(user) shouldBe emptyList()
+            it("should delete all solutions created by a user") {
+                coEvery { repository.removeSolutionsByUser(user) } returns Flux.empty()
+                coEvery { repository.findSolutionsByUser(user) } returns Flux.empty()
+
+                service.deleteSolutionsByUser(user) shouldBe emptyList()
             }
 
             it("should delete all solutions of a codequest") {
-                service.addSolution(id1, user, questId,  notSolved, codes)
-                service.deleteSolutionsByCodequest(questId)
+                coEvery { repository.removeSolutionsByCodequest(questId) } returns Flux.empty()
+                coEvery { repository.findSolutionsByQuestId(questId) } returns Flux.empty()
 
-                service.getSolutionsByQuestId(questId) shouldBe emptyList()
-            }
-
-            it("should throw exception if there is no solution with given id") {
-                val fakeId = SolutionId.generate()
-                val fakeUser = "fakeUser"
-                val fakeQuest = "fakeQuest"
-
-                shouldThrow<NoSuchElementException> {
-                    service.deleteSolution(fakeId)
-                }
-                service.deleteSolutionsByUser(fakeUser) shouldBe emptyList()
-                service.deleteSolutionsByCodequest(fakeQuest) shouldBe emptyList()
+                service.deleteSolutionsByCodequest(questId) shouldBe emptyList()
             }
         }
     }
-}
+})

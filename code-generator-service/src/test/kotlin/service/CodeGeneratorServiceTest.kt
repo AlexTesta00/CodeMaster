@@ -1,124 +1,82 @@
 package service
 
-import codemaster.services.generator.domain.CodeQuestCode
-import codemaster.services.generator.domain.ExampleCase
-import codemaster.services.generator.domain.FunctionParameter
-import codemaster.services.generator.domain.FunctionSignature
-import codemaster.services.generator.domain.Language
-import codemaster.services.generator.domain.TypeName
+import codemaster.services.generator.domain.*
+import codemaster.services.generator.domain.codegen.GeneratedCodeEntry
 import codemaster.services.generator.infrastructure.CodeQuestCodeRepository
-import codemaster.services.generator.infrastructure.CodeQuestCodeRepositoryImpl
 import codemaster.services.generator.service.CodeGeneratorService
+import utility.Utility.monoOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.runBlocking
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.query.Query
-import com.mongodb.reactivestreams.client.MongoClients
-import org.junit.jupiter.api.TestInstance
-import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory
-import org.springframework.data.mongodb.core.convert.MappingMongoConverter
-import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext
-import org.springframework.data.mongodb.core.mapping.MongoSimpleTypes
+import io.mockk.*
+import utility.Utility.fluxOf
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CodeGeneratorServiceTest : DescribeSpec() {
+class CodeGeneratorServiceTest : DescribeSpec({
 
-    private lateinit var reactiveMongoTemplate: ReactiveMongoTemplate
-    private lateinit var repository: CodeQuestCodeRepository
-    private lateinit var service: CodeGeneratorService
+    val repository = mockk<CodeQuestCodeRepository>()
+    val service = CodeGeneratorService(repository)
 
-    init {
+    beforeTest {
+        clearMocks(repository)
+    }
 
-        beforeSpec {
-            val mongoUri = System.getenv("MONGO_URI")
+    describe("CodeGeneratorService unit tests") {
 
-            val connectionString = mongoUri ?: "mongodb://localhost:27017/codemaster"
+        it("should generate and save quest code") {
+            val signature = FunctionSignature(
+                name = "foo",
+                parameters = listOf(FunctionParameter("x", TypeName("Int"))),
+                returnType = TypeName("Map<Int,Int>")
+            )
+            val examples = listOf(ExampleCase(inputs = listOf(1), output = mapOf(1 to 2, 2 to 3)))
+            val languages = listOf(Language.Kotlin, Language.Java)
 
-            val client = MongoClients.create(connectionString)
-            val factory = SimpleReactiveMongoDatabaseFactory(client, "test")
+            val generated = CodeQuestCode(
+                questId = "test-quest",
+                entries = listOf(
+                    GeneratedCodeEntry(Language.Kotlin, "fun foo(...) { ... }", "test code..."),
+                    GeneratedCodeEntry(Language.Java, "public static ...", "test code...")
+                )
+            )
 
-            val mappingContext = MongoMappingContext().apply {
-                setSimpleTypeHolder(MongoSimpleTypes.HOLDER)
-                afterPropertiesSet()
-            }
+            every { repository.save(any()) } returns monoOf(generated)
 
-            val converter = MappingMongoConverter(NoOpDbRefResolver.INSTANCE, mappingContext).apply {
-                afterPropertiesSet()
-            }
+            val codeQuestCode = service.generateQuestCode("test-quest", signature, examples, languages)
 
-            reactiveMongoTemplate = ReactiveMongoTemplate(factory, converter)
-            repository = CodeQuestCodeRepositoryImpl(reactiveMongoTemplate)
-            service = CodeGeneratorService(repository)
+            codeQuestCode.questId shouldBe "test-quest"
+            codeQuestCode.entries.map { it.language } shouldBe languages
+
+            verify { repository.save(any()) }
         }
 
-        afterEach {
-            runBlocking {
-                reactiveMongoTemplate.remove(Query(), CodeQuestCode::class.java).awaitSingleOrNull()
-            }
+        it("should get saved quest code") {
+            val savedCode = CodeQuestCode("test-quest", emptyList())
+            every { repository.findByQuestId("test-quest") } returns monoOf(savedCode)
+
+            val found = service.getQuestCode("test-quest")
+
+            found.questId shouldBe "test-quest"
+            verify { repository.findByQuestId("test-quest") }
         }
 
-        describe("CodeGeneratorServiceTest") {
+        it("should throw NoSuchElementException if quest code not found") {
+            every { repository.findByQuestId("nonexistent-quest") } returns monoOf(null)
 
-            it("should generate and save quest code") {
-                val signature = FunctionSignature(
-                    name = "foo",
-                    parameters = listOf(FunctionParameter("x", TypeName("Int"))),
-                    returnType = TypeName("Map<Int,Int>")
-                )
-                val examples = listOf(ExampleCase(inputs = listOf(1), output = mapOf(1 to 2, 2 to 3)))
-                val languages = listOf(Language.Kotlin, Language.Java)
-
-                val codeQuestCode = service.generateQuestCode("test-quest", signature, examples, languages)
-
-                codeQuestCode.questId shouldBe "test-quest"
-                codeQuestCode.entries.map { it.language } shouldBe languages
+            val exception = shouldThrow<NoSuchElementException> {
+                service.getQuestCode("nonexistent-quest")
             }
+            exception.message shouldBe "Error while loading CodeQuestCode"
+            verify { repository.findByQuestId("nonexistent-quest") }
+        }
 
-            it("should get saved quest code") {
-                val signature = FunctionSignature(
-                    name = "foo",
-                    parameters = listOf(FunctionParameter("x", TypeName("Int"))),
-                    returnType = TypeName("Int")
-                )
-                val examples = listOf(ExampleCase(inputs = listOf(1), output = 2))
-                val languages = listOf(Language.Kotlin, Language.Java)
+        it("should delete quest code by questId") {
+            val savedCode = CodeQuestCode("test-quest", emptyList())
+            every { repository.deleteByQuestId("test-quest") } returns fluxOf(savedCode)
 
-                service.generateQuestCode("test-quest", signature, examples, languages)
+            val deleted = service.deleteQuestCode("test-quest")
 
-                val found = service.getQuestCode("test-quest")
-                found.questId shouldBe "test-quest"
-            }
-
-            it("should throw NoSuchElementException if quest code not found on getQuestCode") {
-                val exception = shouldThrow<NoSuchElementException> {
-                    service.getQuestCode("nonexistent-quest")
-                }
-                exception.message shouldBe "Error while loading CodeQuestCode"
-            }
-
-            it("should delete quest code by questId") {
-                val signature = FunctionSignature(
-                    name = "foo",
-                    parameters = listOf(FunctionParameter("x", TypeName("Int"))),
-                    returnType = TypeName("Int")
-                )
-                val examples = listOf(ExampleCase(inputs = listOf(1), output = 2))
-                val languages = listOf(Language.Kotlin)
-
-                service.generateQuestCode("test-quest", signature, examples, languages)
-
-                val deleted = service.deleteQuestCode("test-quest")
-                deleted.any { it.questId == "test-quest" } shouldBe true
-
-                val exception = shouldThrow<NoSuchElementException> {
-                    service.getQuestCode("test-quest")
-                }
-                exception.message shouldBe "Error while loading CodeQuestCode"
-            }
+            deleted.any { it.questId == "test-quest" } shouldBe true
+            verify { repository.deleteByQuestId("test-quest") }
         }
     }
-}
+})

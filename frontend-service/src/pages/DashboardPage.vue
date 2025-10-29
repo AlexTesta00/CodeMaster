@@ -60,6 +60,31 @@ const toggleFilterActive = (filter: string) => {
 }
 
 onMounted(async () => {
+  const codequestRes = await getAllCodequests()
+  if (codequestRes.success) {
+    for (const codeQuest of codequestRes.codequests) {
+      const solRes = await getSolutionsByCodequest(codeQuest.id)
+      if (solRes.success) {
+        const userSolution = solRes.solutions.find(sol => sol.user === auth.nickname)
+        const isSolved = userSolution ? userSolution.solved : false
+        const newEntry = {
+          codequest: codeQuest,
+          isSolved
+        }
+        codequests.value.push(newEntry)
+        allCodequests.value.push(newEntry)
+      }
+      easyCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy' && quest.isSolved).length
+      mediumCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium' && quest.isSolved).length
+      hardCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard' && quest.isSolved).length
+      easyCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy').length
+      mediumCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium').length
+      hardCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard').length
+    }
+  }
+})
+
+onMounted(async () => {
   auth.loadNickname()
   if (auth.nickname) {
     try {
@@ -86,40 +111,14 @@ onMounted(async () => {
         level.value = res.user.level
       } else {
         await errorToast('Failed to load user data')
-        await router.push('/error')
-      }
-
-      const codequestRes = await getAllCodequests()
-      if (codequestRes.success) {
-        for (const codeQuest of codequestRes.codequests) {
-          const solRes = await getSolutionsByCodequest(codeQuest.id)
-          if (solRes.success) {
-            const userSolution = solRes.solutions.find(sol => sol.user === auth.nickname)
-            const isSolved = userSolution ? userSolution.solved : false
-            const newEntry = {
-              codequest: codeQuest,
-              isSolved
-            }
-            codequests.value.push(newEntry)
-            allCodequests.value.push(newEntry)
-          }
-          easyCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy' && quest.isSolved).length
-          mediumCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium' && quest.isSolved).length
-          hardCod.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard' && quest.isSolved).length
-          easyCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'easy').length
-          mediumCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'medium').length
-          hardCodMax.value = allCodequests.value.filter(quest => quest.codequest.difficulty.name.toLowerCase() == 'hard').length
-        }
       }
     } catch {
       await errorToast('Failed to fetch data')
-      await router.push('/error')
     } finally {
       isLoading.value = false
     }
   } else {
     await errorToast('Dashboard page requires authentication')
-    await router.push('/error')
   }
 })
 </script>

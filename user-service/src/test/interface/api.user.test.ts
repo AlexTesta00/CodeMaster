@@ -31,6 +31,13 @@ describe('Test User API', () => {
   }, timeout)
 
   describe('Test /register', () => {
+      const existingNickname = 'existing'
+      beforeAll(async () => {
+          await request
+              .post('/api/v1/users/register')
+              .send({ nickname: existingNickname })
+              .set('Accept', 'application/json')
+      })
     it(
       'should correctly register a user',
       async () => {
@@ -61,7 +68,7 @@ describe('Test User API', () => {
       async () => {
         const response = await request
           .post('/api/v1/users/register')
-          .send({ nickname: nickname })
+          .send({ nickname: existingNickname })
           .set('Accept', 'application/json')
         expect(response.status).toBe(400)
         expect(response.body.message).toContain('duplicate key error')

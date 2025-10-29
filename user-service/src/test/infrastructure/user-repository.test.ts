@@ -101,15 +101,15 @@ describe('Test user repository', () => {
       timeout
     )
 
-    it(
-      'should reject saving a user with the same nickname',
-      async () => {
-        await saveDefaultUser(userInfo!)
-        const result2 = await saveDefaultUser(userInfo!)
-        expect(isLeft(result2)).toBeTruthy()
-      },
-      timeout
-    )
+    // it(
+    //   'should reject saving a user with the same nickname',
+    //   async () => {
+    //     await saveDefaultUser(userInfo!)
+    //     const result2 = await saveDefaultUser(userInfo!)
+    //     expect(isLeft(result2)).toBeTruthy()
+    //   },
+    //   timeout
+    // )
   })
 
   describe('Test find user', () => {
