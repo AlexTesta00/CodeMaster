@@ -1,6 +1,6 @@
 import amqp, { ChannelModel } from 'amqplib'
 import { Publisher } from './publisher'
-import {CodequestGenerateEvent} from "../../domain/events/codequest-generate";
+import { CodequestGenerateEvent } from '../../domain/events/codequest-generate'
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost'
 const EXCHANGE = 'codequest'

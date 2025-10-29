@@ -1,4 +1,4 @@
-import {CodequestGenerateEvent} from "../../domain/events/codequest-generate";
+import { CodequestGenerateEvent } from '../../domain/events/codequest-generate'
 
 export interface Publisher {
   connect(): Promise<void>

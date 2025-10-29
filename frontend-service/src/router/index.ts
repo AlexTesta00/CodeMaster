@@ -10,15 +10,15 @@ import NewCodeQuestPage from '../pages/NewCodeQuestPage.vue'
 import ChoicePage from '../pages/ChoicePage.vue'
 import { useAuthStore } from '../utils/store.ts'
 import AdminPage from '../pages/AdminPage.vue'
-import FunctionExamplesPage from "../pages/FunctionExamplesPage.vue";
+import FunctionExamplesPage from '../pages/FunctionExamplesPage.vue'
 import { logoutUser } from '../utils/api.ts'
 import { errorToast, successToast } from '../utils/notify.ts'
-import MonitorPage from "../pages/MonitorPage.vue";
+import MonitorPage from '../pages/MonitorPage.vue'
 
 const routes = [
     { path: '/', name: 'Home', component: HomePage },
     { path: '/login', name: 'Login', component: LoginPage },
-    { path: '/monitor', name: 'Monitor', component: MonitorPage},
+    { path: '/monitor', name: 'Monitor', component: MonitorPage },
     {
         path: '/dashboard',
         name: 'Dashboard',
@@ -83,8 +83,8 @@ const routes = [
         path: '/examples',
         name: 'SubmitExamples',
         component: FunctionExamplesPage,
-        meta: { requiresAuth: true }
-    }
+        meta: { requiresAuth: true },
+    },
 ]
 
 const router = createRouter({
@@ -106,7 +106,7 @@ router.beforeEach(async (to, _, next) => {
         return next({ name: 'Login' })
     }
 
-    if(requiresAuth && auth.banned){
+    if (requiresAuth && auth.banned) {
         if (!auth.nickname) return
         try {
             await logoutUser(auth.nickname)
@@ -128,7 +128,10 @@ router.beforeEach(async (to, _, next) => {
     }
 
     if (to.meta.requiresAdmin && userRole !== 'admin') {
-        return next({ name: 'Error', params: { title: 'Forbidden', errorCode: '403' } })
+        return next({
+            name: 'Error',
+            params: { title: 'Forbidden', errorCode: '403' },
+        })
     }
 
     next()

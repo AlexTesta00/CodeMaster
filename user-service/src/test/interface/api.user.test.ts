@@ -6,9 +6,9 @@ import {
   DEFAULT_IMAGE_URL,
 } from '../../main/nodejs/codemaster/servicies/user/domain/level-factory'
 import { isRight } from 'fp-ts/Either'
-import {MongoMemoryServer} from "mongodb-memory-server";
-import mongoose from "mongoose";
-import {UserManagerModel} from "../../main/nodejs/codemaster/servicies/user/infrastructure/schema";
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
+import { UserManagerModel } from '../../main/nodejs/codemaster/servicies/user/infrastructure/schema'
 
 describe('Test User API', () => {
   const timeout = 10000
@@ -16,28 +16,28 @@ describe('Test User API', () => {
   const nickname = 'testuser'
   const invalidNickname = 'inv@lid'
   const defaultLevel = createDefaultLevel()
-    let mongoServer: MongoMemoryServer
+  let mongoServer: MongoMemoryServer
 
   beforeAll(async () => {
-      mongoServer = await MongoMemoryServer.create()
-      const uri = mongoServer.getUri()
-      await mongoose.connect(uri)
+    mongoServer = await MongoMemoryServer.create()
+    const uri = mongoServer.getUri()
+    await mongoose.connect(uri)
   }, timeout)
 
   afterAll(async () => {
-      await UserManagerModel.deleteMany({})
-      await mongoose.disconnect()
-      await mongoServer.stop()
+    await UserManagerModel.deleteMany({})
+    await mongoose.disconnect()
+    await mongoServer.stop()
   }, timeout)
 
   describe('Test /register', () => {
-      const existingNickname = 'existing'
-      beforeAll(async () => {
-          await request
-              .post('/api/v1/users/register')
-              .send({ nickname: existingNickname })
-              .set('Accept', 'application/json')
-      })
+    const existingNickname = 'existing'
+    beforeAll(async () => {
+      await request
+        .post('/api/v1/users/register')
+        .send({ nickname: existingNickname })
+        .set('Accept', 'application/json')
+    })
     it(
       'should correctly register a user',
       async () => {
@@ -144,7 +144,9 @@ describe('Test User API', () => {
       expect(response.body).toHaveProperty('success', true)
       expect(Array.isArray(response.body.user)).toBe(true)
       expect(response.body.user.length).toBeGreaterThan(0)
-      const user = response.body.user.find((user: any) => user.userInfo.nickname.value === nickname)
+      const user = response.body.user.find(
+        (user: any) => user.userInfo.nickname.value === nickname
+      )
       expect(user).toBeDefined()
       expect(user.userInfo.nickname.value).toBe(nickname)
     })

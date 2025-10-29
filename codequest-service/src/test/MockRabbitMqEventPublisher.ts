@@ -1,5 +1,5 @@
 import { CodequestGenerateEvent } from '../main/nodejs/codemaster/servicies/codequest/domain/events/codequest-generate'
-import {Publisher} from '../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/publisher'
+import { Publisher } from '../main/nodejs/codemaster/servicies/codequest/infrastructure/middleware/publisher'
 
 export class MockRabbitMqEventPublisher implements Publisher {
   private connected = true

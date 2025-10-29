@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { CodeQuestServiceImpl } from '../application/codequest-service-impl'
 import { CREATED, INTERNAL_ERROR, OK } from './status'
-import {CodequestGenerateEvent} from "../domain/events/codequest-generate";
+import { CodequestGenerateEvent } from '../domain/events/codequest-generate'
 
 class Controller {
   constructor(private readonly service: CodeQuestServiceImpl) {}
@@ -40,14 +40,14 @@ class Controller {
       )
 
       await this.service.generateCodequestCodes(
-          new CodequestGenerateEvent(
-              codequest.id,
-              req.body.lang,
-              req.body.functionName,
-              req.body.parameters,
-              req.body.returnType,
-              req.body.examples
-          )
+        new CodequestGenerateEvent(
+          codequest.id,
+          req.body.lang,
+          req.body.functionName,
+          req.body.parameters,
+          req.body.returnType,
+          req.body.examples
+        )
       )
 
       res.status(CREATED).json({ message: 'Codequests add', success: true, codequest })

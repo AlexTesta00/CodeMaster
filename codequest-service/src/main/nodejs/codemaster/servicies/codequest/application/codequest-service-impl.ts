@@ -10,7 +10,7 @@ import { Difficulty } from '../domain/codequest/difficulty'
 import { CodequestDeletedEvent } from '../domain/events/codequest-deleted'
 import { MongoConnector } from '../infrastructure/db-connection'
 import { Publisher } from '../infrastructure/middleware/publisher'
-import {CodequestGenerateEvent} from "../domain/events/codequest-generate";
+import { CodequestGenerateEvent } from '../domain/events/codequest-generate'
 
 export class CodeQuestServiceImpl implements CodeQuestService {
   private languageRepo = new LanguageRepositoryImpl()

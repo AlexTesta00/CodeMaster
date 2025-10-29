@@ -2,8 +2,8 @@ import { CodeQuest } from '../domain/codequest/codequest'
 import { Problem } from '../domain/codequest/problem'
 import { Language } from '../domain/language/language'
 import { Difficulty } from '../domain/codequest/difficulty'
-import codequestController from "../interfaces/codequest-controller";
-import {CodequestGenerateEvent} from "../domain/events/codequest-generate";
+import codequestController from '../interfaces/codequest-controller'
+import { CodequestGenerateEvent } from '../domain/events/codequest-generate'
 
 export interface CodeQuestService {
   addCodeQuest(

@@ -1,10 +1,10 @@
 jest.mock(
-    '../../main/nodejs/codemaster/servicies/authentication/infrastructure/publisher',
-    () => ({
-      connectToRabbit: jest.fn().mockResolvedValue(undefined),
-      publishUserRegistered: jest.fn(),
-      publishUserDeleted: jest.fn(),
-    })
+  '../../main/nodejs/codemaster/servicies/authentication/infrastructure/publisher',
+  () => ({
+    connectToRabbit: jest.fn().mockResolvedValue(undefined),
+    publishUserRegistered: jest.fn(),
+    publishUserDeleted: jest.fn(),
+  })
 )
 
 import { app } from '../../main/nodejs/codemaster/servicies/authentication/app'
@@ -18,9 +18,9 @@ import {
   UNAUTHORIZED,
 } from '../../main/nodejs/codemaster/servicies/authentication/interfaces/status'
 import { UserManager } from '../../main/nodejs/codemaster/servicies/authentication/domain/user-manager'
-import {MongoMemoryServer} from "mongodb-memory-server";
-import mongoose from "mongoose";
-import {UserModel} from "../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model";
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
+import { UserModel } from '../../main/nodejs/codemaster/servicies/authentication/infrastructure/user-model'
 
 describe('Test API', () => {
   let mongoServer: MongoMemoryServer
@@ -57,9 +57,9 @@ describe('Test API', () => {
     }
     beforeAll(async () => {
       const response = await request
-          .post('/api/v1/authentication/register')
-          .send(existingUser)
-          .set('Accept', 'application/json')
+        .post('/api/v1/authentication/register')
+        .send(existingUser)
+        .set('Accept', 'application/json')
     })
     it('should return 201 and user register', async () => {
       const response = await request

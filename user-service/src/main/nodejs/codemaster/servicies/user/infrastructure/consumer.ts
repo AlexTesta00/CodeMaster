@@ -1,8 +1,12 @@
 import amqp from 'amqplib'
-import {changeUserTrophy, deleteUser, registerNewUser} from '../application/user-service'
+import {
+  changeUserTrophy,
+  deleteUser,
+  registerNewUser,
+} from '../application/user-service'
 import { TaskEither, tryCatch } from 'fp-ts/TaskEither'
-import {createTrophy} from "../domain/trophy-factory";
-import {isRight} from "fp-ts/Either";
+import { createTrophy } from '../domain/trophy-factory'
+import { isRight } from 'fp-ts/Either'
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq'
 const QUEUE_NAME = 'user-service-queue'
@@ -32,8 +36,13 @@ export const startConsumer: TaskEither<Error, void> = tryCatch(
         try {
           if (routingKey === 'user.registered') {
             await registerNewUser(data)
-            const welcomeTrophy = createTrophy('Welcome', 'Welcome to the platform!', 'https://cdn-icons-png.flaticon.com/512/14697/14697227.png', 1)
-            if(isRight(welcomeTrophy)){
+            const welcomeTrophy = createTrophy(
+              'Welcome',
+              'Welcome to the platform!',
+              'https://cdn-icons-png.flaticon.com/512/14697/14697227.png',
+              1
+            )
+            if (isRight(welcomeTrophy)) {
               await changeUserTrophy(data, [welcomeTrophy.right])
               console.log(`[✅] Welcome Trophy Assigned`)
             }
