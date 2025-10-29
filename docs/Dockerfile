@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /codemaster-docs
 COPY package*.json ./
 RUN npm install
