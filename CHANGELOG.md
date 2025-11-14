@@ -1,3 +1,9 @@
+## [3.6.1](https://github.com/AlexTesta00/CodeMaster/compare/v3.6.0...v3.6.1) (2025-11-14)
+
+### Bug Fixes
+
+* add PUT method in CORS policy ([86c84b9](https://github.com/AlexTesta00/CodeMaster/commit/86c84b951fc3486416a8cee3de7bd176c294864f))
+
 ## [3.6.0](https://github.com/AlexTesta00/CodeMaster/compare/v3.5.4...v3.6.0) (2025-10-29)
 
 ### Features
