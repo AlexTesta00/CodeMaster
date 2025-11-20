@@ -3,7 +3,7 @@ import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
     id("com.github.node-gradle.node") version "7.1.0"
-    id("com.bmuschko.docker-remote-api") version "9.4.0"
+    id("com.bmuschko.docker-remote-api") version "10.0.0"
 }
 
 node {
