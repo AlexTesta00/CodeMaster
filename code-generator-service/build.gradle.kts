@@ -5,7 +5,7 @@ import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "2.0.21"
-    id("org.springframework.boot") version "3.4.4"
+    id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
@@ -35,7 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mustache")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-logging")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:3.4.5")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:4.0.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
@@ -52,9 +52,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
-    testImplementation("io.kotest:kotest-framework-engine:5.9.0")
+    testImplementation("io.kotest:kotest-runner-junit5:6.0.5")
+    testImplementation("io.kotest:kotest-assertions-core:6.0.5")
+    testImplementation("io.kotest:kotest-framework-engine:6.0.5")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
