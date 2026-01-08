@@ -1,7 +1,7 @@
 package com.codemaster.solutionservice.infrastructure
 
-import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.infrastructure.SolutionRepositoryImpl
+import codemaster.services.solution.domain.model.*
+import codemaster.services.solution.infrastructure.SolutionRepositoryImpl
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe

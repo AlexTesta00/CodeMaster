@@ -5,8 +5,6 @@ import java.io.File
 import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
 
-
-
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
@@ -27,7 +25,7 @@ java {
 }
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
-    mainClass.set("codemaster.services.generator.ApplicationKt")
+    mainClass.set("codemaster.services.solution.ApplicationKt")
 }
 
 repositories {

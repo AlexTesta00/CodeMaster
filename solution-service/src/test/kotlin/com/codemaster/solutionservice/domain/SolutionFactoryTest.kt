@@ -1,8 +1,8 @@
 package com.codemaster.solutionservice.domain
 
-import codemaster.servicies.solution.domain.errors.EmptyCodeException
-import codemaster.servicies.solution.domain.errors.InvalidUserException
-import codemaster.servicies.solution.domain.model.*
+import codemaster.services.solution.domain.errors.EmptyCodeException
+import codemaster.services.solution.domain.errors.InvalidUserException
+import codemaster.services.solution.domain.model.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
