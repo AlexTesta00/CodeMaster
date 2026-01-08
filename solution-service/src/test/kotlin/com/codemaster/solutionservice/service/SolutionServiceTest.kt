@@ -1,10 +1,10 @@
 package com.codemaster.solutionservice.service
 
-import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.errors.InvalidUserException
-import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.infrastructure.SolutionRepository
-import codemaster.servicies.solution.infrastructure.docker.DockerRunner
+import codemaster.services.solution.application.SolutionService
+import codemaster.services.solution.domain.errors.InvalidUserException
+import codemaster.services.solution.domain.model.*
+import codemaster.services.solution.infrastructure.SolutionRepository
+import codemaster.services.solution.infrastructure.docker.DockerRunner
 import com.codemaster.solutionservice.utility.Utility.monoOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -12,10 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Flux
 

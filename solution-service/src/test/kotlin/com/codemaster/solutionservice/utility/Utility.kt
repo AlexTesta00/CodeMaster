@@ -1,6 +1,6 @@
 package com.codemaster.solutionservice.utility
 
-import codemaster.servicies.solution.domain.model.Solution
+import codemaster.services.solution.domain.model.Solution
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
