@@ -1,13 +1,6 @@
 package codemaster.services.generator.interfaces
 
 import codemaster.services.generator.domain.CodeQuestCode
-import codemaster.services.generator.domain.ExampleCase
-import codemaster.services.generator.domain.FunctionParameter
-import codemaster.services.generator.domain.FunctionSignature
-import codemaster.services.generator.domain.Language
-import codemaster.services.generator.domain.TypeName
-import codemaster.services.generator.interfaces.dto.GenerateRequestDto
-import codemaster.services.generator.interfaces.parser.Parser.parseValue
 import codemaster.services.generator.service.CodeGeneratorService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -47,7 +40,7 @@ class CodeGeneratorController(
     }
 
     @GetMapping("/{questId}")
-    suspend fun getCode(@PathVariable questId: String): ResponseEntity<CodeQuestCode?> {
+    suspend fun getCode(@PathVariable questId: String): ResponseEntity<CodeQuestCode> {
         val code: CodeQuestCode
 
         try {

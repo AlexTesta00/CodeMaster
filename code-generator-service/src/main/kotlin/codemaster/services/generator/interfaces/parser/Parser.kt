@@ -13,11 +13,12 @@ object Parser {
 
         val rawType = expectedType.raw
 
-        if ((rawType.startsWith("List<") && value.startsWith("[")) ||
-            (rawType.startsWith("Map<") && value.startsWith("{"))) {
-            val normalized = normalizeInput(value, expectedType)
-            val jsonNode: JsonNode = objectMapper.readTree(normalized)
-            return parseJsonNode(jsonNode, expectedType)
+        if ((rawType.startsWith("List<") && value.startsWith("["))) {
+            if (rawType.startsWith("Map<") && value.startsWith("{")) {
+                val normalized = normalizeInput(value, expectedType)
+                val jsonNode: JsonNode = objectMapper.readTree(normalized)
+                return parseJsonNode(jsonNode, expectedType)
+            }
         }
 
         return when (rawType) {
@@ -43,7 +44,7 @@ object Parser {
                 val keyType = TypeName(innerTypes[0].trim())
                 val valueType = TypeName(innerTypes[1].trim())
 
-                node.fields().asSequence().associate { (key, valueNode) ->
+                node.properties().asSequence().associate { (key, valueNode) ->
                     parseJsonNode(objectMapper.readTree("\"$key\""), keyType) to parseJsonNode(valueNode, valueType)
                 }
             }
