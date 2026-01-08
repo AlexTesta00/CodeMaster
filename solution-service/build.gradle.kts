@@ -5,8 +5,6 @@ import java.io.File
 import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
 
-
-
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
