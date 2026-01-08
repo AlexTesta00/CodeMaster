@@ -231,7 +231,7 @@ services:
       mongo-solution:
         condition: service_started
     environment:
-      - MONGO_URI=mongodb://localhost:27017/codemaster
+      - MONGO_URI=mongodb://mongo-solution:27017/codemaster-solution-db
       - PORT=4006
       - SOLUTION_RUNNER_PATH=/app/build/tmp/code-run
       - RABBITMQ_URL=amqp://guest:guest@host.docker.internal

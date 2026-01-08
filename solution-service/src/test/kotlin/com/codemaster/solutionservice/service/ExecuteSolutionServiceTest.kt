@@ -1,9 +1,9 @@
 package com.codemaster.solutionservice.service
 
-import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.infrastructure.SolutionRepository
-import codemaster.servicies.solution.infrastructure.docker.DockerRunner
+import codemaster.services.solution.application.SolutionService
+import codemaster.services.solution.domain.model.*
+import codemaster.services.solution.infrastructure.SolutionRepository
+import codemaster.services.solution.infrastructure.docker.DockerRunner
 import com.codemaster.solutionservice.utility.Utility.monoOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec

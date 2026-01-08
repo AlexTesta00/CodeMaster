@@ -1,15 +1,14 @@
 package com.codemaster.solutionservice.interfaces
 
-import codemaster.servicies.solution.Application
-import codemaster.servicies.solution.application.SolutionService
-import codemaster.servicies.solution.domain.model.*
-import codemaster.servicies.solution.domain.dto.SolutionsDTO.*
-import codemaster.servicies.solution.infrastructure.SolutionRepository
-import codemaster.servicies.solution.infrastructure.docker.DockerRunner
-import codemaster.servicies.solution.interfaces.SolutionController
+import codemaster.services.solution.Application
+import codemaster.services.solution.application.SolutionService
+import codemaster.services.solution.domain.model.*
+import codemaster.services.solution.domain.dto.SolutionsDTO.*
+import codemaster.services.solution.infrastructure.SolutionRepository
+import codemaster.services.solution.infrastructure.docker.DockerRunner
+import codemaster.services.solution.interfaces.SolutionController
 import com.codemaster.solutionservice.utility.Utility.monoOf
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.springframework.boot.test.context.SpringBootTest
