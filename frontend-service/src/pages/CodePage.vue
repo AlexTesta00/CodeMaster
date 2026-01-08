@@ -259,9 +259,9 @@ const resetCurrentCode = () => {
     if (original) {
       const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value!.language)
       if (idx !== -1) {
-        availableLanguages.value[idx].templateCode = original.templateCode
+        availableLanguages.value[idx]!.templateCode = original.templateCode
         currentLanguage.value = {
-          ...availableLanguages.value[idx]
+          ...availableLanguages.value[idx]!
         }
         currentCode.value = original.templateCode
       }
@@ -301,8 +301,8 @@ watch(currentCode, (newCode) => {
 
   const idx = availableLanguages.value.findIndex(l => l.language === currentLanguage.value?.language)
   if (idx !== -1) {
-    if (availableLanguages.value[idx].templateCode !== newCode) {
-      availableLanguages.value[idx].templateCode = newCode
+    if (availableLanguages.value[idx]!.templateCode !== newCode) {
+      availableLanguages.value[idx]!.templateCode = newCode
       if (currentLanguage.value !== availableLanguages.value[idx]) {
         currentLanguage.value = availableLanguages.value[idx]
       }

@@ -104,7 +104,7 @@ onMounted(async () => {
         if (isSome(res.user.trophies)) {
           const trophies = Array.from(res.user.trophies.value)
           if (trophies.length > 0) {
-            lastTrophy.value = trophies[trophies.length - 1]
+            lastTrophy.value = trophies[trophies.length - 1]!
           }
         }
 
