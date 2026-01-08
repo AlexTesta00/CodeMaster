@@ -42,7 +42,7 @@ const allowedLanguages = ref<Language[]>([
       fileExtension: '.kt'
     }
     ])
-const languages = ref<Language[]>([allowedLanguages.value[0]])
+const languages = ref<Language[]>([allowedLanguages.value[0]!])
 const difficulties = ref(['EASY', 'MEDIUM', 'HARD'])
 const difficulty = ref(difficulties.value[0])
 
@@ -104,7 +104,7 @@ const handleConfirm = async () => {
   codeQuestStore.setCodeQuestData({
     title: title.value,
     description: description.value,
-    difficulty: difficulty.value,
+    difficulty: difficulty.value!,
     constraints: constraints.value,
     languages: languages.value,
     functionName: functionName.value,

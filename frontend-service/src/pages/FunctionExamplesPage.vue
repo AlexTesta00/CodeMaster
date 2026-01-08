@@ -37,7 +37,7 @@ const examples = ref([
 const canSubmit = computed(() => {
   return examples.value.every(example =>
       example.inputs.length === parameters.value.length &&
-      example.inputs.every((input, i) => isValidInput(input, parameters.value[i].typeName)) &&
+      example.inputs.every((input, i) => isValidInput(input, parameters.value[i]!.typeName)) &&
       isValidOutput(example.output, returnType.value)
   );
 })
@@ -123,7 +123,7 @@ const proceed = async () => {
 watch(examples, () => {
   exampleErrors.value = examples.value.map(ex => {
     const inputsErrors = ex.inputs.map((input, i) =>
-        isValidInput(input, parameters.value[i].typeName) ? null : `Input ${parameters.value[i].name} not valid`
+        isValidInput(input, parameters.value[i]!.typeName) ? null : `Input ${parameters.value[i]!.name} not valid`
     );
     const outputError = isValidOutput(ex.output, returnType.value) ? null : 'Output not valid';
     return {
