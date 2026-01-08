@@ -8,7 +8,8 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
-    id("org.springframework.boot") version "3.5.9"
+
+    id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.4"
     id("dev.detekt") version "2.0.0-alpha.1"
@@ -99,9 +100,10 @@ kover {
 }
 
 detekt {
-    config.setFrom(files("config/detekt/detekt.yml")) // Optional config file
+    config = files("config/detekt/detekt.yml")
     buildUponDefaultConfig = true
-    parallel = true
+    allRules = false
+    ignoreFailures = false
 }
 
 tasks.check {

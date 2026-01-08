@@ -5,7 +5,8 @@ import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
-    id("org.springframework.boot") version "3.5.9"
+
+    id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.4"
     id("dev.detekt") version "2.0.0-alpha.1"
