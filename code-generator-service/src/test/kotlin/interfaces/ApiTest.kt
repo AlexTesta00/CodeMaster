@@ -1,20 +1,11 @@
 import codemaster.services.generator.domain.CodeQuestCode
-import codemaster.services.generator.domain.ExampleCase
-import codemaster.services.generator.domain.FunctionParameter
-import codemaster.services.generator.domain.FunctionSignature
 import codemaster.services.generator.domain.Language
-import codemaster.services.generator.domain.TypeName
 import codemaster.services.generator.domain.codegen.GeneratedCodeEntry
 import codemaster.services.generator.interfaces.CodeGeneratorController
-import codemaster.services.generator.interfaces.dto.ExampleCaseDto
-import codemaster.services.generator.interfaces.dto.FunctionParameterDto
-import codemaster.services.generator.interfaces.dto.GenerateRequestDto
 import codemaster.services.generator.service.CodeGeneratorService
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.coEvery
 import io.mockk.mockk
-import org.apache.commons.codec.language.bm.Lang
-import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 
 class ApiTest : DescribeSpec({

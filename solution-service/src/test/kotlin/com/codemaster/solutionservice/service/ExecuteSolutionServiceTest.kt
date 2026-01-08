@@ -4,6 +4,7 @@ import codemaster.servicies.solution.application.SolutionService
 import codemaster.servicies.solution.domain.model.*
 import codemaster.servicies.solution.infrastructure.SolutionRepository
 import codemaster.servicies.solution.infrastructure.docker.DockerRunner
+import com.codemaster.solutionservice.utility.Utility.monoOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -335,7 +336,3 @@ class ExecuteSolutionServiceTest : DescribeSpec(){
         }
     }
 }
-
-private fun <T> monoOf(value: T?): Mono<T> =
-    if (value != null) Mono.just(value)
-    else Mono.empty()

@@ -43,7 +43,7 @@ class SolutionController(private val service: SolutionService) {
 
 
     @PostMapping("/", produces = ["application/json"])
-    suspend fun addSolution(@RequestBody request: SolutionDTORequest): ResponseEntity<Solution?> {
+    suspend fun addSolution(@RequestBody request: SolutionDTORequest): ResponseEntity<Solution> {
         val solution : Solution
         val codes: MutableList<Code> = mutableListOf()
 
@@ -75,7 +75,7 @@ class SolutionController(private val service: SolutionService) {
     }
 
     @GetMapping("/{id}", produces = ["application/json"])
-    suspend fun getSolution(@PathVariable id: SolutionId): ResponseEntity<Solution?> {
+    suspend fun getSolution(@PathVariable id: SolutionId): ResponseEntity<Solution> {
         val solution: Solution
         try {
             solution = service.getSolution(id)
@@ -89,7 +89,7 @@ class SolutionController(private val service: SolutionService) {
     }
 
     @GetMapping("codequests/{questId}", produces = ["application/json"])
-    suspend fun getSolutionsByCodeQuest(@PathVariable questId: String): ResponseEntity<List<Solution>?> {
+    suspend fun getSolutionsByCodeQuest(@PathVariable questId: String): ResponseEntity<List<Solution>> {
         val solutions : List<Solution>
 
         try {
@@ -104,7 +104,7 @@ class SolutionController(private val service: SolutionService) {
     @GetMapping("/solved/{user}")
     suspend fun getSolvedSolutionsByUser(
         @PathVariable user: String
-    ): ResponseEntity<List<Solution>?> {
+    ): ResponseEntity<List<Solution>> {
         val solutions : List<Solution>
 
         try {
@@ -119,7 +119,7 @@ class SolutionController(private val service: SolutionService) {
     @GetMapping("users/{user}")
     suspend fun getSolutionsByUser(
         @PathVariable user: String
-    ): ResponseEntity<List<Solution>?> {
+    ): ResponseEntity<List<Solution>> {
         val solutions : List<Solution>
 
         try {
@@ -135,7 +135,7 @@ class SolutionController(private val service: SolutionService) {
     suspend fun changeSolutionCode(
         @PathVariable id: SolutionId,
         @RequestBody newCode: CodeDTORequest,
-    ): ResponseEntity<Solution?> {
+    ): ResponseEntity<Solution> {
         val solution : Solution
         try {
             solution = service.modifySolutionCode(
@@ -157,7 +157,7 @@ class SolutionController(private val service: SolutionService) {
     suspend fun executeSolutionCode(
         @PathVariable id : SolutionId,
         @RequestBody request: ExecuteDTORequest
-    ): ResponseEntity<Solution?> {
+    ): ResponseEntity<Solution> {
         val solution : Solution
         try {
             solution = service.executeSolution(
@@ -203,7 +203,7 @@ class SolutionController(private val service: SolutionService) {
     }
 
     @DeleteMapping("/{id}", produces = ["application/json"])
-    suspend fun deleteSolution(@PathVariable id: SolutionId): ResponseEntity<Solution?> {
+    suspend fun deleteSolution(@PathVariable id: SolutionId): ResponseEntity<Solution> {
         val solution: Solution
         try {
             solution = service.deleteSolution(id)
