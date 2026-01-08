@@ -27,7 +27,7 @@ fun findExecutableInPath(executable: String): String? {
 
 subprojects {}
 
-fun dockerCmd(): String? {
+fun dockerCmd(): Any {
     return findExecutableInPath("docker")
         ?: throw GradleException("Docker executable not found in PATH. Please install Docker and ensure it is in your PATH.")
 }
