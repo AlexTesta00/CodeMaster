@@ -12,7 +12,6 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.coEvery
 import io.mockk.mockk
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
@@ -23,11 +22,8 @@ import reactor.core.publisher.Mono
 
 @ContextConfiguration(classes = [Application::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
 @ActiveProfiles("test")
 class ApiTest : DescribeSpec() {
-
-    override fun extensions() = listOf(SpringExtension)
 
     private val repository = mockk<SolutionRepository>()
     private val runner = mockk<DockerRunner>()

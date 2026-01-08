@@ -3,12 +3,14 @@ import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 
 plugins {
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("jvm") version "2.2.20"
+    kotlin("plugin.spring") version "2.2.20"
+
     id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
+
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("dev.detekt") version("2.0.0-alpha.1")
     id("application")
 }
 
@@ -96,9 +98,10 @@ kover {
 }
 
 detekt {
-    config.setFrom(files("config/detekt/detekt.yml"))
+    config = files("config/detekt/detekt.yml")
     buildUponDefaultConfig = true
-    parallel = true
+    allRules = false
+    ignoreFailures = false
 }
 
 tasks.check {
