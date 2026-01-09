@@ -161,6 +161,10 @@ services:
         condition: service_healthy
       mongo-generator:
         condition: service_started
+    environment:
+      - MONGO_URI=mongodb://mongo-generator:27017/codemaster-generator-db
+      - PORT=4008
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:4008/api/v1/code-generator/health || exit 1" ]
       interval: 10s
