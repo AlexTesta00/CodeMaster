@@ -38,7 +38,7 @@ tasks.register<Exec>("dockerCompose") {
     commandLine(
         dockerCmd(),
         "compose",
-        "-f", "docker-compose.yml",
+        "-f", "docker-compose.net.yml",
         "-f", "docker-compose.mongo.yml",
         "-f", "docker-compose.services.yml",
         "-f", "docker-compose.docs.yml",
