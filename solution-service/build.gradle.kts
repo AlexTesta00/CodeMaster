@@ -6,8 +6,8 @@ import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
 
 plugins {
-    kotlin("jvm") version "2.2.20"
-    kotlin("plugin.spring") version "2.2.20"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
     id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlinx.kover") version "0.9.4"
@@ -48,7 +48,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.28.0")
     testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
-    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.22.0")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.23.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage")
     }
