@@ -5,6 +5,8 @@ import java.io.File
 import org.gradle.api.tasks.Exec
 import org.gradle.internal.os.OperatingSystem
 
+
+
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
@@ -98,10 +100,9 @@ kover {
 }
 
 detekt {
-    config = files("config/detekt/detekt.yml")
+    config.setFrom(files("config/detekt/detekt.yml")) // Optional config file
     buildUponDefaultConfig = true
-    allRules = false
-    ignoreFailures = false
+    parallel = true
 }
 
 tasks.check {

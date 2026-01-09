@@ -336,3 +336,7 @@ class ExecuteSolutionServiceTest : DescribeSpec(){
         }
     }
 }
+
+private fun <T> monoOf(value: T?): Mono<T> =
+    if (value != null) Mono.just(value)
+    else Mono.empty()
