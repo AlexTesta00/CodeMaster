@@ -15,27 +15,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  mongo-user:
-    image: mongo:noble
-    command: ['mongod', '--quiet', '--logpath', '/dev/null']
-    ports:
-      - '27017:27017'
-    volumes:
-      - mongo_data_user:/codemaster/user/db
-
-  mongo-express-user:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8081:8081'
-    depends_on:
-      mongo-user:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-user:27017/codemaster-user-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-user-service:
     build:
@@ -59,27 +40,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  mongo-authentication:
-    image: mongo:noble
-    command: ['mongod', '--quiet', '--logpath', '/dev/null']
-    ports:
-      - '27018:27017'
-    volumes:
-      - mongo_data_authentication:/codemaster/authentication/db
-
-  mongo-express-authentication:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8082:8081'
-    depends_on:
-      mongo-authentication:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-authentication:27017/codemaster-authentication-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-authentication-service:
     build:
@@ -105,27 +67,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  mongo-codequest:
-    image: mongo:noble
-    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
-    ports:
-      - '27019:27017'
-    volumes:
-      - mongo_data_codequest:/codemaster/codequest/db
-
-  mongo-express-codequest:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8083:8081'
-    depends_on:
-      mongo-codequest:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-codequest:27017/codemaster-codequest-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-codequest-service:
     build:
@@ -149,27 +92,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  mongo-community:
-    image: mongo:noble
-    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
-    ports:
-      - '27021:27017'
-    volumes:
-      - mongo_data_community:/codemaster/community/db
-
-  mongo-express-community:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8085:8081'
-    depends_on:
-      mongo-community:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-community:27017/codemaster-community-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-community-service:
     build:
@@ -193,27 +117,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  mongo-solution:
-    image: mongo:noble
-    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
-    ports:
-      - '27020:27017'
-    volumes:
-      - mongo_data_solution:/codemaster/solution/db
-
-  mongo-express-solution:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8084:8081'
-    depends_on:
-      mongo-solution:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-solution:27017/codemaster-solution-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-solution-service:
     build:
@@ -241,27 +146,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  mongo-generator:
-    image: mongo:noble
-    command: [ 'mongod', '--quiet', '--logpath', '/dev/null' ]
-    ports:
-      - '27022:27017'
-    volumes:
-      - mongo_data_generator:/codemaster/generator/db
-
-  mongo-express-generator:
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: always
-    ports:
-      - '8086:8081'
-    depends_on:
-      mongo-generator:
-        condition: service_started
-    environment:
-      ME_CONFIG_MONGODB_URL: "mongodb://mongo-generator:27017/codemaster-generator-db"
-      ME_CONFIG_BASICAUTH_USERNAME: "admin"
-      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    networks:
+      - codemaster-net
 
   codemaster-generator-service:
     build:
@@ -281,6 +167,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - codemaster-net
 
   api-gateway:
     build:
@@ -301,19 +189,13 @@ services:
         condition: service_started
       codemaster-generator-service:
         condition: service_started
-
-  codemaster-docs:
-    build:
-      context: ./docs
-      dockerfile: Dockerfile
-    ports:
-      - '3001:3000'
-    restart: always
+    networks:
+      - codemaster-net
 
   populate-db:
     build:
-        context: ./populate-db
-        dockerfile: Dockerfile
+      context: ./populate-db
+      dockerfile: Dockerfile
     depends_on:
       codemaster-authentication-service:
         condition: service_healthy
@@ -330,7 +212,9 @@ services:
     volumes:
       - ./populate-db:/app
     working_dir: /app
-    command: ["sh", "-c", "sleep 20 && python db-service.py"]
+    command: [ "sh", "-c", "sleep 20 && python db-service.py" ]
+    networks:
+      - codemaster-net
 
   frontend-service:
     build:
@@ -349,13 +233,9 @@ services:
         condition: service_healthy
     ports:
       - "5173:5173"
+    networks:
+      - codemaster-net
 
 volumes:
-  mongo_data_user:
-  mongo_data_authentication:
-  mongo_data_codequest:
-  mongo_data_solution:
-  mongo_data_community:
-  mongo_data_generator:
   runner-cache:
   rabbitmq_data:
