@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.9_10-jdk AS builder
+FROM eclipse-temurin:21.0.12_8-jdk AS builder
 WORKDIR /codemaster-solution-service
 COPY gradlew .
 COPY gradle gradle
@@ -6,7 +6,7 @@ COPY . .
 RUN chmod +x ./gradlew
 RUN ./gradlew clean build --no-daemon --stacktrace -x test
 
-FROM eclipse-temurin:21.0.9_10-jre
+FROM eclipse-temurin:21.0.12_8-jre
 WORKDIR /codemaster-solution-service
 
 RUN apt-get update && apt-get install -y \
